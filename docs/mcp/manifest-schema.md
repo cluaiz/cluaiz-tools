@@ -29,19 +29,19 @@ This document defines the single-source package specification for MCP Connectors
     "plugins": {
       "text": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/plugins/text/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/text/package.json"
       }
     },
     "mcp": {
       "filesystem": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/mcp/filesystem/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json"
       }
     },
     "skills": {
       "learn-cluaiz": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/skills/learn-cluaiz/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
       }
     }
   },

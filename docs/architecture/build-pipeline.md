@@ -17,7 +17,7 @@ The entire CI/CD pipeline is **Data-Driven**. There is a single Master Python Sc
 To maintain order across thousands of plugins, the Hub uses a strict 3-tier routing architecture.
 
 ### A. The Master Registry (`registry.json`)
-Located at the root of `cluaiz-hub/`. It is the absolute entry point for the Cluaiz Engine. It maps every top-level category to its respective `family.json` file.
+Located at the root of `cluaiz-tools/`. It is the absolute entry point for the Cluaiz Engine. It maps every top-level category to its respective `family.json` file.
 ```json
 {
   "version": "1.0.0",
@@ -77,7 +77,7 @@ Here is a full example of a structured Plugin package:
     "Cross-platform",
     "Retrieval"
   ],
-  "documentation": "https://github.com/cluaiz/cluaiz-hub/blob/main/plugins/cluaiz-search/README.md",
+  "documentation": "https://github.com/cluaiz/cluaiz-tools/blob/main/plugins/cluaiz-search/README.md",
   "latest_version": "0.1.0",
   "versions": {
     "0.1.0": {
@@ -85,15 +85,15 @@ Here is a full example of a structured Plugin package:
       "builds_os": ["windows", "macos", "linux"],
       "changelog": "Nightly release with latest native performance improvements.",
       "os": {
-        "windows": "https://github.com/cluaiz/cluaiz-hub/releases/download/ext-cluaiz-search-v0.1.0/cluaiz-search_windows_x64.dll",
-        "macos": "https://github.com/cluaiz/cluaiz-hub/releases/download/ext-cluaiz-search-v0.1.0/libcluaiz-search_macos_arm64.dylib",
-        "linux": "https://github.com/cluaiz/cluaiz-hub/releases/download/ext-cluaiz-search-v0.1.0/libcluaiz-search_linux_x64.so"
+        "windows": "https://github.com/cluaiz/cluaiz-tools/releases/download/ext-cluaiz-search-v0.1.0/cluaiz-search_windows_x64.dll",
+        "macos": "https://github.com/cluaiz/cluaiz-tools/releases/download/ext-cluaiz-search-v0.1.0/libcluaiz-search_macos_arm64.dylib",
+        "linux": "https://github.com/cluaiz/cluaiz-tools/releases/download/ext-cluaiz-search-v0.1.0/libcluaiz-search_linux_x64.so"
       },
       "files": {
         "skill": "/SKILL.md",
         "scripts": "/scripts",
         "references": "/references",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/ext-cluaiz-search-v0.1.0/cluaiz-search-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/ext-cluaiz-search-v0.1.0/cluaiz-search-files.zip"
       }
     }
   }

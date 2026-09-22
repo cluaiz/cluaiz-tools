@@ -115,7 +115,7 @@ cp target/wasm32-unknown-unknown/release/hasher.wasm logic.wasm
       "files": {
         "binary": "logic.wasm",
         "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/v1.0.0/hasher-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/hasher-files.zip"
       }
     }
   }

@@ -52,7 +52,7 @@ ability to interact with the outside world through standardized protocols.
 ## Repository structure
 
 ```
-cluaiz-hub/
+cluaiz-tools/
 ├── skills/                      # All skills, organized by category
 │   ├── productivity/
 │   │   ├── pdf-extractor/

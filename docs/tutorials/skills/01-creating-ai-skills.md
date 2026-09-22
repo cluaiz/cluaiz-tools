@@ -44,7 +44,7 @@ Create a `package.json`. This file tells the engine what capabilities the skill 
     "plugins": {
       "cluaiz-search": {
         "version": "^0.1.1",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/plugins/web-search/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
       }
     },
     "mcp": {},

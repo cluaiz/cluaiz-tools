@@ -1,6 +1,6 @@
 # 🏗️ Cluaiz End-to-End System Architecture
 
-This document defines the high-level architecture of the Cluaiz ecosystem, detailing the sovereign boundaries between the core Rust Inference Engine (`cluaiz`) and the decentralized extension registry (`cluaiz-hub`).
+This document defines the high-level architecture of the Cluaiz ecosystem, detailing the sovereign boundaries between the core Rust Inference Engine (`cluaiz`) and the decentralized extension registry (`cluaiz-tools`).
 
 ---
 

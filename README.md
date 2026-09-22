@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/cluaiz-hub.webp" alt="The Official Registry for the Cluaiz Ecosystem." width="100%">
+  <img src="assets/cluaiz-tools.webp" alt="The Official Registry for the Cluaiz Ecosystem." width="100%">
 </p>
 
 <h1 align="center">Cluaiz Hub</h1>
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/cluaiz/cluaiz-hub/actions"><img src="https://img.shields.io/badge/Registry-Verified-success?style=for-the-badge" alt="Registry Status"></a>
+  <a href="https://github.com/cluaiz/cluaiz-tools/actions"><img src="https://img.shields.io/badge/Registry-Verified-success?style=for-the-badge" alt="Registry Status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="Apache 2.0 License"></a>
   <img src="https://img.shields.io/badge/Runtime-Rust_WASM_%26_Native-orange?style=for-the-badge" alt="Runtime">
 </p>

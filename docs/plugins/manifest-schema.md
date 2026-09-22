@@ -31,19 +31,19 @@ This document defines the single-source package specification for Plugins in the
     "plugins": {
       "text": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/plugins/text/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/text/package.json"
       }
     },
     "mcp": {
       "fetch": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/mcp/fetch/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/fetch/package.json"
       }
     },
     "skills": {
       "learn-cluaiz": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/skills/learn-cluaiz/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
       }
     }
   },
@@ -57,7 +57,7 @@ This document defines the single-source package specification for Plugins in the
       "files": {
         "binary": "logic.wasm",
         "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/v1.0.0/math-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/math-files.zip"
       }
     }
   }

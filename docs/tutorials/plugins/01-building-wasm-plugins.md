@@ -9,7 +9,7 @@ category: "Tutorials"
 In the cluaiz ecosystem, a **WASM Plugin** provides secure, sandboxed execution (`type: plugin`). Plugins run entirely within the Engine's WASM sandbox with strict CPU fuel limits and RAM caps.
 
 > [!TIP]
-> **For more details, reference:** [`skill_architecture.md`](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-hub/docs/architecture/skill_architecture.md)
+> **For more details, reference:** [`skill_architecture.md`](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/architecture/skill_architecture.md)
 > 
 > For **Plugins**, creating a `SKILL.md` file is **OPTIONAL but RECOMMENDED**. While a plugin can execute blindly, providing a `SKILL.md` teaches the AI how to use it properly and gives the AI the power to understand the tool's context.
 
@@ -60,7 +60,7 @@ Every plugin requires a `package.json` to define identity, distribution links, a
       "files": {
         "binary": "logic.wasm",
         "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/v1.0.0/math-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/math-files.zip"
       }
     }
   }

@@ -43,7 +43,7 @@ Create `package.json` with package metadata and dependencies:
     "mcp": {
       "git": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/mcp/git/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json"
       }
     },
     "skills": {}
@@ -55,7 +55,7 @@ Create `package.json` with package metadata and dependencies:
       "files": {
         "skill": "/SKILL.md",
         "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/v1.0.0/git-assistant-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/git-assistant-files.zip"
       }
     }
   }

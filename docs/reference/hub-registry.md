@@ -7,7 +7,7 @@ This document defines how packages are indexed, versioned, and distributed acros
 ## 🗂️ 1. Registry Topology & File Hierarchy
 
 ```
-cluaiz-hub/
+cluaiz-tools/
 ├── registry.json             ← Root Router
 ├── skills/
 │   ├── family.json           ← Index of all published Skills
@@ -99,7 +99,7 @@ Every package must contain a `package.json` defining semver versions, dependenci
       "files": {
         "binary": "logic.wasm",
         "icon": "assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-hub/releases/download/v1.0.0/math-files.zip"
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/math-files.zip"
       }
     }
   }

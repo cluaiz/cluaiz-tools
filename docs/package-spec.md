@@ -27,19 +27,19 @@ Cluaiz Hub uses **SemVer caret ranges (`^`) with remote metadata URLs** to achie
   "plugins": {
     "text": {
       "version": "^1.0.0",
-      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/plugins/text/package.json"
+      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/text/package.json"
     }
   },
   "mcp": {
     "fetch": {
       "version": "^1.0.0",
-      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/mcp/fetch/package.json"
+      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/fetch/package.json"
     }
   },
   "skills": {
     "learn-cluaiz": {
       "version": "^1.0.0",
-      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-hub/main/skills/learn-cluaiz/package.json"
+      "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
     }
   }
 }

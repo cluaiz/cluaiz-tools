@@ -97,7 +97,7 @@ The CLI will download the `SKILL.md` and all linked assets to
 
 ## 5. Publish
 
-Commit your skill folder and push to the `cluaiz-hub` repository. The
+Commit your skill folder and push to the `cluaiz-tools` repository. The
 GitHub Action will automatically rebuild `registry.json` and create a release.
 
 ```bash
