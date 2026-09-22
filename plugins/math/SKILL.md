@@ -24,5 +24,10 @@ This plugin provides exact, deterministic arithmetic, trigonometry, calculus, an
 }
 ```
 
-## ⚡ Triggers
-Emit `<TRIGGER:plugin:math>{"expression": "<math_expr>"}</TRIGGER>` when exact numeric precision is required.
+## ⚡ Usage
+Emit standard tool call when exact numeric precision is required:
+```xml
+<tool_call>
+{"name": "math_evaluate", "arguments": {"expression": "<math_expr>"}}
+</tool_call>
+```

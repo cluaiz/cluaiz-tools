@@ -26,21 +26,18 @@ A `SKILL.md` file consists of two parts:
 
 ```markdown
 ---
+name: math-accelerator
 title: "Fast Math Accelerator"
 version: "1.0.0"
 description: "Equips the AI with an exact, hardware-accelerated math calculation tool."
 author: "Cluaiz"
-soul_type: "PROMPT_CACHE"
 keywords: ["math", "calculator", "add", "multiply", "divide"]
 triggers:
   semantic: ["calculate", "math problem"]
-  entropy_threshold: 0.82
 permissions:
   level: "ReadOnly"
   filesystem: false
   network: false
-core_metadata:
-  token_count: 145
 ---
 
 # Math Execution Protocol
@@ -58,19 +55,19 @@ Once the engine returns `$result`, you must present the final number clearly to 
 
 ## Understanding the Frontmatter
 
-The Engine uses the YAML frontmatter to index the skill and route requests without blowing up VRAM.
+The Engine uses the YAML frontmatter to index the skill and route requests efficiently.
 
 | Field | Purpose |
 |-------|---------|
-| `description` | Dense summary (**Max 360 chars**). The Engine feeds this directly into the embedding model to represent the skill in vector space. |
-| `keywords` | Rapid matching triggers (**Max 10 tags**). Exceeding 10 causes "Semantic Entropy Dilution," degrading the engine's confidence score. |
-| `triggers.entropy_threshold` | Strict confidence baseline (0.0 to 1.0). If the semantic match score is below this, the engine aborts loading to prevent hallucinations. |
-| `core_metadata.token_count` | The exact token footprint of your markdown body. The VRAM Arbiter uses this to verify GPU memory before injecting the prompt, preventing OOM crashes. |
+| `name` | Unique kebab-case name of the skill. |
+| `description` | Concise summary of the skill's capabilities. |
+| `triggers.semantic` | Exact keywords and semantic phrases that activate this skill when matched. |
+| `permissions` | Access controls defining whether the tool needs filesystem, network, or read-only access. |
 
 ---
 
 ## Why Provide a `SKILL.md`?
 
-1. **Eliminate Hallucination:** If you just expose a "database" MCP, the AI might hallucinate SQL. By providing a `SKILL.md`, you teach it the *exact* CEL syntax.
-2. **VRAM Efficiency:** Instead of dumping instructions in a global prompt, the `SKILL.md` is lazily loaded only when the `entropy_threshold` is met.
+1. **Eliminate Hallucination:** If you just expose a tool or MCP, the AI might hallucinate commands. By providing a `SKILL.md`, you teach it the *exact* syntax and constraints.
+2. **Context Efficiency:** Instead of dumping instructions in a global prompt, the `SKILL.md` is lazily loaded only when a relevant trigger is matched.
 3. **Safety Boundaries:** The frontmatter defines explicit `permissions.level` (e.g., `ReadOnly`), ensuring the AI cannot accidentally trick your tool into deleting files.

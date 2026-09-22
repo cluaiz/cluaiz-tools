@@ -36,5 +36,10 @@ This plugin supplies accurate, real-time operating system clock and locale metad
 }
 ```
 
-## ⚡ Triggers
-Emit `<TRIGGER:plugin:time>{}</TRIGGER>` whenever date, time, year, or day calculations are requested.
+## ⚡ Usage
+Emit standard tool call when local date, clock, UTC timestamp, or timezone is required:
+```xml
+<tool_call>
+{"name": "time_now", "arguments": {}}
+</tool_call>
+```

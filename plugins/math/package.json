@@ -16,6 +16,22 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "math_evaluate",
+      "description": "Evaluate exact mathematical expressions, calculus, and arithmetic deterministically without hallucination",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "description": "Mathematical expression to compute (e.g. 'sqrt(144) * 25' or 'sin(pi / 4)')"
+          }
+        },
+        "required": ["expression"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

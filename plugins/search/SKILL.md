@@ -23,5 +23,10 @@ This plugin indexes and searches local workspace markdown, source code comments,
 }
 ```
 
-## ⚡ Triggers
-Emit `<TRIGGER:plugin:search>{"query": "<search_term>"}</TRIGGER>` to search local project resources.
+## ⚡ Usage
+Emit standard tool call when local project or workspace search is required:
+```xml
+<tool_call>
+{"name": "workspace_search", "arguments": {"query": "<search_term>"}}
+</tool_call>
+```

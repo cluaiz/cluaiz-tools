@@ -26,5 +26,10 @@ This plugin retrieves host CPU, memory, platform, and operating system metrics d
 }
 ```
 
-## ⚡ Triggers
-Emit `<TRIGGER:plugin:sysinfo>{}</TRIGGER>` when checking available system memory or host environment.
+## ⚡ Usage
+Emit standard tool call when host hardware metrics or system telemetry is required:
+```xml
+<tool_call>
+{"name": "sysinfo_telemetry", "arguments": {}}
+</tool_call>
+```

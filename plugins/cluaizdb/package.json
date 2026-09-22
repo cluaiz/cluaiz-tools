@@ -16,6 +16,31 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "cluaizdb_query",
+      "description": "Execute deterministic CDQL database query or vector search across local neural database",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["find", "insert", "vector_search"],
+            "description": "Database operation"
+          },
+          "collection": {
+            "type": "string",
+            "description": "Target collection or entity name"
+          },
+          "query": {
+            "type": "string",
+            "description": "Filter criteria, JSON document to insert, or vector search query"
+          }
+        },
+        "required": ["action", "collection"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

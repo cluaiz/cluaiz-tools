@@ -33,7 +33,6 @@ triggers:
     - summarize
     - bullet-points
     - key-points
-  entropy_threshold: 0.6
 ---
 
 # Skill: Document Summarizer

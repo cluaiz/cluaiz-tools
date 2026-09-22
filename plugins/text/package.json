@@ -16,6 +16,31 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "text_transform",
+      "description": "Deterministic string manipulation, regex pattern extraction, cryptographic hashing (SHA256), and base64 encoding/decoding",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["hash_sha256", "regex_match", "base64_encode", "base64_decode", "diff"],
+            "description": "The exact transformation action to execute"
+          },
+          "input": {
+            "type": "string",
+            "description": "Source text to transform or hash"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Optional regular expression pattern for regex extraction"
+          }
+        },
+        "required": ["action", "input"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

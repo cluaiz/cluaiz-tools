@@ -26,5 +26,10 @@ This plugin provides exact string manipulation, pattern matching, cryptographic 
 }
 ```
 
-## ⚡ Triggers
-Emit `<TRIGGER:plugin:text>{"action": "sha256", "input": "text"}</TRIGGER>` for deterministic data hashing or string operations.
+## ⚡ Usage
+Emit standard tool call when deterministic text transformation, regex extraction, or hashing is required:
+```xml
+<tool_call>
+{"name": "text_transform", "arguments": {"action": "hash_sha256", "input": "text to hash"}}
+</tool_call>
+```

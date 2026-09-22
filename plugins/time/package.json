@@ -16,6 +16,22 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "time_now",
+      "description": "Retrieve exact real-time local date, system clock, UTC timestamp, timezone, and OS locale metadata offline",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "Optional timezone identifier (e.g. 'UTC', 'America/New_York', or local system default)"
+          }
+        },
+        "required": []
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

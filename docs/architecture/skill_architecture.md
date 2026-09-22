@@ -47,16 +47,13 @@ The YAML frontmatter perfectly maps to the engine's `SkillManifest` struct in Ru
 | `description` | `String` | `manifest.description`| Dense semantic summary. **Max 360 characters.**<br><details><summary><b>Engine Handling</b></summary>Fed directly into embedding model. 360 chars is optimal for dense vector representation without diluting meaning or wasting VRAM.</details> |
 | `keywords` | `Vec<String>`| `manifest.keywords`| Rapid AI matching triggers. **Max 10 tags.**<br><details><summary><b>Engine Handling</b></summary>Exceeding 10 tags causes Semantic Entropy Dilution (keyword stuffing), which actively degrades engine confidence score during vector similarity search.</details> |
 | `author` | `String` | `manifest.author` | Creator name. |
-| `soul_type` | `String` | `manifest.soul_type` | Low-level execution mode (e.g., `PROMPT_CACHE`, `STEERING_VECTOR`, `LORA_PATCH`). |
 | `triggers.semantic` | `Vec<String>` | `triggers.semantic` | Natural language phrases that the `SkillRouter` listens for. |
-| `triggers.entropy_threshold` | `f32` | `triggers.entropy_threshold`| Strict confidence baseline (0.0 to 1.0).<br><details><summary><b>Engine Handling</b></summary>If vector similarity score is below this, engine aborts loading to prevent hallucinations.</details> |
-| `triggers.hard_trigger_tokens`| `Vec<String>`| `triggers.hard_trigger_tokens`| Exact string matches that bypass semantic search and force immediate `EAGER` load of skill into RAM. |
+| `triggers.hard_trigger_tokens`| `Vec<String>`| `triggers.hard_trigger_tokens`| Exact string matches that bypass semantic search and force immediate load of skill. |
 | `permissions.level` | `String` | `permissions.level` | Security boundary (`ReadOnly`, `ReadWrite`, or `Admin`). |
-| `permissions.filesystem` | `bool` | `permissions.filesystem`| File IO access.<br><details><summary><b>Engine Handling</b></summary>If `false`, Syscall Interceptor immediately kills WASM sandbox on file read attempt.</details> |
-| `permissions.network` | `bool` | `permissions.network` | Outbound network access.<br><details><summary><b>Engine Handling</b></summary>If `false`, Syscall Interceptor kills WASM sandbox on outbound HTTP request attempt.</details> |
+| `permissions.filesystem` | `bool` | `permissions.filesystem`| File IO access. |
+| `permissions.network` | `bool` | `permissions.network` | Outbound network access. |
 | `permissions.mcp_servers` | `Vec<String>` | `permissions.mcp_servers` | Allowed MCP connections. |
-| `core_metadata.token_count` | `usize` | `Core_metadata.token_count`| Exact pre-computed token footprint of the `SKILL.md` body.<br><details><summary><b>Engine Handling</b></summary>VRAM Arbiter uses this to verify physical GPU memory before M-RoPE injection, preventing OOM crashes.</details> |
-| `links` | `Object` | (Handled by Resource Loader)| Relative paths to `logic.wasm` and `state.kvcache.bin`.<br><details><summary><b>Engine Handling</b></summary>Engine uses `memmap2` to map files directly from SSD to physical RAM, skipping I/O bottlenecks.</details> |
+| `links` | `Object` | (Handled by Resource Loader)| Relative paths to associated files. |
 
 ### The Agent Prompt (Markdown Body)
 

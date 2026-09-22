@@ -21,6 +21,22 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "cluaiz_search",
+      "description": "Perform live internet search and retrieve up-to-date facts, documentation, or news",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query string"
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
   "latest_version": "0.1.1",
   "versions": {
     "0.1.1": {

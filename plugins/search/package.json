@@ -16,6 +16,26 @@
     "mcp": {},
     "skills": {}
   },
+  "functions": [
+    {
+      "name": "workspace_search",
+      "description": "High performance local workspace documentation, source code comments, and keyword retrieval engine",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Keyword or topic to search for in local project workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of search results to return (default: 5)"
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

@@ -20,7 +20,7 @@ DuckDuckGo is a traditional keyword-based search engine.
 
 ## Context Management (`exclude_rules`)
 
-When fetching URLs, the `cluaiz-search` engine automatically strips HTML. However, many sites contain heavy boilerplate (navbars, footers, ad blocks) that can pollute your context window and dilute the `entropy_threshold`.
+When fetching URLs, the `cluaiz-search` engine automatically strips HTML. However, many sites contain heavy boilerplate (navbars, footers, ad blocks) that can pollute your context window and dilute attention quality.
 
 To prevent this, you can pass `exclude_rules` in your CEL command.
 ```cel

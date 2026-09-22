@@ -10,18 +10,12 @@ trigger: use plugin::database
 You are equipped with the cluaiz Core Database Engine. This allows you to persist data, manage users, and perform neural/vector searches.
 
 ## Grammar & Usage
-To interact with the database, you must output raw CEL (Cluaiz Engine Language) commands. The engine will intercept these commands and route them to the native muscle (`cluaizd_engine.dll`).
+To interact with the database, emit a standard tool call:
 
-### Finding Data
-Use the `find` command with CDQL filters.
-```cel
-use plugin::database -> find User -> filter age >= 18 -> limit 10
-```
-
-### Storing Data
-Use the `insert` command.
-```cel
-use plugin::database -> insert User(name: "John Doe", age: 30)
+```xml
+<tool_call>
+{"name": "cluaizdb_query", "arguments": {"action": "find", "collection": "User", "query": "age >= 18"}}
+</tool_call>
 ```
 
 ## Constraints

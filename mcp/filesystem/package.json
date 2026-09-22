@@ -15,6 +15,10 @@
     "mcp": {},
     "skills": {}
   },
+  "execution": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+  },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

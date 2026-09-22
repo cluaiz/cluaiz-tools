@@ -10,30 +10,21 @@ Every `SKILL.md` consists of two distinct parts separated by triple-dashes (`---
 
 ```markdown
 ---
-id: cluaiz.skill.engineering.code-reviewer
 name: code-reviewer
 version: 1.0.0
 description: Strict multi-language code quality, security vulnerability, and DRY enforcement protocol.
 author: Aryan
-soul_type: markdown
-
-compatibility:
-  min_hidden_dim: 2048
-  model_families:
-    - UNIVERSAL
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-  mcp_servers: []
 
 triggers:
   semantic:
     - "review this code"
     - "audit security"
     - "check bugs"
-  entropy_threshold: 0.7
+
+allowed-tools:
+  - read_file
+  - grep_search
+  - git_diff
 ---
 
 # 🛡️ Code Reviewer Protocol

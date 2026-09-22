@@ -46,29 +46,15 @@ version: 1.0.0
 
 ```yaml
 ---
-id: cluaiz.skill.ops.storage
 name: storage-probe
 version: 1.0.0
 description: Hardware-level storage health and speed benchmarking.
 author: Cluaiz
-soul_type: STEERING_VECTOR
-
-compatibility:
-  min_hidden_dim: 2048
-  model_families:
-    - UNIVERSAL
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-  mcp_servers: []
 
 triggers:
   semantic:
     - storage-probe
     - disk-benchmark
-  entropy_threshold: 0.7
 
 links:
   wasm: "./logic.wasm"
@@ -80,20 +66,12 @@ links:
 
 | Field | Type | Description |
 |---|---|---|
-| `id` | `string` | Unique skill identifier (e.g., `cluaiz.skill.ops.storage`). |
 | `name` | `string` | Skill name. Must match the directory name. Lowercase `kebab-case`. |
 | `version` | `string` | Semver version string. |
 | `description` | `string` | What this skill does. Also used as the summary in registry search. |
 | `author` | `string` | Skill author or organization. |
-| `soul_type` | `string` | Engine execution mode: `PROMPT_CACHE`, `STEERING_VECTOR`, `LORA_PATCH`, or `markdown`. |
-| `compatibility.min_hidden_dim` | `int` | Minimum model hidden dimension required. |
-| `compatibility.model_families` | `string[]` | Model families supported (e.g., `UNIVERSAL`, `LLAMA`, `MISTRAL`). |
-| `permissions.filesystem` | `bool` | Whether the skill can read/write the filesystem. |
-| `permissions.network` | `bool` | Whether the skill can make network requests. |
-| `permissions.level` | `string` | Access level: `ReadOnly`, `ReadWrite`, or `Admin`. |
-| `permissions.mcp_servers` | `string[]` | Allowed MCP server connections. |
 | `triggers.semantic` | `string[]` | Semantic keywords that activate this skill. |
-| `triggers.entropy_threshold` | `float` | Confidence threshold (0.0–1.0) before the agent loads this skill. |
+| `allowed-tools` | `string[]` | Optional tool whitelist for sandboxing (e.g. `[read_file, grep_search]`). |
 | `links` | `object` | Paths to associated asset files (see "Linking assets" below). |
 
 ### Linking assets
