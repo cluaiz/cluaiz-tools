@@ -3,6 +3,7 @@
   "name": "Cluaiz Skills",
   "items": {
     "code-reviewer": "code-reviewer/package.json",
+    "code-interpreter": "code-interpreter/package.json",
     "tdd-workflow": "tdd-workflow/package.json",
     "tool-creator": "tool-creator/package.json",
     "spec-driven": "spec-driven/package.json",

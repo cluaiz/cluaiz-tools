@@ -3,7 +3,7 @@
   "name": "Code Reviewer",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Strict multi-language code quality, security vulnerability, memory safety, and DRY enforcement protocol.",
+  "description": "Multi-language code quality, security vulnerability, memory safety, and DRY enforcement protocol across local git changes, pasted snippets, and pull requests.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
@@ -18,9 +18,20 @@
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+      "updated_at": "2026-09-22T12:00:00Z",
       "files": {
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "references": [
+          "references/security_checklist.md",
+          "references/review_rubric.md"
+        ],
+        "scripts": [
+          "scripts/extract_diff.py"
+        ],
+        "assets": [
+          "assets/icon.svg",
+          "assets/report_template.md"
+        ]
       }
     }
   }

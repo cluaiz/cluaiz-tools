@@ -1,22 +1,8 @@
 ---
-id: cluaiz.skill.education.learn-cluaiz
 name: learn-cluaiz
 version: 1.0.0
 description: Technical tutorial and architecture guide for the Cluaiz ecosystem.
 author: Aryan
-soul_type: markdown
-
-compatibility:
-  min_hidden_dim: 2048
-  model_families:
-    - UNIVERSAL
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-  mcp_servers: []
-
 triggers:
   semantic:
     - "learn cluaiz"
@@ -25,7 +11,6 @@ triggers:
     - "cluaiz architecture"
     - "explain cel"
     - "explain tools in cluaiz"
-  entropy_threshold: 0.7
 ---
 
 # 🎓 Cluaiz Architecture & Developer Guide

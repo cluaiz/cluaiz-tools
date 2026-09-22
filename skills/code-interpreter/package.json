@@ -1,0 +1,35 @@
+{
+  "id": "code-interpreter",
+  "name": "Code Interpreter",
+  "category": "engineering",
+  "hub_type": "skill",
+  "description": "Multi-language code execution and verification protocol supporting Python, JavaScript/Node.js, and 30+ languages with zero-dependency OS detection and iterative debugging.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": ["Python", "Node.js", "Execution", "Sandbox", "Code Interpreter", "Code Runner"],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-22T12:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "references": [
+          "references/LANGUAGES.md",
+          "references/runtime_matrix.md",
+          "references/safety_sandbox.md"
+        ],
+        "assets": [
+          "assets/execution_report.md"
+        ]
+      }
+    }
+  }
+}

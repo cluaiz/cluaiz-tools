@@ -1,22 +1,8 @@
 ---
-id: cluaiz.skill.engineering.tool-creator
 name: tool-creator
 version: 1.0.0
 description: Autonomous tool scaffolding, compilation, and validation foundry for Skills, WASM Plugins, and MCP Servers in the Cluaiz ecosystem.
 author: Aryan
-soul_type: markdown
-
-compatibility:
-  min_hidden_dim: 2048
-  model_families:
-    - UNIVERSAL
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-  mcp_servers: []
-
 triggers:
   semantic:
     - "create plugin"
@@ -27,7 +13,6 @@ triggers:
     - "tool foundry"
     - "generate tool"
     - "build tool"
-  entropy_threshold: 0.7
 ---
 
 # 🛠️ Tool Creator Protocol
@@ -97,24 +82,14 @@ execution:
 ### 2. `SKILL.md` Authoring Formula:
 ```markdown
 ---
-id: cluaiz.skill.<domain>.<skill-name>
 name: <skill-name>
 version: 1.0.0
 description: High-precision summary of cognitive capabilities.
 author: Aryan
-soul_type: markdown
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-  mcp_servers: []
-
 triggers:
   semantic:
     - "primary keyword trigger"
     - "secondary action phrase"
-  entropy_threshold: 0.7
 ---
 
 # 🛡️ Protocol Title
