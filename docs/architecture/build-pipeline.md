@@ -1,6 +1,6 @@
-# 🏛️ The Cluaiz Hub Architecture & Dynamic Build Pipeline
+# 🏛️ The Cluaiz Tools Architecture & Dynamic Build Pipeline
 
-This document serves as the **Single Source of Truth** for the Cluaiz Hub's Data-Driven CI/CD Pipeline and Package Architecture. It explains exactly how the registries work, how the `package.json` schema controls the build process, and provides a step-by-step guide for developers on how to create, build, and release plugins, skills, and MCP servers.
+This document serves as the **Single Source of Truth** for the Cluaiz Tools's Data-Driven CI/CD Pipeline and Package Architecture. It explains exactly how the registries work, how the `package.json` schema controls the build process, and provides a step-by-step guide for developers on how to create, build, and release plugins, skills, and MCP servers.
 
 ---
 
@@ -8,13 +8,13 @@ This document serves as the **Single Source of Truth** for the Cluaiz Hub's Data
 
 In the Cluaiz ecosystem, developers **never** manually compile binaries, create GitHub releases, or write custom workflow YAML files for their packages. 
 
-The entire CI/CD pipeline is **Data-Driven**. There is a single Master Python Script (`hub-matrix-builder.py`) and a single Master YAML workflow. This system tracks `git diff`, reads the `package.json` of the modified package, and dynamically spawns parallel build jobs (Windows, macOS, Linux, WASM) based entirely on the JSON configuration.
+The entire CI/CD pipeline is **Data-Driven**. There is a single Master Python Script (`tools-matrix-builder.py`) and a single Master YAML workflow. This system tracks `git diff`, reads the `package.json` of the modified package, and dynamically spawns parallel build jobs (Windows, macOS, Linux, WASM) based entirely on the JSON configuration.
 
 ---
 
 ## 🗂️ 2. The Registry Hierarchy
 
-To maintain order across thousands of plugins, the Hub uses a strict 3-tier routing architecture.
+To maintain order across thousands of plugins, the Tools registry uses a strict 3-tier routing architecture.
 
 ### A. The Master Registry (`registry.json`)
 Located at the root of `cluaiz-tools/`. It is the absolute entry point for the Cluaiz Engine. It maps every top-level category to its respective `family.json` file.
@@ -54,7 +54,7 @@ This is the heart of the system. It dictates how the AI understands the tool and
 
 ## 📦 3. The "Masterpiece" `package.json` Schema (Deep Dive)
 
-The `package.json` is the absolute heart of the Hub. It dictates how the AI understands the tool, how the Engine downloads it, and how the CI/CD pipeline builds it. Every key has a critical purpose.
+The `package.json` is the absolute heart of the Tools Registry. It dictates how the AI understands the tool, how the Engine downloads it, and how the CI/CD pipeline builds it. Every key has a critical purpose.
 
 ### The Complete JSON Structure
 Here is a full example of a structured Plugin package:
@@ -145,7 +145,7 @@ For massive skills (e.g., Code Reviewers), putting 10,000 lines of documentation
 
 ## ⚙️ 5. How the Dynamic CI/CD Pipeline Actually Works
 
-The `master-hub-builder.yml` and `hub-matrix-builder.py` operate in 4 distinct phases:
+The `master-tools-builder.yml` and `tools-matrix-builder.py` operate in 4 distinct phases:
 
 ### Phase 1: Git Diff Detection
 When a developer pushes to `main`, the Python script runs `git diff HEAD^ HEAD`. It detects exactly which folders (e.g., `plugins/cluaiz-search`) were modified.
@@ -231,7 +231,7 @@ graph TD
 
     subgraph "2. The Factory (Data-Driven CI/CD)"
         PUSH{"Git Push to Main"}:::git
-        PY["hub-matrix-builder.py<br>(Reads package.json)"]:::process
+        PY["tools-matrix-builder.py<br>(Reads package.json)"]:::process
         
         B_WASM["WASM Compiler"]:::process
         B_NAT["Native Compiler<br>(Win, Mac, Linux)"]:::process

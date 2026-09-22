@@ -7,13 +7,13 @@ In Cluaiz, **Skills** represent the **Cognitive Brain** of the agentic system. W
 ## 🎯 1. What is a Skill?
 
 A Skill is a declarative package containing:
-- **`package.json`**: Single-source package distribution metadata and dependency resolution rules for Cluaiz Hub.
+- **`package.json`**: Single-source package distribution metadata and dependency resolution rules for Cluaiz Tools.
 - **`SKILL.md`**: The structured prompt instructions dynamically injected into the LLM system context.
 - **`assets/icon.svg`**: A pure SVG vector icon for native UI rendering.
 
 ```
 skills/my-skill/
-├── package.json         ← Hub registry packaging & dependencies
+├── package.json         ← Tools registry packaging & dependencies
 ├── SKILL.md             ← Neural instructions & domain protocol
 └── assets/
     └── icon.svg         ← Vector UI icon

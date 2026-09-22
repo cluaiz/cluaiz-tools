@@ -5,7 +5,7 @@ This plugin is the **Native Muscle** for the cluaiz Neural Database.
 ## Overview
 `cluaiz-db` is a **Native Plugin** that acts as the FFI bridge between the `cluaiz` Inference Engine and the `cluaizd` (Zero-Copy LMDB) Database Engine. 
 
-By placing this inside `cluaiz Hub`, we decouple storage dependencies from the Core Engine. The Core Engine dynamically loads this plugin's `.dll` (`cluaizd_engine.dll`) at runtime to achieve low-latency memory-mapped FFI database injection.
+By placing this inside `cluaiz Tools`, we decouple storage dependencies from the Core Engine. The Core Engine dynamically loads this plugin's `.dll` (`cluaizd_engine.dll`) at runtime to achieve low-latency memory-mapped FFI database injection.
 
 ## Project Structure
 - `native/` - The Rust C-FFI crate that statically links against `cluaizd` and `engine-lmdb`. It outputs a `.dll` that the Core Engine dynamically loads.

@@ -7,13 +7,13 @@ In Cluaiz, **Plugins** provide the raw **Computational Muscle**. While Skills in
 ## 🎯 1. What is a Plugin?
 
 A Plugin is an execution unit containing:
-- **`package.json`**: Cluaiz Hub single-source registry and dependency index.
+- **`package.json`**: Cluaiz Tools single-source registry and dependency index.
 - **Compiled Binary (`logic.wasm` or `.dll`/`.so`)**: Compiled bytecode implementing the Cluaiz C-ABI.
 - **`assets/icon.svg`**: Vector SVG icon for UI.
 
 ```
 plugins/my-plugin/
-├── package.json          ← Hub registry packaging & OS binaries
+├── package.json          ← Tools registry packaging & OS binaries
 ├── logic.wasm            ← Compiled WASM bytecode
 └── assets/
     └── icon.svg          ← Vector UI icon

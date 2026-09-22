@@ -1,6 +1,6 @@
-# 🗂️ Tools Registry, Filesystem Auto-Probe & Hub Ingestion
+# 🗂️ Tools Registry, Filesystem Auto-Probe & Tools Ingestion
 
-This document describes how the Cluaiz engine maintains an in-memory, zero-latency registry of all installed tools, auto-probes local disk directories on boot, and dynamically ingests packages from Cluaiz Hub.
+This document describes how the Cluaiz engine maintains an in-memory, zero-latency registry of all installed tools, auto-probes local disk directories on boot, and dynamically ingests packages from Cluaiz Tools.
 
 ---
 
@@ -53,13 +53,13 @@ Whenever the engine boots or installs a new component, `ToolsRegistry::sync_with
 
 ---
 
-## 🚀 3. Cluaiz Hub Package Ingestion (`ToolHubInstaller`)
+## 🚀 3. Cluaiz Tools Package Ingestion (`ToolsInstaller`)
 
-When a developer installs a package via `cluaiz <category> install <name>`, the `ToolHubInstaller` executes the following secure pipeline:
+When a developer installs a package via `cluaiz <category> install <name>`, the `ToolsInstaller` executes the following secure pipeline:
 
 ```mermaid
 flowchart TD
-    A["cluaiz skill install code-reviewer"] --> B["Fetch registry.json from Hub"]
+    A["cluaiz skill install code-reviewer"] --> B["Fetch registry.json from Tools Registry"]
     B --> C["Resolve Routing Pointer (e.g. skills/family.json)"]
     C --> D["Fetch Package Catalog (skills/code-reviewer/package.json)"]
     D --> E["Download Package Bundle (ZIP Archive)"]

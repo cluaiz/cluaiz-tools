@@ -23,7 +23,7 @@ flowchart TB
     subgraph ToolsEngineSubsystem ["ToolsEngine (Domain Sovereign Facade)"]
         Registry["ToolsRegistry (tools_registry.json)"]
         Lifecycle["TurnLifecycleEngine & SessionManager"]
-        Installer["ToolHubInstaller (Package Ingestion)"]
+        Installer["ToolsInstaller (Package Ingestion)"]
     end
 
     subgraph ExtensionPillars ["The Three Sovereign Extension Pillars"]
@@ -46,7 +46,7 @@ flowchart TB
         end
     end
 
-    subgraph HubLayer ["Cluaiz Hub Registry (Decentralized Catalog)"]
+    subgraph HubLayer ["Cluaiz Tools Registry (Decentralized Catalog)"]
         MasterRegistry["registry.json (Master Routing)"]
         FamilyIndex["family.json (Skills / Plugins / MCP)"]
         PackageBundles["package.json + Manifests + Assets"]
@@ -99,12 +99,12 @@ Every tool executed by Cluaiz conforms to the **Zero Ambient Authority** doctrin
 
 ---
 
-## 🌐 4. Hub Ingestion & Synchronization Flow
+## 🌐 4. Tools Ingestion & Synchronization Flow
 
 ```
-1. Developer publishes package to Cluaiz Hub (registry.json -> family.json -> package.json)
+1. Developer publishes package to Cluaiz Tools (registry.json -> family.json -> package.json)
 2. User runs `cluaiz <skill|plugin|mcp> install <name>`
-3. ToolHubInstaller downloads package bundle, verifies SHA-256 hash, and extracts files
+3. ToolsInstaller downloads package bundle, verifies SHA-256 hash, and extracts files
 4. ToolsRegistry::sync_with_filesystem() auto-probes local directory and updates tools_registry.json
 5. Engine activates tool instantly with ZERO server restarts required
 ```

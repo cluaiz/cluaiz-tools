@@ -1,6 +1,6 @@
 # 📋 Plugin Package Specification (`package.json`)
 
-This document defines the single-source package specification for Plugins in the Cluaiz Hub ecosystem.
+This document defines the single-source package specification for Plugins in the Cluaiz Tools ecosystem.
 
 ---
 

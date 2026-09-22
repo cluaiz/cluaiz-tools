@@ -1,6 +1,6 @@
-# Cluaiz Hub Package Specification (`package.json`)
+# Cluaiz Tools Package Specification (`package.json`)
 
-This document defines the official package manifest specification for the Cluaiz Hub ecosystem. It serves as the single source of truth for both the cloud registry/installer (`cluaiz install`) and the local engine runtime (`inference-cel`).
+This document defines the official package manifest specification for the Cluaiz Tools ecosystem. It serves as the single source of truth for both the cloud registry/installer (`cluaiz install`) and the local engine runtime (`inference-cel`).
 
 ---
 
@@ -20,7 +20,7 @@ This document defines the official package manifest specification for the Cluaiz
 
 ## 2. Dependency Resolution (`dependencies`)
 
-Cluaiz Hub uses **SemVer caret ranges (`^`) with remote metadata URLs** to achieve safe, decentralized dependency resolution:
+Cluaiz Tools uses **SemVer caret ranges (`^`) with remote metadata URLs** to achieve safe, decentralized dependency resolution:
 
 ```json
 "dependencies": {

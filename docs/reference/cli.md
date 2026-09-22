@@ -1,16 +1,16 @@
 # 💻 Cluaiz CLI Command Reference
 
-The `cluaiz` Command Line Interface (CLI) manages local tool installation, discovery, removal, and hub synchronization.
+The `cluaiz` Command Line Interface (CLI) manages local tool installation, discovery, removal, and tools registry synchronization.
 
 ---
 
 ## 📦 1. Skill Commands
 
 ```bash
-# Search for skills on Cluaiz Hub
+# Search for skills on Cluaiz Tools
 cluaiz skill search <query>
 
-# Install a skill from Cluaiz Hub
+# Install a skill from Cluaiz Tools
 cluaiz skill install <name>
 
 # Install a specific version of a skill
@@ -31,7 +31,7 @@ cluaiz skill remove <name>
 ## ⚡ 2. Plugin Commands
 
 ```bash
-# Search for plugins on Cluaiz Hub
+# Search for plugins on Cluaiz Tools
 cluaiz plugin search <query>
 
 # Install a plugin
@@ -69,4 +69,4 @@ cluaiz mcp remove <name>
 | Variable | Default Value | Description |
 |---|---|---|
 | `CLUAIZ_HOME` | `~/.cluaiz` | Base root directory for all local tools and configuration. |
-| `CLUAIZ_REGISTRY_URL` | Official GitHub Hub URL | Override URL for custom private or corporate registries. |
+| `CLUAIZ_REGISTRY_URL` | Official GitHub Tools Registry URL | Override URL for custom private or corporate registries. |

@@ -1,6 +1,6 @@
-# 🔌 Cluaiz Hub: Plugins (Unified Tool Ecosystem)
+# 🔌 Cluaiz Tools: Plugins (Unified Tool Ecosystem)
 
-Welcome to the **Plugins** directory of the Cluaiz Hub.
+Welcome to the **Plugins** directory of the Cluaiz Tools.
 
 ## What is a Plugin?
 A Plugin represents the execution layer of the Cluaiz Ecosystem. It encompasses both:

@@ -1,6 +1,6 @@
 # 📋 Skill Package Specification (`package.json`)
 
-This document defines the single-source package specification for Skills in the Cluaiz Hub ecosystem.
+This document defines the single-source package specification for Skills in the Cluaiz Tools ecosystem.
 
 ---
 

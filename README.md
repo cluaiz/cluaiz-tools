@@ -2,7 +2,7 @@
   <img src="assets/cluaiz-tools.webp" alt="The Official Registry for the Cluaiz Ecosystem." width="100%">
 </p>
 
-<h1 align="center">Cluaiz Hub</h1>
+<h1 align="center">Cluaiz Tools</h1>
 
 <p align="center">
   <strong>The Official Registry for Cluaiz Plugins, Skills, & MCP Connectors.</strong>
@@ -18,17 +18,17 @@
 
 ## Overview
 
-**Cluaiz Hub** is the registry for the **Cluaiz Engine**. 
+**Cluaiz Tools** is the registry for the **Cluaiz Engine**. 
 
-Instead of embedding tools into the core inference engine, Cluaiz decouples compute from capability. The host engine runs locally on user hardware to provide model inference and a multi-turn agent loop, while **Cluaiz Hub** distributes modular extensions across three categories: **Plugins**, **Skills**, and **MCP Connectors**.
+Instead of embedding tools into the core inference engine, Cluaiz decouples compute from capability. The host engine runs locally on user hardware to provide model inference and a multi-turn agent loop, while **Cluaiz Tools** distributes modular extensions across three categories: **Plugins**, **Skills**, and **MCP Connectors**.
 
 ---
 
-## The Three Pillars of Cluaiz Hub
+## The Three Pillars of Cluaiz Tools
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                               CLUAIZ HUB                                    │
+│                               CLUAIZ TOOLS                                    │
 ├──────────────────────────┬──────────────────────────┬───────────────────────┤
 │ 🔌 1. PLUGINS            │ 📋 2. SKILLS             │ 🌐 3. MCP CONNECTORS  │
 │ (WASM & Native Binaries) │ (Task Guidance Prompts)  │ (External Bridges)    │
@@ -89,7 +89,7 @@ sequenceDiagram
 
 ## Official Package Catalog
 
-All 17 packages in Cluaiz Hub are structured, validated, and ready for installation:
+All 17 packages in Cluaiz Tools are structured, validated, and ready for installation:
 
 ### 🔌 Verified Plugins (`plugins/`)
 
@@ -148,7 +148,7 @@ cluaiz list --all
 
 ## Authoring New Capabilities
 
-To create and contribute new packages to Cluaiz Hub, follow the structural specifications in the [docs/](docs/) directory:
+To create and contribute new packages to Cluaiz Tools, follow the structural specifications in the [docs/](docs/) directory:
 
 - **Creating a Plugin:** See [docs/plugins/](docs/plugins/) for WASM host ABI signatures and `manifest-plugin.yaml` syntax.
 - **Creating a Skill:** See [docs/skills/](docs/skills/) for frontmatter schemas and context prompt guidelines.
@@ -158,4 +158,4 @@ To create and contribute new packages to Cluaiz Hub, follow the structural speci
 
 ## License
 
-Cluaiz Hub packages and specifications are released under the [Apache-2.0 License](LICENSE).
+Cluaiz Tools packages and specifications are released under the [Apache-2.0 License](LICENSE).

@@ -1,6 +1,6 @@
-# Cluaiz Hub Documentation Portal
+# Cluaiz Tools Documentation Portal
 
-Welcome to the official developer documentation for the **Cluaiz Hub Ecosystem** and the **Cluaiz Inference Engine**.
+Welcome to the official developer documentation for the **Cluaiz Tools Ecosystem** and the **Cluaiz Inference Engine**.
 
 ---
 
@@ -12,7 +12,7 @@ cluaiz-tools/docs/
 ├── 🧠 2. skills/            ← Cognitive Brain, Prompt Frameworks, & Context Injection
 ├── ⚡ 3. plugins/           ← In-Process WASM Execution Muscle, C-ABI & Sandboxing
 ├── 🔌 4. mcp/               ← External Subprocess Bridges & Stdio JSON-RPC 2.0
-└── 📚 5. reference/         ← CLI Command Reference & Hub Registry Packaging
+└── 📚 5. reference/         ← CLI Command Reference & Tools Registry Packaging
 ```
 
 ---
@@ -51,4 +51,4 @@ cluaiz-tools/docs/
 
 ### 📚 5. Reference (`docs/reference/`)
 - [CLI Reference](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/reference/cli.md) — `cluaiz` CLI command reference.
-- [Hub Registry Architecture](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/reference/hub-registry.md) — `registry.json`, `family.json`, `package.json`, and SVG assets.
+- [Tools Registry Architecture](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/reference/tools-registry.md) — `registry.json`, `family.json`, `package.json`, and SVG assets.

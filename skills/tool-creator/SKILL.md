@@ -44,7 +44,7 @@ skills/<skill-name>/
 ├── SKILL.md              ← YAML Frontmatter + Neural Protocol Instructions
 ├── assets/
 │   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Hub registry descriptor
+└── package.json          ← Tools registry descriptor
 ```
 
 ### 1. `manifest-skill.yaml` Template:
@@ -127,7 +127,7 @@ plugins/<plugin-name>/
 ├── manifest-plugin.yaml  ← RAM/Fuel caps, envelope, triggers
 ├── assets/
 │   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Hub registry descriptor
+└── package.json          ← Tools registry descriptor
 ```
 
 ### 1. `Cargo.toml` Configuration:
@@ -276,7 +276,7 @@ mcp/<server-name>/
 ├── manifest-mcp.yaml     ← Subprocess command, args, environment, permissions
 ├── assets/
 │   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Hub registry descriptor
+└── package.json          ← Tools registry descriptor
 ```
 
 ### 1. `manifest-mcp.yaml` Specification:

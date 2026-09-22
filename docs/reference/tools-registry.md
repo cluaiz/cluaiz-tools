@@ -1,6 +1,6 @@
-# 🏛️ Cluaiz Hub Registry Architecture & Package Packaging
+# 🏛️ Cluaiz Tools Registry Architecture & Package Packaging
 
-This document defines how packages are indexed, versioned, and distributed across the decentralized Cluaiz Hub repository.
+This document defines how packages are indexed, versioned, and distributed across the decentralized Cluaiz Tools repository.
 
 ---
 
@@ -110,7 +110,7 @@ Every package must contain a `package.json` defining semver versions, dependenci
 
 ## 🎨 5. Mandatory UI Vector Asset (`assets/icon.svg`)
 
-Every tool in Cluaiz Hub MUST contain a valid standalone SVG file (`assets/icon.svg`):
+Every tool in Cluaiz Tools MUST contain a valid standalone SVG file (`assets/icon.svg`):
 - Format: Standard `<svg>...</svg>` vector document.
 - Dimensions: 24x24 viewBox.
 - The Cluaiz Web UI and desktop applications render this SVG directly inline for a native look.
