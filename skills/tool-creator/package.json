@@ -10,6 +10,13 @@
   },
   "license": "Apache-2.0",
   "tags": ["Scaffold", "Tool Foundry", "Code Generation", "Protocol"],
+  "triggers": {
+    "semantic": [
+      "create plugin", "build mcp", "create skill", "new tool",
+      "scaffold tool", "tool foundry", "generate tool", "build tool",
+      "tool creator", "create tool", "make tool", "tool maker"
+    ]
+  },
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -20,7 +27,8 @@
     "1.0.0": {
       "updated_at": "2026-07-01T12:00:00Z",
       "files": {
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
   }

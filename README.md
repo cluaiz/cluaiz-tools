@@ -49,7 +49,7 @@ Plugins execute deterministically inside the Cluaiz runtime without network seri
 
 ### 2. 📋 Skills (Task Guidance Prompts)
 
-Skills are structured Markdown documents (`SKILL.md`) backed by manifest definitions (`manifest-skill.yaml`). They guide the AI model on how to decompose problems, format structured queries, and interact with tools via dynamic KV-cache prefix injection.
+Skills are structured Markdown documents (`SKILL.md`) backed by `package.json` package specifications. They guide the AI model on how to decompose problems, format structured queries, and interact with tools via dynamic KV-cache prefix injection.
 
 ### 3. 🌐 MCP (Model Context Protocol) Connectors
 
@@ -89,7 +89,7 @@ sequenceDiagram
 
 ## Official Package Catalog
 
-All 17 packages in Cluaiz Tools are structured, validated, and ready for installation:
+All 18 packages in Cluaiz Tools are structured, validated, and ready for installation:
 
 ### 🔌 Verified Plugins (`plugins/`)
 
@@ -105,13 +105,14 @@ All 17 packages in Cluaiz Tools are structured, validated, and ready for install
 
 ### 📋 Verified Skills (`skills/`)
 
-| Skill Name | Manifest | Target Workflow |
+| Skill Name | Package Descriptor | Target Workflow |
 | :--- | :--- | :--- |
-| **`code-reviewer`** | `manifest-skill.yaml` | Multi-language code quality, security vulnerability analysis, and DRY enforcement. |
-| **`tool-creator`** | `manifest-skill.yaml` | Scaffolding generator and validation harness for creating new Skills, Plugins, and MCPs. |
-| **`spec-driven`** | `manifest-skill.yaml` | Technical specification and tradeoff analysis before code generation. |
-| **`tdd-workflow`** | `manifest-skill.yaml` | Test-Driven Development protocol enforcing test verification before implementation. |
-| **`learn-cluaiz`** | `manifest-skill.yaml` | Interactive onboarding tutorial and architectural breakdown of the Cluaiz ecosystem. |
+| **`code-reviewer`** | `package.json` | Multi-language code quality, security vulnerability analysis, and DRY enforcement. |
+| **`code-interpreter`** | `package.json` | Multi-language sandboxed code execution (Python, Node.js, Rust, Go, Bash, PowerShell). |
+| **`tool-creator`** | `package.json` | Scaffolding generator and validation harness for creating new Skills, Plugins, and MCPs. |
+| **`spec-driven`** | `package.json` | Technical specification and tradeoff analysis before code generation. |
+| **`tdd-workflow`** | `package.json` | Test-Driven Development protocol enforcing test verification before implementation. |
+| **`learn-cluaiz`** | `package.json` | Interactive onboarding tutorial and architectural breakdown of the Cluaiz ecosystem. |
 
 ### 🌐 Verified MCP Connectors (`mcp/`)
 
@@ -150,7 +151,7 @@ cluaiz list --all
 
 To create and contribute new packages to Cluaiz Tools, follow the structural specifications in the [docs/](docs/) directory:
 
-- **Creating a Plugin:** See [docs/plugins/](docs/plugins/) for WASM host ABI signatures and `manifest-plugin.yaml` syntax.
+- **Creating a Plugin:** See [docs/plugins/](docs/plugins/) for WASM host ABI signatures and `package.json` package configuration.
 - **Creating a Skill:** See [docs/skills/](docs/skills/) for frontmatter schemas and context prompt guidelines.
 - **Creating an MCP Bridge:** See [docs/mcp/](docs/mcp/) for subprocess configuration and transport settings.
 
@@ -158,4 +159,4 @@ To create and contribute new packages to Cluaiz Tools, follow the structural spe
 
 ## License
 
-Cluaiz Tools packages and specifications are released under the [Apache-2.0 License](LICENSE).
+ ye nhi Cluaiz Tools packages and specifications are released under the [Apache-2.0 License](LICENSE).

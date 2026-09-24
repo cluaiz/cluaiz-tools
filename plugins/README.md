@@ -11,9 +11,8 @@ A Plugin represents the execution layer of the Cluaiz Ecosystem. It encompasses 
 Every folder in this directory follows this standard structure:
 ```text
 cluaiz-search/               <-- Plugin Name
-├── manifest-plugin.yaml     <-- Capabilities, envelope (WASM/NATIVE), memory limits, and permissions
-├── SKILL.md                 <-- [Optional Brain] Teaches the AI how and when to use this plugin
-├── package.json             <-- Versioning, OS binaries, and metadata
+├── package.json             <-- Single source of truth: capabilities, envelope (WASM/NATIVE), OS binaries, metadata
+├── assets/icon.svg          <-- Vector UI icon
 └── src/ (or native/)        <-- Source code (Rust/C++)
 ```
 

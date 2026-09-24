@@ -33,6 +33,34 @@ Before generating any code or configuration, classify the user's requirement int
 
 ---
 
+## 🌐 SECTION 1.1: TARGET DIRECTORY & ENVIRONMENT RESOLUTION PROTOCOL
+
+Cluaiz tools operate under a dual-environment model (Source Repository vs Installed Runtime). Hardcoded static paths are strictly prohibited. The Tool Creator dynamically resolves target directories according to the active environment:
+
+### 1. Dual-Environment Hierarchy
+- **Installed Runtime (Host System):**
+  - **Windows:** `%USERPROFILE%\.cluaiz\tools\` (e.g. `C:\Users\<Username>\.cluaiz\tools\`)
+  - **Linux / macOS:** `$HOME/.cluaiz/tools/` (e.g. `/home/<username>/.cluaiz/tools/`)
+  - Subdirectories:
+    - `.cluaiz/tools/skills/`
+    - `.cluaiz/tools/plugins/`
+    - `.cluaiz/tools/mcp/`
+- **Development Repository (Source Workspace):**
+  - Target Path: `<workspace>/Cluaiz-Technologies/cluaiz-tools/`
+  - Subdirectories:
+    - `skills/`
+    - `plugins/`
+    - `mcp/`
+
+### 2. Autonomous Path Resolution Logic
+1. When developing tools within the `cluaiz-tools` repository, scaffold into the relative `skills/`, `plugins/`, or `mcp/` root directories.
+2. When deploying or exporting for system-wide execution, verify the host operating system:
+   - On Windows, expand `%USERPROFILE%` / `$env:USERPROFILE`.
+   - On Linux/macOS, expand `$HOME`.
+3. Always normalize filesystem paths using standard separators to avoid Windows backslash escaping errors.
+
+---
+
 ## 🧠 SECTION 2: PILLAR I — SKILL AUTHORING PROTOCOL
 
 A **Skill** provides the cognitive reasoning framework. It contains NO executable machine binaries.
@@ -40,43 +68,48 @@ A **Skill** provides the cognitive reasoning framework. It contains NO executabl
 ### Directory Layout:
 ```
 skills/<skill-name>/
-├── manifest-skill.yaml   ← Router triggers, permissions, dependencies
+├── package.json          ← Tools registry packaging, metadata & semantic triggers
 ├── SKILL.md              ← YAML Frontmatter + Neural Protocol Instructions
-├── assets/
-│   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Tools registry descriptor
+└── assets/
+    └── icon.svg          ← 24x24 Vector UI Icon
 ```
 
-### 1. `manifest-skill.yaml` Template:
-```yaml
-# =====================================================================
-# cluaiz SKILL MANIFEST (manifest-skill.yaml)
-# =====================================================================
-name: "kebab-case-skill-name"
-version: "1.0.0"
-description: "High-precision summary of cognitive capabilities."
-author: "Aryan"
-type: "skill"
-
-discovery:
-  semantic_triggers:
-    - "primary keyword trigger"
-    - "secondary action phrase"
-    - "domain specific intent"
-  brain_manual: "SKILL.md"
-
-dependencies:
-  plugins: []  # Optional: WASM plugins required (e.g. ["text", "math"])
-  mcp: []      # Optional: MCP servers required (e.g. ["git", "filesystem"])
-
-permissions:
-  filesystem: true
-  network: false
-  level: "ReadOnly" # "ReadOnly" | "ReadWrite" | "None"
-
-execution:
-  execution_mode: "auto" # "auto" (trigger-activated) | "manual" (user-pinned)
-  default_turns: 2       # Turn lifetime before KV-cache auto-purge (-1 for persistent)
+### 1. `package.json` Template (Single Source of Truth):
+```json
+{
+  "id": "kebab-case-skill-name",
+  "name": "Human Readable Skill Name",
+  "category": "engineering",
+  "hub_type": "skill",
+  "description": "High-precision summary of cognitive capabilities.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "triggers": {
+    "semantic": [
+      "primary keyword trigger",
+      "secondary action phrase",
+      "domain specific intent"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-24T12:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}
 ```
 
 ### 2. `SKILL.md` Authoring Formula:
@@ -124,10 +157,9 @@ plugins/<plugin-name>/
 ├── src/
 │   └── lib.rs            ← C-ABI memory exports & compute logic
 ├── logic.wasm            ← Compiled WebAssembly binary
-├── manifest-plugin.yaml  ← RAM/Fuel caps, envelope, triggers
 ├── assets/
 │   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Tools registry descriptor
+└── package.json          ← Tools registry packaging & distribution manifest
 ```
 
 ### 1. `Cargo.toml` Configuration:
@@ -219,49 +251,38 @@ cargo build --target wasm32-unknown-unknown --release
 cp target/wasm32-unknown-unknown/release/<plugin_name>.wasm logic.wasm
 ```
 
-### 4. `manifest-plugin.yaml` Specification:
-```yaml
-# =====================================================================
-# cluaiz PLUGIN MANIFEST (manifest-plugin.yaml)
-# =====================================================================
-name: "kebab-case-plugin-name"
-version: "1.0.0"
-description: "Deterministic in-process compute capabilities."
-author: "Aryan"
-type: "plugin"
-
-discovery:
-  semantic_triggers:
-    - "calculate"
-    - "compute logic"
-  cel_grammar: "use plugin::kebab-case-plugin-name -> execute(...)"
-
-activation:
-  lazy_load: true
-  trigger_on:
-    - "on_command:use plugin::kebab-case-plugin-name"
-
-permissions:
-  max_memory_mb: 16       # RAM hard cap enforced via ResourceLimiter
-  max_cpu_time_ms: 500    # Fuel instruction timeout
-  network_access: false   # Zero ambient authority
-  vram_kv_inject: false
-  prefix_caching: false
-  file_system: "none"     # "none" | "read_only" | "read_write"
-
-system_bindings: []
-
-settings:
-  mode: { type: "enum", options: ["fast", "precise"], default: "fast", desc: "Execution mode" }
-
-execution:
-  envelope: "WASM"        # "WASM" | "NATIVE"
-  binary_path: "logic.wasm"
-  entry_point: "execute_cel"
-  payload_format: "JSON"  # "JSON" | "MsgPack"
-
-execution_mode: "auto"
-default_turns: 1
+### 4. `package.json` Plugin Specification (Single Source of Truth):
+```json
+{
+  "id": "kebab-case-plugin-name",
+  "name": "Human Readable Plugin Name",
+  "category": "utility",
+  "hub_type": "plugin",
+  "build_type": "wasm",
+  "description": "Deterministic in-process compute capabilities.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": ["WASM", "Compute"],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-24T12:00:00Z",
+      "builds_os": ["wasm"],
+      "files": {
+        "binary": "logic.wasm",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -273,53 +294,45 @@ An **MCP Server** runs as an isolated OS subprocess communicating over stdio JSO
 ### Directory Layout:
 ```
 mcp/<server-name>/
-├── manifest-mcp.yaml     ← Subprocess command, args, environment, permissions
-├── assets/
-│   └── icon.svg          ← 24x24 Vector UI Icon
-└── package.json          ← Tools registry descriptor
+├── package.json          ← Tools registry packaging, subprocess command & arguments
+└── assets/
+    └── icon.svg          ← 24x24 Vector UI Icon
 ```
 
-### 1. `manifest-mcp.yaml` Specification:
-```yaml
-# =====================================================================
-# cluaiz MCP MANIFEST (manifest-mcp.yaml)
-# =====================================================================
-name: "kebab-case-mcp-name"
-version: "1.0.0"
-description: "External tool bridge executing over stdio JSON-RPC 2.0."
-author: "Aryan"
-type: "mcp"
-
-discovery:
-  semantic_triggers:
-    - "mcp trigger phrase"
-  cel_grammar: "use mcp::kebab-case-mcp-name -> call_tool(...)"
-
-activation:
-  lazy_load: true
-  trigger_on:
-    - "on_command:use mcp::kebab-case-mcp-name"
-
-permissions:
-  max_memory_mb: null     # Subprocess manages its own memory
-  max_cpu_time_ms: 30000  # 30-second stdio timeout guard
-  network_access: true
-  allowed_hosts: []
-  prefix_caching: false
-  file_system: "read_write"
-
-system_bindings: []
-
-execution:
-  command: "npx"
-  args:
-    - "-y"
-    - "@modelcontextprotocol/server-example"
-  env:
-    NODE_ENV: "production"
-
-execution_mode: "manual"
-default_turns: 3
+### 1. `package.json` MCP Specification (Single Source of Truth):
+```json
+{
+  "id": "kebab-case-mcp-name",
+  "name": "Human Readable MCP Server Name",
+  "category": "mcp",
+  "hub_type": "mcp",
+  "description": "External tool bridge executing over stdio JSON-RPC 2.0.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "MIT",
+  "tags": ["MCP", "Bridge", "Subprocess"],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-24T12:00:00Z",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-example"
+      ],
+      "files": {
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -347,9 +360,7 @@ default_turns: 3
   "versions": {
     "1.0.0": {
       "files": {
-        "manifest": "manifest-skill.yaml",
         "skill": "SKILL.md",
-        "binary": "logic.wasm",
         "icon": "assets/icon.svg"
       }
     }
@@ -357,13 +368,50 @@ default_turns: 3
 }
 ```
 
+### 3. Registry Synchronization (`family.json`):
+Every newly scaffolded tool must be registered in the appropriate `family.json` to enable instant runtime discovery:
+- **For Skills:** Append entry to `skills/family.json`:
+  ```json
+  "<skill-name>": "<skill-name>/package.json"
+  ```
+- **For Plugins:** Append entry to `plugins/family.json`:
+  ```json
+  "<plugin-name>": "<plugin-name>/package.json"
+  ```
+- **For MCP Servers:** Append entry to `mcp/family.json`:
+  ```json
+  "<mcp-name>": "<mcp-name>/package.json"
+  ```
+
 ---
 
 ## 🛡️ SECTION 6: MANDATORY PRE-FLIGHT AUDIT CHECKLIST
 
 When generating any tool:
-1. **Naming Hygiene:** Folder name, manifest `name`, and `package.json` `name` must match exactly in lowercase `kebab-case`.
+1. **Naming Hygiene:** Folder name, package `id`, and `package.json` `name` must match exactly in lowercase `kebab-case`.
 2. **Domain Separation:** Plugins NEVER contain `SKILL.md`. Skills NEVER contain `.wasm`.
 3. **Memory Safety:** WASM plugins MUST export `allocate`, `deallocate`, and `execute_cel` with bitpacked pointer returns.
 4. **Zero Marketing Words:** Strictly banned from using hype adjectives (Magic, Blazing, Silicon-Native, OS, Universal).
 5. **Registry Compatibility:** Valid `package.json` and standalone `assets/icon.svg` MUST exist in the package bundle.
+6. **Path Integrity:** Ensure correct directory placement in `skills/`, `plugins/`, or `mcp/` without hardcoded static user paths.
+
+---
+
+## 🚀 SECTION 7: AUTONOMOUS FOUNDRY EXECUTION WORKFLOW
+
+When requested to create or scaffold a new extension:
+
+1. **Step 1: Pillar Classification**
+   - Determine whether the requirement is a **Skill** (cognitive reasoning), **Plugin** (deterministic WASM compute), or **MCP Server** (external I/O).
+2. **Step 2: Directory Scaffolding**
+   - Create the target folder under `skills/<name>/`, `plugins/<name>/`, or `mcp/<name>/`.
+   - Create the `assets/` subfolder.
+3. **Step 3: Specification & Code Synthesis**
+   - Write `package.json` (metadata, semantic triggers, dependencies, and file mappings).
+   - Write the implementation (`SKILL.md` for skills, `src/lib.rs` & `Cargo.toml` for plugins, or stdio runner for MCP).
+   - Generate `assets/icon.svg` with appropriate color coding.
+4. **Step 4: Registry Registration**
+   - Insert the new tool's descriptor mapping into `family.json`.
+5. **Step 5: Pre-Flight Verification**
+   - Validate against the Section 6 checklist before reporting completion.
+

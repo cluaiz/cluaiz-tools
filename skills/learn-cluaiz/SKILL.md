@@ -32,17 +32,17 @@ Cluaiz enforces a strict separation between Cognition, In-Process Compute, and E
 ### 🧠 1. Skills (Cognitive Brain)
 - **Role:** Reasoning frameworks, domain rules, coding standards, prompt templates.
 - **Execution:** Injected dynamically into LLM system prompt context via `SkillRouter`.
-- **Files:** `manifest-skill.yaml`, `SKILL.md`, `assets/icon.svg`, `package.json`.
+- **Files:** `package.json`, `SKILL.md`, `assets/icon.svg`.
 
 ### ⚡ 2. Plugins (WASM In-Process Muscle)
 - **Role:** Deterministic calculations, regex parsers, local vector operations.
 - **Execution:** In-process WebAssembly sandbox via `wasmtime` with memory caps (`ResourceLimiter`) and instruction fuel counters.
-- **Files:** `manifest-plugin.yaml`, `logic.wasm` / `src/lib.rs`, `assets/icon.svg`, `package.json`.
+- **Files:** `package.json`, `logic.wasm` / `src/lib.rs`, `assets/icon.svg`.
 
 ### 🔌 3. MCP Servers (Subprocess Stdio IPC)
 - **Role:** External system bridges (Filesystem, Git, Databases).
 - **Execution:** Out-of-process child processes communicating over stdio using JSON-RPC 2.0 with 30-second timeout guards.
-- **Files:** `manifest-mcp.yaml`, `assets/icon.svg`, `package.json`.
+- **Files:** `package.json`, `assets/icon.svg`.
 
 ---
 
