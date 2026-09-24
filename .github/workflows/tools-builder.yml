@@ -1,4 +1,4 @@
-name: Master Hub Builder
+name: Tools Builder
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Matrix Builder
         id: set-matrix
-        run: python .github/scripts/hub-matrix-builder.py
+        run: python .github/scripts/tools-matrix-builder.py
 
   build-and-release:
     name: Build ${{ matrix.target }} for ${{ matrix.id }}
@@ -58,11 +58,9 @@ jobs:
             echo "Bundling ZIP for ${{ matrix.id }}..."
             cd ${{ matrix.pkg_dir }}
             
-            FILES_TO_ZIP="README.md"
+            FILES_TO_ZIP="package.json"
+            if [ -f "README.md" ]; then FILES_TO_ZIP="$FILES_TO_ZIP README.md"; fi
             if [ -f "SKILL.md" ]; then FILES_TO_ZIP="$FILES_TO_ZIP SKILL.md"; fi
-            if [ -f "manifest-plugin.yaml" ]; then FILES_TO_ZIP="$FILES_TO_ZIP manifest-plugin.yaml"; fi
-            if [ -f "manifest-mcp.yaml" ]; then FILES_TO_ZIP="$FILES_TO_ZIP manifest-mcp.yaml"; fi
-            if [ -f "manifest-extension.yaml" ]; then FILES_TO_ZIP="$FILES_TO_ZIP manifest-extension.yaml"; fi
             if [ -d "scripts" ]; then FILES_TO_ZIP="$FILES_TO_ZIP scripts"; fi
             if [ -d "references" ]; then FILES_TO_ZIP="$FILES_TO_ZIP references"; fi
             if [ -d "assets" ]; then FILES_TO_ZIP="$FILES_TO_ZIP assets"; fi

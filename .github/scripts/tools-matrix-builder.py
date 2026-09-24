@@ -16,7 +16,7 @@ def main():
     packages_to_build = []
     
     for file in changed_files:
-        if file.lower().endswith("package.json") and ("extensions/" in file.lower() or "skills/" in file.lower() or "plugins/" in file.lower() or "mcp/" in file.lower() or "souls/" in file.lower()):
+        if file.lower().endswith("package.json") and ("skills/" in file.lower() or "plugins/" in file.lower() or "mcp/" in file.lower()):
             packages_to_build.append(file)
             
     if not packages_to_build:
@@ -47,11 +47,10 @@ def main():
         
         # Determine prefix based on category path
         category = pkg_path.split('/')[0].lower()
-        prefix = "ext"
+        prefix = "tool"
         if category == "skills": prefix = "skill"
         elif category == "plugins": prefix = "plugin"
         elif category == "mcp": prefix = "mcp"
-        elif category == "souls": prefix = "soul"
         
         # Version specific tag
         tag_name = f"{prefix}-{pkg_id}-v{version}"
@@ -65,14 +64,14 @@ def main():
             changelog = data["versions"][version].get("changelog", changelog)
             
         # Build the exact download URLs for the markdown body
-        base_url = f"https://github.com/cluaiz/cluaiz-hub/releases/download/{tag_name}"
+        base_url = f"https://github.com/cluaiz/cluaiz-tools/releases/download/{tag_name}"
         zip_link = f"{base_url}/{pkg_id}-files.zip"
         win_link = f"{base_url}/{pkg_id}_windows_x64.dll"
         mac_link = f"{base_url}/lib{pkg_id}_macos_arm64.dylib"
         lin_link = f"{base_url}/lib{pkg_id}_linux_x64.so"
         
         release_body = f"## 📦 {title} - v{version}\n\n{description}\n\n### 📝 Changelog\n{changelog}\n\n### ⬇️ Assets (Downloads)\n"
-        release_body += f"- [📦 Master ZIP Bundle (Files & Assets)]({zip_link})\n"
+        release_body += f"- [📦 Package ZIP Bundle (Files & Assets)]({zip_link})\n"
         if build_type == "binary":
             release_body += f"- [🪟 Windows Binary]({win_link})\n"
             release_body += f"- [🍎 macOS Binary]({mac_link})\n"
@@ -86,10 +85,10 @@ def main():
             })
             matrix_jobs.append(job)
         
-        # ALWAYS generate a Master ZIP job for every package
+        # ALWAYS generate a Package ZIP job for every package
         add_job({
             "id": pkg_id,
-            "target": "master-zip",
+            "target": "package-zip",
             "os": "ubuntu-latest",
             "version": version,
             "tag_name": tag_name,
