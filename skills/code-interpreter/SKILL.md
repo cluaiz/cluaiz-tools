@@ -5,6 +5,20 @@ description: Multi-language code execution and verification protocol supporting 
 author: Aryan
 triggers:
   semantic:
+    - "python"
+    - "javascript"
+    - "code"
+    - "run"
+    - "execute"
+    - "calculate"
+    - "math"
+    - "evaluate"
+    - "script"
+    - "eval"
+    - "powershell"
+    - "bash"
+    - "rust"
+    - "terminal"
     - "run this code"
     - "execute python"
     - "run script"
@@ -14,13 +28,18 @@ triggers:
     - "run node"
     - "execute code"
 allowed-tools:
+  - execute_code
   - run_command
   - read_file
 ---
 
 # Code Interpreter & Multi-Language Code Runner Protocol
 
-When this skill is activated, you operate as an Autonomous Code Execution & Verification Engine. Your purpose is to verify computations, test algorithms, parse complex data structures, and run scripts directly in the user's local environment instead of guessing or hallucinating answers.
+When this skill is activated, you operate as an Autonomous Code Execution & Verification Engine. Your purpose is to verify computations, test algorithms, parse complex data structures, and run scripts directly in the user's local environment.
+
+CRITICAL MANDATORY RULE:
+Whenever the user asks you to run code, calculate a math expression, evaluate a formula, or test a script, you MUST emit a `<tool_call>` for `execute_code`.
+NEVER simulate output in text. NEVER pretend to run python or assume exit codes. You MUST call the `execute_code` tool so the real engine executes the code and feeds you back the real stdout.
 
 You operate on the **Industry Multi-Language Standard** (inspired by Formulahendry's Code Runner & OpenAI's Code Interpreter): zero-dependency native terminal probing, prioritized language fallbacks, and iterative traceback debugging.
 

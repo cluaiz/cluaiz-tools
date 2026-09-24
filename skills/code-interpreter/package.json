@@ -3,18 +3,76 @@
   "name": "Code Interpreter",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Multi-language code execution and verification protocol supporting Python, JavaScript/Node.js, and 30+ languages with zero-dependency OS detection and iterative debugging.",
+  "description": "Multi-language code execution and verification protocol supporting Python, JavaScript/Node.js, C, C++, Rust, Go, PowerShell, Bash, and 30+ languages with zero-dependency OS detection and iterative debugging.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Python", "Node.js", "Execution", "Sandbox", "Code Interpreter", "Code Runner"],
+  "security_mode": "sandboxed",
+  "triggers": {
+    "semantic": [
+      "python", "javascript", "code", "run", "execute", "calculate", "math",
+      "evaluate", "script", "eval", "powershell", "bash", "rust", "terminal",
+      "run this code", "execute python", "code interpreter", "code runner"
+    ]
+  },
   "dependencies": {
     "plugins": {},
     "mcp": {},
     "skills": {}
   },
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "languages": {
+      "python": { "cmd": "python \"{file}\"", "ext": "py" },
+      "py": { "cmd": "python \"{file}\"", "ext": "py" },
+      "javascript": { "cmd": "node \"{file}\"", "ext": "js" },
+      "js": { "cmd": "node \"{file}\"", "ext": "js" },
+      "node": { "cmd": "node \"{file}\"", "ext": "js" },
+      "typescript": { "cmd": "npx ts-node \"{file}\"", "ext": "ts" },
+      "ts": { "cmd": "npx ts-node \"{file}\"", "ext": "ts" },
+      "powershell": { "cmd": "powershell -File \"{file}\"", "ext": "ps1" },
+      "ps1": { "cmd": "powershell -File \"{file}\"", "ext": "ps1" },
+      "pwsh": { "cmd": "pwsh -File \"{file}\"", "ext": "ps1" },
+      "bash": { "cmd": "bash \"{file}\"", "ext": "sh" },
+      "sh": { "cmd": "bash \"{file}\"", "ext": "sh" },
+      "rust": { "cmd": "rustc \"{file}\" -o \"{bin}\" && \"{bin}\"", "ext": "rs" },
+      "rs": { "cmd": "rustc \"{file}\" -o \"{bin}\" && \"{bin}\"", "ext": "rs" },
+      "go": { "cmd": "go run \"{file}\"", "ext": "go" },
+      "golang": { "cmd": "go run \"{file}\"", "ext": "go" },
+      "c": { "cmd": "gcc \"{file}\" -o \"{bin}\" && \"{bin}\"", "ext": "c" },
+      "cpp": { "cmd": "g++ \"{file}\" -o \"{bin}\" && \"{bin}\"", "ext": "cpp" },
+      "c++": { "cmd": "g++ \"{file}\" -o \"{bin}\" && \"{bin}\"", "ext": "cpp" },
+      "php": { "cmd": "php \"{file}\"", "ext": "php" },
+      "ruby": { "cmd": "ruby \"{file}\"", "ext": "rb" },
+      "rb": { "cmd": "ruby \"{file}\"", "ext": "rb" },
+      "lua": { "cmd": "lua \"{file}\"", "ext": "lua" },
+      "r": { "cmd": "Rscript \"{file}\"", "ext": "r" }
+    }
+  },
+  "functions": [
+    {
+      "name": "execute_code",
+      "description": "Executes real code in Python, JavaScript, TypeScript, C, C++, Rust, Go, PowerShell, Bash, or any host runtime directly on the machine and returns stdout, stderr, and exit code. Use this whenever the user asks to run, evaluate, test, or calculate code.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "The programming language to execute (e.g. 'python', 'javascript', 'typescript', 'rust', 'c', 'cpp', 'go', 'bash', 'powershell', 'php', 'ruby', 'lua', 'r')"
+          },
+          "code": {
+            "type": "string",
+            "description": "The exact script or code to execute on the host machine"
+          }
+        },
+        "required": ["language", "code"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
