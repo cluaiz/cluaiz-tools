@@ -18,7 +18,9 @@ def main():
     packages_to_build = []
     
     for file in changed_files:
-        if file.lower().endswith("package.json") and ("skills/" in file.lower() or "plugins/" in file.lower() or "mcp/" in file.lower()):
+        # Only a tool's own manifest, <family>/<id>/package.json; docs hold example manifests
+        parts = file.split("/")
+        if len(parts) == 3 and parts[0] in ("skills", "plugins", "mcp") and parts[2] == "package.json":
             packages_to_build.append(file)
             
     if not packages_to_build:
