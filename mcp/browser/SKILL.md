@@ -9,7 +9,7 @@ For a page that needs no clicks, `web_fetch` is faster if it is installed.
 
 ## Steps
 
-1. `agent_browser_open` with the `url`.
+1. `agent_browser_open` with the `url`. If the user says show, watch or see, also pass `headed: true`, so a window opens.
 2. `agent_browser_snapshot` with `interactive: true`. You get a short list such as `textbox "Name" [ref=e3]` and `button "Save" [ref=e2]`.
 3. Act using a ref as the `selector`: `agent_browser_fill` with `e3`, `agent_browser_click` with `e2`.
 4. See the result: `agent_browser_read` for the text of the open page, or `agent_browser_snapshot` again.
