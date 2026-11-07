@@ -184,8 +184,14 @@ impl<'a> Parser<'a> {
         }
         let left = self.parse_factor()?;
         self.skip_whitespace();
-        if let Some(&'^') = self.chars.peek() {
+        let mut ahead = self.chars.clone();
+        let first = ahead.next();
+        let python_power = first == Some('*') && ahead.next() == Some('*');
+        if first == Some('^') || python_power {
             self.chars.next();
+            if python_power {
+                self.chars.next();
+            }
             let right = self.parse_power()?; // Right-associative exponentiation
             let value = left.powf(right);
             if value.is_nan() {
