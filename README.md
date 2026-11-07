@@ -88,6 +88,7 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 
 | Server | Needs | Command |
 |---|---|---|
+| `browser` | Node and a Chromium browser | `npx -y agent-browser@0.41.2 mcp --tools core` |
 | `filesystem` | Node | `npx -y @modelcontextprotocol/server-filesystem .` |
 | `everything` | Node | `npx -y @modelcontextprotocol/server-everything` |
 | `context7` | Node | `npx -y @upstash/context7-mcp` |

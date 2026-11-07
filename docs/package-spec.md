@@ -169,6 +169,7 @@ These set first values. The user can change them later.
 | `execution_mode` | Engine | `auto`, `manual` or `confirm_destructive` |
 | `default_turns` | Engine | Answers a loaded tool stays when unused. `-1` means no limit |
 | `permissions.network_access` | Engine | `true` lets a WebAssembly plugin use `http_fetch`, and records a network permission, which leads to approval in `sandboxed` mode |
+| `expose` | Engine | For an MCP package: the only tools the model gets, each with the only inputs it may set, such as `{ "open": ["url"] }`. Other calls are refused. Without it, everything the server offers is offered |
 | `permissions.secrets` | Engine | A setting's name and the one host it may be sent to |
 | `permissions.user_urls` | Engine | Settings that hold an address the user chose |
 | `permissions.file_system` | Engine, plugins | Anything but `none` records a file permission, the same way |

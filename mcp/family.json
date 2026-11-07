@@ -22,6 +22,10 @@
       "type": "local",
       "path": "context7/package.json"
     },
+    "browser": {
+      "type": "local",
+      "path": "browser/package.json"
+    },
     "postgres": {
       "type": "remote",
       "repo": "cluaiz-community/cluaiz-mcp-postgres",
