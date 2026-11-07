@@ -21,6 +21,12 @@ The browser has no window unless someone wants one. Pass `headed: true` to `agen
 
 Changing between hidden and visible restarts the browser and loses the open page and anything typed. So decide at the first open.
 
+If the browser is already open and the user wants to see it, do not restart it. Tell them to run `npx -y agent-browser@0.41.2 dashboard` and open the address it prints. If that address shows something else or nothing, the port is taken: run `dashboard stop`, then `dashboard start --port` with a free port.
+
+## Testing a website
+
+Go through what the user asked to test, one step at a time, with the steps above. After each step, check the result with a snapshot. Report each step as passed or failed, with what the page showed. You cannot see console errors, so say that you did not check them.
+
 ## Refs
 
 Refs last only until the page changes. After a click that changes the page, take a new snapshot.

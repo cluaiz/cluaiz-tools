@@ -30,6 +30,22 @@ Set it to an empty value to hide the window again. A change applies when the ser
 
 Switching between hidden and visible restarts the browser, which loses the open page. The window shows what happens on the page, but no mouse pointer is drawn.
 
+## Watching a running browser
+
+To watch the browser at any time, including a hidden one, without restarting it:
+
+```bash
+npx -y agent-browser@0.41.2 dashboard
+```
+
+Then open the address it prints, which is `http://localhost:4848` by default. It shows the open page live, its address and tabs, and the commands that ran after you opened it, with console and network tabs. You can click on the page there. Stop it with `npx -y agent-browser@0.41.2 dashboard stop`.
+
+If something else already uses that port, the command still prints the address but the dashboard does not start. Choose another port:
+
+```bash
+npx -y agent-browser@0.41.2 dashboard start --port 4857
+```
+
 ## Status
 
 Tested on Windows only.
