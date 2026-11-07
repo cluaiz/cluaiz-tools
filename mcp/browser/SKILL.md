@@ -11,7 +11,7 @@ For a page that needs no clicks, `web_fetch` is faster if it is installed.
 
 1. `agent_browser_open` with the `url`. If the user says show, watch or see, also pass `headed: true`, so a window opens.
 2. `agent_browser_snapshot` with `interactive: true`. You get a short list such as `textbox "Name" [ref=e3]` and `button "Save" [ref=e2]`.
-3. Act using a ref as the `selector`: `agent_browser_fill` with `e3`, `agent_browser_click` with `e2`.
+3. Act using a ref as the `selector`: `agent_browser_fill` with `e3`, `agent_browser_click` with `e2`. Pass only the ref, `e2`, not the whole line.
 4. See the result: `agent_browser_read` for the text of the open page, or `agent_browser_snapshot` again.
 5. `agent_browser_close` when the task is finished.
 
@@ -27,14 +27,14 @@ If the browser is already open and the user wants to see it, do not restart it. 
 
 A local address such as `http://localhost:3000` works too.
 
-1. Go through each thing the user asked to test, with the steps above. After each action, check the result with a snapshot.
-2. When the steps are done, collect the problems:
+1. Go through each thing the user asked to test, with the steps above. After each action, check the result with a snapshot. A click that returned OK happened, even when the page looks the same: do not click it again.
+2. When the steps are done, collect the problems, each tool once:
    - `agent_browser_errors`: script errors the page threw.
    - `agent_browser_console`: messages the page logged, including its own errors.
    - `agent_browser_network_requests` with `status: "4xx"`, then `status: "5xx"`: requests that failed.
    - `agent_browser_a11y`: accessibility problems, if the user asked about accessibility or a full check.
 3. Take `agent_browser_screenshot` of a page that failed a step.
-4. Report each step as passed or failed with what the page showed, then each problem once with the page it happened on. Say what you did not test.
+4. Then write the report; do not run the steps again. Report each step as passed or failed with what the page showed, then each problem once with the page it happened on. Say what you did not test.
 
 The logs keep everything since the browser opened. To check one step on its own, call `agent_browser_errors` and `agent_browser_console` with `clear: true` before it.
 
