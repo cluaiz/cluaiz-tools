@@ -4,7 +4,7 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "The current date and time on this computer, its UTC offset and day of the week. Needs no network.",
+  "description": "The current date and time on this computer, and date arithmetic: days between two dates, or a date some days or months away. Needs no network.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
@@ -23,7 +23,14 @@
     "current date",
     "what day is today",
     "system clock",
-    "local time"
+    "local time",
+    "days until",
+    "how many days",
+    "days between",
+    "add days",
+    "what date",
+    "day of the week",
+    "deadline"
   ],
   "dependencies": {
     "plugins": {},
@@ -44,12 +51,38 @@
         },
         "required": []
       }
+    },
+    {
+      "name": "date_calc",
+      "description": "Date arithmetic: the date some days or months from a date, or the number of days between two dates, with the day of the week.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Start date as YYYY-MM-DD. Default: today on this computer"
+          },
+          "add_days": {
+            "type": "integer",
+            "description": "Days to add; negative goes back"
+          },
+          "add_months": {
+            "type": "integer",
+            "description": "Months to add; negative goes back. A day past the month's end becomes its last day"
+          },
+          "until": {
+            "type": "string",
+            "description": "An end date as YYYY-MM-DD, to count the days from date to it"
+          }
+        },
+        "required": []
+      }
     }
   ],
-  "latest_version": "1.1.0",
+  "latest_version": "1.2.0",
   "versions": {
-    "1.1.0": {
-      "updated_at": "2026-11-07T12:00:00Z",
+    "1.2.0": {
+      "updated_at": "2026-11-07T21:00:00Z",
       "builds_os": [
         "wasm"
       ],

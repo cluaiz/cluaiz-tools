@@ -13,6 +13,38 @@ extern "C" {
 struct TimeRequest {
     #[serde(default)]
     utc_offset: Option<String>,
+    /// Date arithmetic (`date_calc`): the start date, default today
+    #[serde(default)]
+    date: Option<String>,
+    #[serde(default)]
+    add_days: Option<i64>,
+    #[serde(default)]
+    add_months: Option<i64>,
+    /// Count the days from `date` to this date
+    #[serde(default)]
+    until: Option<String>,
+}
+
+impl TimeRequest {
+    /// `date_calc` was called: the Engine passes only the arguments, not the function's name
+    fn is_date_calc(&self) -> bool {
+        self.date.is_some() || self.add_days.is_some() || self.add_months.is_some() || self.until.is_some()
+    }
+}
+
+#[derive(Serialize)]
+struct DateResponse {
+    status: &'static str,
+    date: String,
+    day_of_week: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    result: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    result_day_of_week: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    until: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    days_between: Option<i64>,
 }
 
 #[derive(Serialize)]
@@ -47,9 +79,16 @@ pub extern "C" fn allocate(len: u32) -> *mut u8 {
 pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
     let input = if len > 0 && !ptr.is_null() { core::slice::from_raw_parts(ptr, len as usize) } else { &[] };
     let request: TimeRequest = serde_json::from_slice(input).unwrap_or_default();
-    let output = match answer(&request, now_utc_ms(), utc_offset_minutes(), os_platform()) {
-        Ok(response) => serde_json::to_vec(&response),
-        Err(error) => serde_json::to_vec(&TimeError { status: "error", error }),
+    let output = if request.is_date_calc() {
+        match date_calc(&request, now_utc_ms(), utc_offset_minutes()) {
+            Ok(response) => serde_json::to_vec(&response),
+            Err(error) => serde_json::to_vec(&TimeError { status: "error", error }),
+        }
+    } else {
+        match answer(&request, now_utc_ms(), utc_offset_minutes(), os_platform()) {
+            Ok(response) => serde_json::to_vec(&response),
+            Err(error) => serde_json::to_vec(&TimeError { status: "error", error }),
+        }
     }
     .unwrap_or_else(|_| b"{\"status\":\"error\"}".to_vec());
     let (at, length) = (output.as_ptr() as u64, output.len() as u64);
@@ -84,6 +123,108 @@ fn answer(request: &TimeRequest, now_ms: i64, local_offset: i32, platform: i32) 
     })
 }
 
+const DAY_NAMES: [&str; 7] = ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"];
+
+/// Adds days or months to a date, or counts the days between two dates. Without `date`, today
+/// on this computer (or at `utc_offset`) is the start.
+fn date_calc(request: &TimeRequest, now_ms: i64, local_offset: i32) -> Result<DateResponse, String> {
+    let start = match request.date.as_deref().map(str::trim).filter(|text| !text.is_empty()) {
+        Some(text) => parse_date(text)?,
+        None => {
+            let offset = match request.utc_offset.as_deref().map(str::trim).filter(|text| !text.is_empty()) {
+                Some(text) => parse_offset(text)?,
+                None => local_offset,
+            };
+            (now_ms.div_euclid(1000) + i64::from(offset) * 60).div_euclid(86400)
+        }
+    };
+    let mut response = DateResponse {
+        status: "success",
+        date: format_date(start),
+        day_of_week: weekday(start),
+        result: None,
+        result_day_of_week: None,
+        until: None,
+        days_between: None,
+    };
+    if request.add_days.is_some() || request.add_months.is_some() {
+        let mut days = start;
+        if let Some(months) = request.add_months {
+            if months.abs() > 120_000 {
+                return Err("add_months is too large".into());
+            }
+            days = add_months(days, months);
+        }
+        if let Some(add) = request.add_days {
+            if add.abs() > 3_650_000 {
+                return Err("add_days is too large".into());
+            }
+            days += add;
+        }
+        response.result = Some(format_date(days));
+        response.result_day_of_week = Some(weekday(days));
+    }
+    if let Some(text) = request.until.as_deref().map(str::trim).filter(|text| !text.is_empty()) {
+        let end = parse_date(text)?;
+        response.until = Some(format_date(end));
+        response.days_between = Some(end - start);
+    }
+    Ok(response)
+}
+
+/// `YYYY-MM-DD` to days since 1970-01-01
+fn parse_date(text: &str) -> Result<i64, String> {
+    let bad = || format!("'{text}' is not a date. Use the form 2026-11-07");
+    let parts: Vec<&str> = text.split('-').collect();
+    if parts.len() != 3 || parts[0].len() != 4 || parts[1].len() != 2 || parts[2].len() != 2 {
+        return Err(bad());
+    }
+    let year: i64 = parts[0].parse().map_err(|_| bad())?;
+    let month: u32 = parts[1].parse().map_err(|_| bad())?;
+    let day: u32 = parts[2].parse().map_err(|_| bad())?;
+    if !(1..=12).contains(&month) || day == 0 || day > days_in_month(year, month) {
+        return Err(bad());
+    }
+    Ok(date_to_days(year, month, day))
+}
+
+fn days_in_month(year: i64, month: u32) -> u32 {
+    match month {
+        2 if (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        _ => 31,
+    }
+}
+
+/// A calendar date to days since 1970-01-01
+fn date_to_days(year: i64, month: u32, day: u32) -> i64 {
+    let year = if month <= 2 { year - 1 } else { year };
+    let era = year.div_euclid(400);
+    let yoe = year.rem_euclid(400);
+    let mp = i64::from((month + 9) % 12);
+    let doy = (153 * mp + 2) / 5 + i64::from(day) - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146097 + doe - 719468
+}
+
+/// Months later or earlier. A day past the new month's end becomes its last day: Jan 31 plus one month is Feb 28
+fn add_months(days: i64, months: i64) -> i64 {
+    let (year, month, day) = days_to_date(days);
+    let index = year * 12 + i64::from(month) - 1 + months;
+    let (new_year, new_month) = (index.div_euclid(12), (index.rem_euclid(12) + 1) as u32);
+    date_to_days(new_year, new_month, day.min(days_in_month(new_year, new_month)))
+}
+
+fn format_date(days: i64) -> String {
+    let (year, month, day) = days_to_date(days);
+    format!("{year:04}-{month:02}-{day:02}")
+}
+
+fn weekday(days: i64) -> &'static str {
+    DAY_NAMES[days.rem_euclid(7) as usize]
+}
+
 /// `+05:30`, `-04:00`, `+0530` or `Z`, in minutes
 fn parse_offset(text: &str) -> Result<i32, String> {
     let bad = || format!("'{text}' is not a UTC offset. Use a form like +05:30");
@@ -114,14 +255,13 @@ fn format_offset(minutes: i32) -> String {
 
 /// The date, time and day of the week of a count of seconds since 1970
 fn parts(seconds: i64) -> (String, String, &'static str) {
-    const DAYS: [&str; 7] = ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"];
     let days = seconds.div_euclid(86400);
     let in_day = seconds.rem_euclid(86400);
     let (year, month, day) = days_to_date(days);
     (
         format!("{year:04}-{month:02}-{day:02}"),
         format!("{:02}:{:02}:{:02}", in_day / 3600, in_day % 3600 / 60, in_day % 60),
-        DAYS[days.rem_euclid(7) as usize],
+        DAY_NAMES[days.rem_euclid(7) as usize],
     )
 }
 
@@ -157,9 +297,9 @@ mod tests {
 
     #[test]
     fn an_offset_can_cross_midnight_and_change_the_day() {
-        let request = TimeRequest { utc_offset: Some("-15:00".into()) };
+        let request = TimeRequest { utc_offset: Some("-15:00".into()), ..Default::default() };
         assert!(answer(&request, NOW_MS, 0, 1).is_err());
-        let request = TimeRequest { utc_offset: Some("+10:00".into()) };
+        let request = TimeRequest { utc_offset: Some("+10:00".into()), ..Default::default() };
         let time = answer(&request, NOW_MS, 0, 1).unwrap();
         assert_eq!(time.date, "2026-11-08");
         assert_eq!(time.day_of_week, "Sunday");
@@ -172,6 +312,30 @@ mod tests {
         assert_eq!(parse_offset("Z"), Ok(0));
         for bad in ["IST", "5", "+5:30", "+25:00", "America/New_York"] {
             assert!(parse_offset(bad).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn date_arithmetic() {
+        let calc = |date: Option<&str>, add_days: Option<i64>, add_months: Option<i64>, until: Option<&str>| {
+            let request = TimeRequest { date: date.map(Into::into), add_days, add_months, until: until.map(Into::into), ..Default::default() };
+            date_calc(&request, NOW_MS, 330)
+        };
+        let today = calc(None, Some(0), None, None).unwrap();
+        assert_eq!((today.date.as_str(), today.day_of_week), ("2026-11-07", "Saturday"));
+        let later = calc(Some("2026-11-07"), Some(100), None, None).unwrap();
+        assert_eq!((later.result.as_deref(), later.result_day_of_week), (Some("2027-02-15"), Some("Monday")));
+        assert_eq!(calc(Some("2026-01-31"), None, Some(1), None).unwrap().result.as_deref(), Some("2026-02-28"));
+        assert_eq!(calc(Some("2024-01-31"), None, Some(1), None).unwrap().result.as_deref(), Some("2024-02-29"));
+        assert_eq!(calc(Some("2026-03-15"), None, Some(-3), None).unwrap().result.as_deref(), Some("2025-12-15"));
+        assert_eq!(calc(Some("2026-11-07"), None, None, Some("2026-12-25")).unwrap().days_between, Some(48));
+        assert_eq!(calc(Some("2026-12-25"), None, None, Some("2026-11-07")).unwrap().days_between, Some(-48));
+        for bad in ["2026-02-30", "07-11-2026", "2026-13-01", "tomorrow"] {
+            assert!(calc(Some(bad), Some(1), None, None).is_err(), "{bad}");
+        }
+        for days in [-1000, 0, 19782, 20764, 100000] {
+            let (y, m, d) = days_to_date(days);
+            assert_eq!(date_to_days(y, m, d), days);
         }
     }
 
