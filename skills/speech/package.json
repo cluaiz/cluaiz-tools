@@ -1,0 +1,106 @@
+{
+  "id": "speech",
+  "name": "Speech",
+  "category": "audio",
+  "hub_type": "skill",
+  "description": "Turns an audio file into text and text into a spoken WAV file, with speech models running on this computer. Nothing is sent online.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "Audio",
+    "Speech",
+    "Transcription",
+    "Offline"
+  ],
+  "triggers": {
+    "semantic": [
+      "transcribe",
+      "transcription",
+      "speech to text",
+      "text to speech",
+      "read aloud",
+      "voice",
+      "audio",
+      "wav",
+      "mp3",
+      "meeting recording",
+      "say this",
+      "speak",
+      "audio to text",
+      "voice file",
+      "transcribe audio",
+      "m4a",
+      "flac",
+      "ogg"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "functions": [
+    {
+      "name": "speech",
+      "description": "Transcribe an audio file to text, or speak text into a WAV file, with the local speech models.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "transcribe",
+              "speak"
+            ],
+            "description": "transcribe: audio file to text. speak: text to a WAV file"
+          },
+          "file": {
+            "type": "string",
+            "description": "transcribe: the audio file to read (wav, mp3, flac, ogg, m4a)"
+          },
+          "text": {
+            "type": "string",
+            "description": "speak: the text to say"
+          },
+          "output": {
+            "type": "string",
+            "description": "speak: where to save the WAV file (default: speech.wav in the open folder)"
+          },
+          "voice": {
+            "type": "string",
+            "description": "speak: a voice id, such as af_heart or hf_alpha; leave out for the default"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code such as en or hi, if known"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/speech.py\" \"{file}\""
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-07T20:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
+        "scripts": [
+          "scripts/speech.py"
+        ]
+      }
+    }
+  }
+}

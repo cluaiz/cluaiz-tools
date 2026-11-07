@@ -21,6 +21,10 @@
     "git-assistant": {
       "type": "local",
       "path": "git-assistant/package.json"
+    },
+    "speech": {
+      "type": "local",
+      "path": "speech/package.json"
     }
   }
 }

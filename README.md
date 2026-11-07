@@ -83,6 +83,7 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 | `tool-creator` | Creates new skills, plugins and MCP servers |
 | `learn-cluaiz` | An introduction to Cluaiz |
 | `git-assistant` | Commit messages, checks before a commit, and merge conflicts |
+| `speech` | Turns audio into text and text into speech with local models; nothing is sent online |
 
 ### MCP servers
 
