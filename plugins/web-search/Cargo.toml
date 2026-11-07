@@ -1,22 +1,20 @@
 [package]
-name = "cluaiz-search"
-version = "0.1.0"
+name = "cluaiz_plugin_web_search"
+version = "0.2.0"
 edition = "2021"
 authors = ["Cluaiz Technologies"]
-description = "Native metasearch plugin for cluaiz engine"
+description = "Web search and page reading for the Cluaiz Engine, as one WebAssembly file"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
-tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "time", "net", "io-util"] }
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
-scraper = "0.19"
-serde = { version = "1.0", features = ["derive"] }
+scraper = { version = "0.29", default-features = false }
 serde_json = "1.0"
 urlencoding = "2.1.3"
-async-trait = "0.1.89"
-futures = "0.3.32"
-serde_yaml = "0.9.34"
 
-[dev-dependencies]
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+strip = true

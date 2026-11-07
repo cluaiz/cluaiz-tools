@@ -1,192 +1,81 @@
+//! Web search and page reading, as one WebAssembly file. Every request goes through the Engine's
+//! `cluaiz.http_fetch`, which holds the user's keys and refuses local addresses.
+//!
+//! The Engine passes only the arguments, so the arguments decide the function:
+//! `{"query": ...}` is `web_search` and `{"url": ...}` is `web_fetch`.
+
+mod fetch;
+mod host;
+mod html;
+mod search;
+
+use host::Http;
 use serde_json::{json, Value};
-use std::os::raw::c_char;
-use std::ffi::{CStr, CString};
 
-pub mod search_engine;
-pub mod parser;
-pub mod config;
-
-use search_engine::multiplexer::Multiplexer;
-use parser::{stripper::Stripper, ranker::Ranker, metadata::MetadataExtractor};
-
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub enum PayloadType {
-    Json,
-    Cdql,
-    WasmBinary,
-    RawBytes,
-    Bincode,
-}
-
-#[repr(C)]
-pub struct CxpPayload {
-    pub payload_type: PayloadType,
-    pub data_ptr: *const u8,
-    pub data_len: usize,
-}
-
-/// The main FFI entry point for the cluaiz engine to call into this native plugin.
 #[no_mangle]
-pub extern "C" fn execute_cel(payload_ptr: *const CxpPayload) -> *mut c_char {
-    if payload_ptr.is_null() {
-        return create_error_response("Null pointer received for CEL command");
-    }
-
-    let payload = unsafe { &*payload_ptr };
-    let bytes = unsafe { std::slice::from_raw_parts(payload.data_ptr, payload.data_len) };
-    
-    let cel_json = match std::str::from_utf8(bytes) {
-        Ok(s) => s,
-        Err(_) => return create_error_response("Invalid UTF-8 in payload bytes"),
-    };
-
-    let command: Value = match serde_json::from_str(cel_json) {
-        Ok(v) => v,
-        Err(e) => return create_error_response(&format!("Failed to parse CEL JSON payload. Error: {}, Payload: '{}'", e, cel_json)),
-    };
-
-    let rt = match tokio::runtime::Runtime::new() {
-        Ok(r) => r,
-        Err(e) => return create_error_response(&format!("Failed to spawn tokio runtime: {}", e)),
-    };
-
-    let result = rt.block_on(async {
-        process_command(command).await
-    });
-
-    let c_response = CString::new(result.to_string()).unwrap_or_else(|_| CString::new("{}").unwrap());
-    c_response.into_raw()
+pub extern "C" fn allocate(len: u32) -> *mut u8 {
+    let mut buffer = Vec::<u8>::with_capacity(len as usize);
+    let start = buffer.as_mut_ptr();
+    core::mem::forget(buffer);
+    start
 }
 
-/// Core async logic to process the parsed CEL command
-async fn process_command(command: Value) -> Value {
-    let mut action = command.get("action").and_then(|a| a.as_str()).unwrap_or("");
-    let mut target = command.get("target").and_then(|t| t.as_str()).unwrap_or("");
-    
-    // Fallback for simple {"query": "..."} payloads from CEL grammar
-    let q_str;
-    if action.is_empty() {
-        if let Some(q) = command.get("query").and_then(|q| q.as_str()) {
-            action = "query";
-            q_str = q;
-            target = &q_str;
-        }
-    }
-    
-    // Dynamic parameters passed from Engine's CEL payload
-    let max_ram_mb = command.get("max_ram_mb").and_then(|r| r.as_u64()).unwrap_or(4096) as usize;
-    let timeout_secs = command.get("timeout_secs").and_then(|t| t.as_u64()).unwrap_or(10);
-    let exclude_rules = command.get("exclude_rules").and_then(|r| r.as_str()).unwrap_or("");
-    let max_context_length = command.get("max_context_length").and_then(|m| m.as_u64()).unwrap_or(0) as usize;
-    
-    let custom_mirrors = command.get("mirrors").and_then(|m| m.as_array()).map(|arr| {
-        arr.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect::<Vec<String>>()
-    });
-
-    let config = match config::get_dynamic_config(&command).await {
-        Ok(c) => c,
-        Err(e) => {
-            return json!({ "status": "error", "message": format!("Failed to fetch dynamic config: {}", e) });
-        }
-    };
-
-    match action {
-        "query" => {
-            let start_time = std::time::Instant::now();
-            match Multiplexer::fetch_query(target, timeout_secs, custom_mirrors, &config.search_api_key, &config.search_api_type, config.think_mode, &config.response_length).await {
-                Ok(mut results) => {
-                    for result in &mut results {
-                        if let Some(html) = result.raw_content.take() {
-                            let clean_text = Stripper::clean_html(&html, exclude_rules);
-                            let compressed = Ranker::compress_context(&clean_text, target, max_ram_mb);
-                            let final_text = apply_context_limit(&compressed, max_context_length);
-                            result.raw_content = Some(final_text);
-                        }
-                    }
-                    let execution_time_sec = start_time.elapsed().as_secs_f64();
-                    json!({ 
-                        "status": "success", 
-                        "metadata": {
-                            "provider": config.search_api_type,
-                            "think_mode": config.think_mode_str,
-                            "response_length": config.response_length,
-                            "results_count": results.len(),
-                            "execution_time_sec": execution_time_sec
-                        },
-                        "results": results 
-                    })
-                },
-                Err(e) => json!({ "status": "error", "message": e })
-            }
-        },
-
-        "fetch" => {
-            let is_youtube = is_youtube_url(target);
-            match Multiplexer::fetch_url(target, timeout_secs).await {
-                Ok(raw_html) => {
-                    let metadata = MetadataExtractor::extract(&raw_html);
-                    
-                    // YouTube: Only return OG metadata, skip full content extraction (zero-bloat)
-                    if is_youtube {
-                        json!({ 
-                            "status": "success", 
-                            "source": "youtube_og_only",
-                            "metadata": metadata
-                        })
-                    } else {
-                        let clean_text = Stripper::clean_html(&raw_html, exclude_rules);
-                        let compressed = Ranker::compress_context(&clean_text, "", max_ram_mb);
-                        let final_text = apply_context_limit(&compressed, max_context_length);
-                        json!({ 
-                            "status": "success", 
-                            "metadata": metadata,
-                            "content": final_text 
-                        })
-                    }
-                },
-                Err(e) => json!({ "status": "error", "message": e })
-            }
-        },
-        _ => json!({ "status": "error", "message": format!("Unknown action: {}", action) })
-    }
-}
-
-/// Detects if a URL is a YouTube link
-fn is_youtube_url(url: &str) -> bool {
-    let lower = url.to_lowercase();
-    lower.contains("youtube.com") || lower.contains("youtu.be")
-}
-
-/// Applies developer-specified max_context_length limit from CEL payload
-fn apply_context_limit(text: &str, max_len: usize) -> String {
-    if max_len > 0 && text.len() > max_len {
-        text.chars().take(max_len).collect()
+/// # Safety
+/// The Engine passes an input it wrote through `allocate`.
+#[no_mangle]
+pub unsafe extern "C" fn execute_cel(start: *const u8, len: u32) -> u64 {
+    let input = if len > 0 && !start.is_null() {
+        core::slice::from_raw_parts(start, len as usize)
     } else {
-        text.to_string()
+        &[]
+    };
+    let answer = handle(input, &mut host::Engine).to_string().into_bytes();
+    let (at, length) = (answer.as_ptr() as u64, answer.len() as u64);
+    core::mem::forget(answer);
+    (at << 32) | length
+}
+
+fn handle(input: &[u8], http: &mut dyn Http) -> Value {
+    let Ok(args) = serde_json::from_slice::<Value>(input) else {
+        return error("The input must be JSON with a \"query\" or a \"url\"");
+    };
+    if let Some(url) = args.get("url").and_then(Value::as_str) {
+        let max_chars = args.get("max_chars").and_then(Value::as_u64);
+        return fetch::fetch(http, url, max_chars);
     }
-}
-
-fn create_error_response(msg: &str) -> *mut c_char {
-    let err = json!({ "status": "error", "message": msg }).to_string();
-    CString::new(err).unwrap().into_raw()
-}
-
-/// Memory cleanup for the FFI boundary
-#[no_mangle]
-pub extern "C" fn cluaiz_free_payload(ptr: *mut c_char, _len: usize) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = CString::from_raw(ptr);
-        }
+    let Some(query) = args.get("query").and_then(Value::as_str).map(str::trim).filter(|q| !q.is_empty()) else {
+        return error("Give a \"query\" to search for, or a \"url\" to read");
+    };
+    // A model often passes a link as the query. Read it
+    if !query.contains(char::is_whitespace) && (query.starts_with("https://") || query.starts_with("http://")) {
+        return fetch::fetch(http, query, None);
     }
+    search::search(http, query, args.get("max_results").and_then(Value::as_u64))
 }
 
-#[no_mangle]
-pub extern "C" fn free_string(ptr: *mut c_char) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = CString::from_raw(ptr);
-        }
+fn error(message: impl Into<String>) -> Value {
+    json!({ "status": "error", "message": message.into() })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::host::testing::Fake;
+
+    #[test]
+    fn the_arguments_choose_the_function() {
+        let mut http = Fake::new(|request| {
+            assert_eq!(request["url"], "https://example.com/");
+            json!({ "status": 200, "final_url": "https://example.com/", "content_type": "text/plain", "body": "hello", "truncated": false })
+        });
+        assert_eq!(handle(br#"{"url":"https://example.com/"}"#, &mut http)["content"], "hello");
+        assert_eq!(handle(br#"{"query":"https://example.com/"}"#, &mut http)["content"], "hello");
+    }
+
+    #[test]
+    fn bad_input_is_an_answer_not_a_crash() {
+        let mut http = Fake::new(|_| panic!("no request is made"));
+        assert_eq!(handle(b"not json", &mut http)["status"], "error");
+        assert_eq!(handle(br#"{"query":"  "}"#, &mut http)["status"], "error");
     }
 }

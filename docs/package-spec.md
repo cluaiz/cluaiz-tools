@@ -168,11 +168,14 @@ These set first values. The user can change them later.
 | `security_mode` | Engine | `inherit` or `require_approval`. `always_allow` is reduced to `require_approval` |
 | `execution_mode` | Engine | `auto`, `manual` or `confirm_destructive` |
 | `default_turns` | Engine | Answers a loaded tool stays when unused. `-1` means no limit |
-| `permissions.network_access` | Engine | `true` records a network permission, which leads to approval in `sandboxed` mode |
+| `permissions.network_access` | Engine | `true` lets a WebAssembly plugin use `http_fetch`, and records a network permission, which leads to approval in `sandboxed` mode |
+| `permissions.secrets` | Engine | A setting's name and the one host it may be sent to |
+| `permissions.user_urls` | Engine | Settings that hold an address the user chose |
 | `permissions.file_system` | Engine, plugins | Anything but `none` records a file permission, the same way |
-| `permissions.max_memory_mb`, `max_cpu_time_ms` | Nothing yet | **Planned** |
+| `permissions.max_memory_mb` | Engine | Lowers the memory limit of a WebAssembly plugin |
+| `permissions.max_cpu_time_ms` | Nothing yet | **Planned** |
 
-`permissions` tells the Engine when to ask. It does not grant anything: a WebAssembly plugin stays closed in whatever it declares.
+`permissions` tells the Engine when to ask. For a WebAssembly plugin, the only access it grants is the network rules above. See [Network access](plugins/wasm-abi-guide.md#network-access).
 
 ## Dependencies
 

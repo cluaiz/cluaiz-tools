@@ -75,8 +75,9 @@ The function's arguments go in as JSON text, and the plugin's output goes back. 
 |---|---|
 | Instructions per call | 2,000,000,000 |
 | Memory per call | 256 MB |
-| Host functions | `cluaiz.now_utc_ms`, `cluaiz.os_platform` |
-| Files, network, other programs | None |
+| Host functions | `cluaiz.now_utc_ms`, `cluaiz.os_platform`, `cluaiz.http_fetch` |
+| Network | Public https addresses, with `permissions.network_access`. See [Network access](../plugins/wasm-abi-guide.md#network-access) |
+| Files, other programs | None |
 
 ### Script plugins
 
@@ -148,6 +149,6 @@ Separately from the above, the Engine can itself be an MCP server for clients su
 These appear in manifests but have no effect in the Engine today. [Package specification](../package-spec.md) marks them.
 
 - `dependencies` for tools (only npm-style text versions are used, to prepare a runtime)
-- `permissions.max_memory_mb`, `permissions.max_cpu_time_ms`
+- `permissions.max_cpu_time_ms`
 - `allowed-tools` in `SKILL.md`: parsed, and neither approves nor limits anything
 - `versions.<v>.files.binary`

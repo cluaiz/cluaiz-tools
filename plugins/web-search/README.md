@@ -1,49 +1,56 @@
-# Component: cluaiz-search
+# Web Search
 
-## Technical Specification
-- **Purpose:** A native `cdylib` plugin that provides open-source web metasearch (DuckDuckGo/SearXNG) and HTML DOM parsing. It extracts raw text while stripping structural bloat and executes entirely within a secure C-FFI boundary without touching the disk for its configurations.
-- **Platform Support:** Windows, Linux, macOS (Hardware-agnostic)
-- **Reusability Level:** Native Plugin (Dynamically loaded via Engine's `UnifiedExecutor`)
+Searches the web and reads pages. It is one WebAssembly file that runs on every system, with nothing to set up.
 
-## Architectural Flow
-```mermaid
-graph LR
-    A["Engine (UnifiedExecutor)"] -->|"Injects Settings (JSON)"| B["execute_cel (lib.rs)"]
-    B --> C["config::get_dynamic_config"]
-    C -->|"Configured State"| D["multiplexer.rs (Async Pool)"]
-    D --> E["DuckDuckGo HTML / SearXNG"]
-    E --> F["stripper.rs (DOM Parser)"]
-    F --> G["C-FFI Return Pointer"]
+| Function | Input | Result |
+|---|---|---|
+| `web_search` | `query`, optional `max_results` (1 to 10) | Titles, links and snippets |
+| `web_fetch` | `url`, optional `max_chars` (up to 50000) | The page's title, description and text |
+
+It needs an Engine that provides `cluaiz.http_fetch`. Older Engines refuse to start it.
+
+## Search providers
+
+Providers are tried in this order. One that is not set up costs no request.
+
+| Provider | Setting | Notes |
+|---|---|---|
+| Your own SearXNG | `SEARXNG_URL` | No limit of its own. The search engines behind it can still block your server. Turn on the `json` format in its `settings.yml` |
+| Tavily | `TAVILY_API_KEY` | Has a free monthly allowance |
+| Exa | `EXA_API_KEY` | Has a free monthly allowance |
+| Brave Search | `BRAVE_API_KEY` | Monthly credit. Its site asks for a card |
+| Marginalia | `MARGINALIA_API_KEY` | A small independent index. Check its licence for your use |
+| DuckDuckGo | None | Best effort. It often answers automated requests with a challenge, which is reported as blocked and never worked around |
+| Wikipedia | None | English Wikipedia only, and labelled as such in the answer |
+
+Check each provider's terms and current prices on its own site.
+
+If every provider fails, the answer says so and lists what was tried. Results are never made up.
+
+## Settings
+
+Add them to `config/tool_settings.json` in the Engine's data folder, under the plugin's id:
+
+```json
+{
+  "web-search": {
+    "TAVILY_API_KEY": "your key",
+    "SEARXNG_URL": "http://localhost:8080"
+  }
+}
 ```
 
-## API Contract (Interface)
-- **Props/Struct/Trait:** `execute_cel` (C-FFI Entry Point), `DynamicConfig` (Payload State)
-- **Export Type:** `C-FFI` (`extern "C"`)
-- **Dependencies:** `reqwest` (HTTP), `tokio` (Async runtime), `scraper` (HTML parsing), `serde_json` (Payload mapping)
+The plugin never sees a key. It asks for `{{secret:TAVILY_API_KEY}}` in a header, and the Engine fills in the value, only for the host named in `permissions.secrets` in `package.json`.
 
-## Deep File Breakdown
-- `src/lib.rs`:
-  - **Logic:** `execute_cel` acts as the native C-ABI gateway.
-  - **Flow:** Receives `*const c_char`, deserializes it into `serde_json::Value`, invokes `get_dynamic_config`, and spawns the blocking Tokio thread for search execution.
-  - **Why:** To safely cross the FFI boundary and decouple async networking from the Engine's main execution loop.
+## What it can reach
 
-- `src/config.rs`:
-  - **Logic:** Extracts runtime configurations (`search_api_key`, `think_mode`).
-  - **Flow:** Reads strictly from the injected `serde_json::Value` payload. No disk traversal or IPC file-system access occurs.
-  - **Why:** Enforces strict sandbox isolation; plugins are prohibited from reading Engine manifest files directly from the disk.
+Every request goes through the Engine, which allows only https to public addresses and checks each redirect again. A page is read up to 2 MB. `SEARXNG_URL` is the only address that may be local or plain http, because the user chose it.
 
-- `src/search_engine/multiplexer.rs`:
-  - **Logic:** Concurrent API fetching and routing.
-  - **Flow:** Consumes the `DynamicConfig` and fires asynchronous GET requests to primary metasearch nodes.
-  - **Why:** To minimize network latency by racing multiple open-source endpoints simultaneously.
+## Build
 
-- `src/parser/stripper.rs`:
-  - **Logic:** Raw text extraction from HTML responses.
-  - **Flow:** Uses the `scraper` crate to traverse the DOM, retaining only semantic nodes (`<p>`, `<h1>`-`<h6>`) while aggressively dropping `<script>`, `<style>`, and layout bloat.
-  - **Why:** Prevents VRAM exhaustion and context-window overflow during AI generation by discarding boilerplate before returning data to the Engine.
+```bash
+cargo build --release --target wasm32-unknown-unknown
+cargo test
+```
 
-## Failure & Recovery Logic
-- **Potential Failure Point:** Network timeout or mirror rate-limiting (HTTP 429).
-- **Recovery Logic:** `rotator.rs` catches the error and executes fallback to secondary mirrors (e.g., swapping to DuckDuckGo if SearXNG fails). If all mirrors exhaust, it returns a structured JSON error `{"status": "error"}` across the FFI boundary instead of panicking.
-- **Potential Failure Point:** Memory overflow during massive DOM parsing.
-- **Recovery Logic:** `stripper.rs` implements byte-level truncation, halting extraction if the document exceeds the predefined buffer limit.
+The tests run natively against a stand-in for the Engine.

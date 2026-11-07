@@ -72,7 +72,7 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 | `text` | WebAssembly | Hashing, Base64, diffs and regular expressions | Runs |
 | `time` | WebAssembly | Current time and date formats | Runs |
 | `search` | WebAssembly | Ranks documents it is given. It cannot read files | Runs |
-| `web-search` | Native | Web search | Does not run: the Engine cannot run native plugins yet |
+| `web-search` | WebAssembly | Searches the web and reads pages. Needs the next Engine release | Runs on a current Engine build |
 
 ### Skills
 

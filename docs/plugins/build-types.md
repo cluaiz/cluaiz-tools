@@ -26,7 +26,7 @@ flowchart TD
 
 ## WebAssembly (`wasm`)
 
-**Choose it when** the job is exact computation on its input: math, parsing, hashing, text changes, searching text it is given.
+**Choose it when** the job is exact computation on its input, such as math, parsing, hashing or text changes, or when it needs web requests and nothing else on the machine.
 
 | | |
 |---|---|
@@ -34,7 +34,7 @@ flowchart TD
 | Built by | CI, with `--target wasm32-unknown-unknown` |
 | Runs on | Every system, from one file |
 | Needs on the machine | Nothing |
-| Can reach | Time and system name only |
+| Can reach | Time, system name, and public https addresses if it asks for `permissions.network_access` |
 | Commit | Source only. Do not commit a compiled file |
 
 The program name after install is always `<id>.wasm`. Older pages mention `logic.wasm`, which is not used.
@@ -94,7 +94,7 @@ A plugin with `execution` always runs the script, even if a `.wasm` is also pres
 
 ## Native binary (`binary`)
 
-**Status: Planned.** CI can build these, and the Engine downloads them, but **the Engine cannot run them**. A `.dll`, `.so` or `.dylib` is a library, and the Engine has nothing to load it with today. `web-search` is in this state. Do not publish a new binary plugin yet.
+**Status: Planned.** CI can build these, and the Engine downloads them, but **the Engine cannot run them**. A `.dll`, `.so` or `.dylib` is a library, and the Engine has nothing to load it with today. Do not publish a new binary plugin yet.
 
 | Today | |
 |---|---|
@@ -119,5 +119,5 @@ A plugin with `execution` always runs the script, even if a `.wasm` is also pres
 | Plugin | Type | Status |
 |---|---|---|
 | `math`, `text`, `time`, `search` | `wasm` | Runs |
-| `web-search` | `binary` | Does not run |
+| `web-search` | `wasm`, with network access | Runs on an Engine with `http_fetch` |
 | `code-interpreter`, `tool-creator` | Skill with `execution` | Runs |
