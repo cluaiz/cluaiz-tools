@@ -3,46 +3,40 @@ name: git-assistant
 description: "Helps with git: clear commit messages, checking staged changes for secrets and build output, and resolving merge conflicts."
 ---
 
-# 🌿 Git Assistant Protocol
+# Git Assistant
 
-When this skill is activated, you operate as the **Autonomous Git Assistant & Safety Auditor** for Cluaiz projects. Your mission is to enforce conventional commits, verify staged changes, prevent accidental data commits, and guide clean branch management.
+Use git through `run_command`, or through the `git` tools if they are installed. Make a commit, merge or branch change only when the user asks for it.
 
----
+## Before a commit
 
-## 🧭 SECTION 1: CONVENTIONAL COMMIT STANDARD
+1. `git status --short` and `git diff --staged`, to see exactly what will be committed.
+2. Stop and tell the user if the staged files include keys or passwords, `.env` files, build output such as `target/`, `dist/` or `node_modules/`, or large binary files.
+3. Note the branch with `git branch --show-current`. If it is `main` or `master`, say so before committing.
+4. Stage named files. Do not use `git add -A` unless the user wants everything.
 
-Every commit message must follow the Conventional Commits specification:
-`<type>(<scope>): <description>`
+## Commit message
 
-### Allowed Commit Types:
-- `feat:` A new feature or capability.
-- `fix:` A bug fix or crash resolution.
-- `refactor:` Code changes that neither fix a bug nor add a feature.
-- `chore:` Dependency updates, tooling, config, or build scripts.
-- `docs:` Documentation updates only.
-- `test:` Adding or updating automated tests.
-- `perf:` Performance optimizations.
+Use the Conventional Commits form, `type(scope): summary`:
 
-### Rules:
-1. **Imperative Mood:** Use "add", "fix", "update", NOT "added", "fixing", "updates".
-2. **Atomic Commits:** One logical change per commit. Never bundle unrelated changes across components.
-3. **No Fluff:** Never mention promotional adjectives or hype labels in commit logs.
+| Type | For |
+|---|---|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `refactor` | A change that is neither |
+| `docs` | Documentation only |
+| `test` | Tests only |
+| `perf` | Speed |
+| `chore` | Build, tooling and dependencies |
 
----
+- Write the summary in the imperative, such as "add" or "fix", in under 72 characters.
+- One logical change per commit. If the staged changes do two things, suggest two commits.
+- Say what changed and why. No hype words.
 
-## 🛡️ SECTION 2: PRE-COMMIT SAFETY AUDIT
+## Merge conflicts
 
-Before proposing or executing any git commit:
-1. **Check Staged Status:** Run `git status -s` to inspect all tracked and untracked files.
-2. **Review Diffs:** Run `git diff --staged` to ensure no sensitive files (`.env`, secrets, credentials, binary caches, build artifacts) are staged.
-3. **Branch Verification:** Check current branch using `git branch --show-current`. Warn immediately if attempting to commit directly to protected branches (`main`, `master`, `release`) without an explicit flag.
+1. List the files: `git diff --name-only --diff-filter=U`.
+2. For each one, read both sides between `<<<<<<<`, `=======` and `>>>>>>>`, and work out what each side meant to do.
+3. Keep both intentions where you can. If they truly disagree, ask the user.
+4. Remove every marker, build or test if you can, then `git add` the file.
 
----
-
-## ⚡ SECTION 3: MERGE CONFLICT RESOLUTION
-
-When handling merge conflicts:
-1. Identify all conflicted files via `git diff --name-only --diff-filter=U`.
-2. Inspect conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
-3. Retain intended incoming logic while preserving architectural integrity.
-4. Verify build and tests pass before finalizing resolution with `git add`.
+Never use `git push --force`, `git reset --hard` or `git clean` unless the user asks, and say first what they will discard.

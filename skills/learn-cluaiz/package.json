@@ -3,7 +3,7 @@
   "name": "Learn Cluaiz Guide",
   "category": "utility",
   "hub_type": "skill",
-  "description": "Technical tutorial and architecture guide for the Cluaiz ecosystem.",
+  "description": "Explains what Cluaiz is and how its Engine and tools work. Use when the user asks about Cluaiz itself.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
@@ -18,10 +18,10 @@
     "mcp": {},
     "skills": {}
   },
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-11-07T12:00:00Z",
+    "1.1.0": {
+      "updated_at": "2026-11-07T18:00:00Z",
       "files": {
         "skill": "SKILL.md",
         "icon": "assets/icon.svg"

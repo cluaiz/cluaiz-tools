@@ -70,9 +70,9 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 |---|---|---|---|
 | `math` | WebAssembly | Evaluates math expressions | Runs |
 | `text` | WebAssembly | Hashing, Base64, diffs and regular expressions | Runs |
-| `time` | WebAssembly | The current date and time on this computer | Needs the next Engine release |
+| `time` | WebAssembly | The current date and time on this computer, with its UTC offset | Needs the next Engine release |
 | `search` | WebAssembly | Ranks documents it is given. It cannot read files | Runs |
-| `web-search` | WebAssembly | Searches the web and reads pages. Needs the next Engine release | Runs on a current Engine build |
+| `web-search` | WebAssembly | Searches the web and reads pages | Needs the next Engine release |
 
 ### Skills
 
@@ -89,11 +89,11 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 | Server | Needs | Command |
 |---|---|---|
 | `browser` | Node and a Chromium browser | `npx -y agent-browser@0.41.2 mcp --tools core` |
-| `filesystem` | Node | `npx -y @modelcontextprotocol/server-filesystem .` |
-| `everything` | Node | `npx -y @modelcontextprotocol/server-everything` |
-| `context7` | Node | `npx -y @upstash/context7-mcp` |
-| `fetch` | `uv` | `uvx mcp-server-fetch` |
-| `git` | `uv` | `uvx mcp-server-git` |
+| `filesystem` | Node | `npx -y @modelcontextprotocol/server-filesystem@2.2.0 .` |
+| `everything` | Node | `npx -y @modelcontextprotocol/server-everything@2.2.1` |
+| `context7` | Node | `npx -y @upstash/context7-mcp@4.5.1` |
+| `fetch` | `uv` | `uvx mcp-server-fetch@2026.11.4` |
+| `git` | `uv` | `uvx mcp-server-git@2026.11.4` |
 
 ## Write a tool
 
