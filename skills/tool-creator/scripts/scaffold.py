@@ -8,7 +8,6 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ICON_COLOR = {"skills": "#3B82F6", "plugins": "#F59E0B", "mcp": "#8B5CF6"}
 HUB_TYPE = {"skills": "skill", "plugins": "plugin", "mcp": "mcp"}
 
 CARGO_TOML = """[package]
@@ -153,12 +152,11 @@ def skill_text(spec):
 
 def package_files(spec):
     category = spec["category"]
-    color = ICON_COLOR[category]
     files = {
         "package.json": json.dumps(manifest(spec), indent=2) + "\n",
         "assets/icon.svg": spec.get("icon_svg") or (
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" '
-            f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n'
+            f'stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n'
             f'  <circle cx="12" cy="12" r="9"/>\n  <path d="M12 8v8M8 12h8"/>\n</svg>\n'
         ),
     }
