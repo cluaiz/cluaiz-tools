@@ -17,7 +17,10 @@
     "library documentation",
     "latest api docs",
     "how do i use this library",
-    "context7"
+    "context7",
+    "documentation",
+    "library docs",
+    "framework docs"
   ],
   "dependencies": {
     "plugins": {},

@@ -18,7 +18,12 @@
     "WASM"
   ],
   "triggers": [
+    "hash",
     "sha256 hash",
+    "sha-256",
+    "base64",
+    "decode",
+    "encode",
     "base64 encode",
     "base64 decode",
     "regex",
