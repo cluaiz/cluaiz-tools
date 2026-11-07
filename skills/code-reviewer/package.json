@@ -30,9 +30,6 @@
           "references/security_checklist.md",
           "references/review_rubric.md"
         ],
-        "scripts": [
-          "scripts/extract_diff.py"
-        ],
         "assets": [
           "assets/icon.svg",
           "assets/report_template.md"
