@@ -4,7 +4,7 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "logo": "/assets/math.svg",
+  "icon": "assets/icon.svg",
   "title": "Deterministic Math Plugin",
   "description": "High-precision arithmetic, calculus, and mathematical expression evaluator for Cluaiz.",
   "author": {

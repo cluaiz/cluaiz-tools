@@ -1,116 +1,94 @@
-# 🏛️ Cluaiz Tools Registry Architecture & Package Packaging
+# Registry files
 
-This document defines how packages are indexed, versioned, and distributed across the decentralized Cluaiz Tools repository.
+The formats of `registry.json` and `family.json`. [Registry and discovery](../architecture/registry-and-discovery.md) explains how they are used. `package.json` is in the [package specification](../package-spec.md).
 
----
-
-## 🗂️ 1. Registry Topology & File Hierarchy
+## Layout
 
 ```
 cluaiz-tools/
-├── registry.json             ← Root Router
+├── registry.json
 ├── skills/
-│   ├── family.json           ← Index of all published Skills
+│   ├── family.json
 │   └── code-reviewer/
-│       ├── package.json      ← Package version mapping, dependencies & assets
+│       ├── package.json
 │       ├── SKILL.md
 │       └── assets/icon.svg
 ├── plugins/
-│   ├── family.json           ← Index of all published Plugins
+│   ├── family.json
 │   └── math/
 │       ├── package.json
-│       ├── logic.wasm
+│       ├── SKILL.md
+│       ├── assets/icon.svg
+│       ├── Cargo.toml
+│       └── src/
+├── mcp/
+│   ├── family.json
+│   └── filesystem/
+│       ├── package.json
 │       └── assets/icon.svg
-└── mcp/
-    ├── family.json           ← Index of all published MCP Servers
-    └── filesystem/
-        ├── package.json
-        └── assets/icon.svg
+└── extensions/
+    └── family.json
 ```
 
----
-
-## 📜 2. Master Routing (`registry.json`)
-
-The root `registry.json` directs the CLI and Engine installer to the corresponding family catalogs:
+## `registry.json`
 
 ```json
 {
   "version": "1.0.0",
   "routing": {
-    "skills": "skills/family.json",
     "plugins": "plugins/family.json",
-    "mcp": "mcp/family.json"
+    "skills": "skills/family.json",
+    "mcp": "mcp/family.json",
+    "extensions": "extensions/family.json"
   }
 }
 ```
 
----
+| Field | Meaning |
+|---|---|
+| `version` | Version of this file's format |
+| `routing` | Each family and the path to its `family.json` |
 
-## 📦 3. Family Index (`family.json`)
+The Engine uses `plugins`, `skills` and `mcp`. `extensions` is experimental.
 
-Each category directory contains a `family.json` mapping package names to their `package.json` relative paths:
+## `family.json`
 
 ```json
 {
   "category": "plugins",
-  "name": "Cluaiz Official Plugins",
+  "name": "Cluaiz Plugins",
   "items": {
-    "math": "math/package.json",
-    "text": "text/package.json",
-    "search": "search/package.json",
-    "time": "time/package.json",
-    "sysinfo": "sysinfo/package.json"
-  }
-}
-```
-
----
-
-## 📋 4. Package Metadata (`package.json`)
-
-Every package must contain a `package.json` defining semver versions, dependencies, and file bundle links:
-
-```json
-{
-  "id": "math",
-  "name": "Math Evaluator",
-  "category": "plugin",
-  "hub_type": "plugin",
-  "build_type": "wasm",
-  "logo": "/assets/icon.svg",
-  "title": "Deterministic Math Plugin",
-  "description": "Deterministic high-precision arithmetic and mathematical evaluation engine",
-  "author": {
-    "name": "Aryan",
-    "url": "https://github.com/cluaiz"
-  },
-  "license": "Apache-2.0",
-  "latest_version": "1.0.0",
-  "dependencies": {
-    "plugins": {},
-    "mcp": {},
-    "skills": {}
-  },
-  "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": ["wasm"],
-      "files": {
-        "binary": "logic.wasm",
-        "icon": "assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/math-files.zip"
-      }
+    "math": { "type": "local", "path": "math/package.json" },
+    "image-optimizer": {
+      "type": "remote",
+      "repo": "cluaiz-community/cluaiz-plugin-image-opt",
+      "branch": "main",
+      "manifest_path": "package.json"
     }
   }
 }
 ```
 
----
+| Field | Meaning |
+|---|---|
+| `category` | The family |
+| `name` | Display name |
+| `items` | Each tool, by id |
 
-## 🎨 5. Mandatory UI Vector Asset (`assets/icon.svg`)
+### Item forms
 
-Every tool in Cluaiz Tools MUST contain a valid standalone SVG file (`assets/icon.svg`):
-- Format: Standard `<svg>...</svg>` vector document.
-- Dimensions: 24x24 viewBox.
-- The Cluaiz Web UI and desktop applications render this SVG directly inline for a native look.
+| Form | Fields | Status |
+|---|---|---|
+| Short | `"math": "math/package.json"` | **Works** |
+| Local | `type: "local"`, `path` | **Works** |
+| Remote | `type: "remote"`, `repo`, `branch`, `manifest_path` | **Planned**. See [Tools from other repositories](../architecture/decoupled-ecosystem.md) |
+
+`path` is relative to the family's folder.
+
+## Icon
+
+Every tool must have `assets/icon.svg`. See [Package specification](../package-spec.md#icon-required).
+
+## Pointing the Engine at another registry
+
+The default is `https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/registry.json`. A `package.json` in the Engine's config folder can set another address, which is useful for testing a registry fork.

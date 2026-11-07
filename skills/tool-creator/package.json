@@ -22,13 +22,54 @@
     "mcp": {},
     "skills": {}
   },
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "python \"{tool_dir}/scripts/scaffold.py\" \"{file}\""
+  },
+  "functions": [
+    {
+      "name": "create_tool",
+      "description": "Autonomously scaffolds and creates a new Skill, Plugin, or MCP Server in the Cluaiz ecosystem and registers it in tools registry.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["skills", "plugins", "mcp"],
+            "description": "Pillar category for the tool"
+          },
+          "tool_id": {
+            "type": "string",
+            "description": "Unique kebab-case slug for the tool"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the tool"
+          },
+          "description": {
+            "type": "string",
+            "description": "Accurate summary of capabilities"
+          },
+          "triggers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Semantic keyword phrases that activate the tool"
+          }
+        },
+        "required": ["category", "tool_id", "name", "description"]
+      }
+    }
+  ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+      "updated_at": "2026-09-24T12:00:00Z",
       "files": {
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "scripts": ["scripts/scaffold.py"]
       }
     }
   }

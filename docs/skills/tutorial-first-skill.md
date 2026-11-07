@@ -1,116 +1,83 @@
-# 🚀 Tutorial: Build Your First Cluaiz Skill
+# Tutorial: first skill
 
-In this hands-on tutorial, we will build, package, and test a complete Skill from scratch: **`git-assistant`**.
+Build `commit-helper`, a skill that writes commit messages.
 
----
-
-## 🛠️ Step 1: Create Directory Structure
-
-Create a new directory in your local workspace or `~/.cluaiz/tools/skills/`:
+## 1. Create the folder
 
 ```bash
-mkdir -p git-assistant/assets
-cd git-assistant
+mkdir -p commit-helper/assets
+cd commit-helper
 ```
 
+## 2. Write `SKILL.md`
+
+```markdown
+---
+name: commit-helper
+description: Writes clear Git commit messages from the current changes. Use when the user asks for a commit message or wants to commit.
+license: Apache-2.0
 ---
 
-## 📦 Step 2: Create `package.json`
+# Commit messages
 
-Create `package.json` with package metadata and dependencies:
+1. Run `git diff --staged`. If it is empty, run `git diff`.
+2. Find the one main purpose of the change.
+3. Write one line of at most 72 characters: `type(scope): what changed`.
+4. Show the message and ask before committing.
+
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
+
+Example: `fix(auth): refresh the token before it expires`
+```
+
+This one file is already a working skill.
+
+## 3. Try it
+
+Copy the folder into your project, then start the agent:
+
+```bash
+mkdir -p ../my-project/.agents/skills
+cp -r ../commit-helper ../my-project/.agents/skills/
+cd ../my-project
+cluaiz agent
+```
+
+Type `/skills` and check that it is listed. Then ask: `write a commit message for my changes`.
+
+## 4. Prepare to publish
+
+Add `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`, and `package.json`:
 
 ```json
 {
-  "id": "git-assistant",
-  "name": "Git Assistant",
+  "id": "commit-helper",
+  "name": "Commit Helper",
   "category": "engineering",
   "hub_type": "skill",
-  "logo": "/assets/icon.svg",
-  "title": "Git Workflow Protocol",
-  "description": "Assists developers with Git commit conventions, branch workflows, and merge conflict resolution.",
-  "author": {
-    "name": "Aryan",
-    "url": "https://github.com/cluaiz"
-  },
+  "icon": "assets/icon.svg",
+  "description": "Writes clear Git commit messages from the current changes. Use when the user asks for a commit message or wants to commit.",
   "license": "Apache-2.0",
-  "tags": [
-    "Git",
-    "DevOps",
-    "Workflow"
-  ],
-  "dependencies": {
-    "plugins": {},
-    "mcp": {
-      "git": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json"
-      }
-    },
-    "skills": {}
-  },
+  "triggers": { "semantic": ["commit message"] },
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "files": {
-        "skill": "/SKILL.md",
-        "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/git-assistant-files.zip"
-      }
+      "updated_at": "2026-11-06T12:00:00Z",
+      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
 ```
 
----
+## 5. Publish
 
-## ✍️ Step 3: Create `SKILL.md`
+1. Put the folder at `skills/commit-helper/`.
+2. Add it to `skills/family.json`:
 
-Create `SKILL.md` with structured instructional rules:
+   ```json
+   "commit-helper": { "type": "local", "path": "commit-helper/package.json" }
+   ```
 
-```markdown
----
-id: cluaiz.skill.devops.git-assistant
-name: git-assistant
-triggers:
-  semantic:
-    - "git help"
-    - "write commit message"
-    - "git workflow"
-    - "resolve merge conflict"
----
-
-# 🌿 Git Workflow Protocol
-
-When this skill is active, you enforce strict Git best practices:
-
-## 1. Conventional Commits Standard
-Format all commit messages strictly as: `<type>(<scope>): <subject>`
-- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
-- Imperative tone: "add feature" NOT "added feature".
-
-## 2. Merge Conflict Resolution
-When explaining merge conflicts, show exact 3-way conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
-```
-
----
-
-## 🎨 Step 4: Add `assets/icon.svg`
-
-Create `assets/icon.svg` for UI rendering:
-
-```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="18" cy="18" r="3"/>
-  <circle cx="6" cy="6" r="3"/>
-  <circle cx="6" cy="18" r="3"/>
-  <path d="M18 9a9 9 0 0 1-9 9"/>
-  <line x1="6" y1="9" x2="6" y2="15"/>
-</svg>
-```
-
----
-
-## 🧪 Step 5: Test Locally
-
-Copy the folder to `~/.cluaiz/tools/skills/git-assistant/`. The Cluaiz engine will automatically probe and register the new skill on the next inference query!
+3. Push. CI makes the zip and the release.
+4. Test with `cluaiz skill install commit-helper` in a clean `CLUAIZ_HOME`.

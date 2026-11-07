@@ -1,110 +1,46 @@
 ---
-title: "Extracting Settings in WASM"
-description: "How to use system_bindings to fetch variables via MsgPack in a WASM Plugin."
+title: "Settings in plugins"
+description: "How a plugin gets configuration today, and what is planned."
 category: "Tutorials"
 ---
 
-# 2. Fetching Settings & Variables in WASM
+# 2. Settings in plugins
 
-Because plugins run inside the strict `Wasmtime` VM (sandbox), they cannot read `.json` configuration files directly from the host machine's disk. 
+**Status: Planned.** The Engine does not pass settings to a plugin. A WebAssembly plugin receives only the function's arguments. Older versions of this page described `system_bindings`, a `settings` block and MsgPack input, none of which exist.
 
-Instead, plugins request `system_bindings` in their manifest, and the cluaiz Engine bundles those settings into a `MsgPack` payload, passing a pointer directly into the WASM module.
+## What to do today
 
----
-
-## Step 1: Subscribe to Variables
-
-In your `package.json`, declare the dynamic settings you need:
+**Make it an argument.** Anything the plugin needs comes through the function's arguments, and the model fills them in:
 
 ```json
 {
-  "id": "cluaiz-math-accelerator",
-  "name": "Math Accelerator",
-  "settings": {
-    "precision": { "type": "number", "default": 10, "desc": "Decimal precision" },
-    "mode": { "type": "enum", "options": ["standard", "scientific"], "default": "standard", "desc": "Calculation mode" }
+  "name": "round_number",
+  "description": "Round a number.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "value": { "type": "number" },
+      "decimals": { "type": "integer", "description": "Decimal places. Default 2." }
+    },
+    "required": ["value"]
   }
 }
 ```
 
-## Step 2: Deserializing MsgPack in Rust
+**Set defaults in the plugin** for anything the model leaves out.
 
-The Engine serializes the data according to the `payload_format: "MsgPack"` rule defined in the manifest. We must use `rmp_serde` to decode it inside the WASM environment.
+**Use a script plugin** if it must read a configuration file. It has the user's rights. See [Script plugins](../../plugins/build-types.md#script-plugins).
 
-Update your `src/lib.rs`:
+## What the user can already change
 
-```rust
-use serde::{Deserialize, Serialize};
-use std::ffi::{c_char, CString};
+These settings apply to any tool, and the Engine uses them itself. A plugin never sees them:
 
-// 1. Define the Expected Data Structure
-#[derive(Deserialize, Debug)]
-struct CelPayload {
-    action: String,
-    system_booster: Option<serde_json::Value>,
-    system_control: Option<serde_json::Value>,
-    settings: Option<serde_json::Value>, // Custom plugin settings injected here!
-    // Your specific plugin arguments
-    expr: Option<String>, 
-}
+| Setting | Changed with |
+|---|---|
+| On or off | `cluaiz plugin config`, CEP `tools.set_settings` |
+| `security_mode` | Same |
+| `execution_mode` | Same |
 
-#[repr(C)]
-pub enum PayloadType { Json, Cdql, WasmBinary, RawBytes, Bincode, MsgPack }
+## The planned way
 
-#[repr(C)]
-pub struct CxpPayload {
-    pub payload_type: PayloadType,
-    pub data_ptr: *const u8,
-    pub data_len: usize,
-}
-
-#[no_mangle]
-pub extern "C" fn cluaiz_entry(payload_ptr: *const CxpPayload) -> *mut c_char {
-    if payload_ptr.is_null() {
-        return std::ptr::null_mut();
-    }
-
-    let payload_ref = unsafe { &*payload_ptr };
-    let incoming_bytes = unsafe {
-        std::slice::from_raw_parts(payload_ref.data_ptr, payload_ref.data_len)
-    };
-
-    // 2. Deserialize the MsgPack Payload
-    let payload: CelPayload = match rmp_serde::from_slice(incoming_bytes) {
-        Ok(p) => p,
-        Err(_) => {
-            let error = r#"{"status":"error", "message":"MsgPack parse failed"}"#;
-            return CString::new(error).unwrap().into_raw();
-        }
-    };
-
-    // 3. Extract the System Bindings safely
-    let think_mode = payload.system_booster
-        .as_ref()
-        .and_then(|b| b.get("think_mode"))
-        .and_then(|t| t.as_str())
-        .unwrap_or("Off");
-
-    // Plugin Logic Goes Here...
-    let response = format!(
-        r#"{{"status": "success", "think_mode": "{}", "expression_received": "{:?}"}}"#, 
-        think_mode, payload.expr
-    );
-    
-    CString::new(response).unwrap_or_default().into_raw()
-}
-```
-
-> [!IMPORTANT]
-> The WASM module must return a dynamically allocated `CString` (which creates a memory leak in WASM linear memory). To fix this, you must also export a `cluaiz_free_payload` function so the Engine can free it!
-
-```rust
-#[no_mangle]
-pub extern "C" fn cluaiz_free_payload(ptr: *mut c_char, _len: usize) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = CString::from_raw(ptr);
-        }
-    }
-}
-```
+A plugin would read Engine values through a CEP request, after declaring the method in `package.json`. See [CEP and plugins](03-cep-architecture.md).

@@ -1,17 +1,16 @@
-# 🚀 Tutorial: Build Your First WASM Plugin
+# Tutorial: first plugin
 
-In this tutorial, we will write, compile, and package a high-performance WASM Plugin in Rust: **`hasher`** (computing SHA-256 hashes deterministically).
+Build `hasher`, a WebAssembly plugin that returns the SHA-256 hash of a text.
 
----
-
-## 🛠️ Step 1: Initialize Rust WASM Project
+## 1. Create the project
 
 ```bash
+rustup target add wasm32-unknown-unknown
 cargo new --lib hasher
 cd hasher
 ```
 
-Configure `Cargo.toml`:
+`Cargo.toml`:
 
 ```toml
 [package]
@@ -23,62 +22,76 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+serde_json = "1"
 sha2 = "0.10"
 hex = "0.4"
 ```
 
----
+## 2. Write the plugin
 
-## 💻 Step 2: Implement C-ABI in `src/lib.rs`
+`src/lib.rs`:
 
 ```rust
-use sha2::{Sha256, Digest};
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 
 #[no_mangle]
 pub extern "C" fn allocate(len: u32) -> *mut u8 {
-    let mut buf = Vec::with_capacity(len as usize);
-    let ptr = buf.as_mut_ptr();
-    std::mem::forget(buf);
-    ptr
+    let mut buffer = Vec::with_capacity(len as usize);
+    let address = buffer.as_mut_ptr();
+    std::mem::forget(buffer);
+    address
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn deallocate(ptr: *mut u8, len: u32) {
-    if !ptr.is_null() {
-        let _ = Vec::from_raw_parts(ptr, len as usize, len as usize);
+pub unsafe extern "C" fn execute_cel(address: *const u8, len: u32) -> u64 {
+    let input = std::slice::from_raw_parts(address, len as usize);
+    let output = run(input).to_string().into_bytes();
+    let packed = ((output.as_ptr() as u64) << 32) | output.len() as u64;
+    std::mem::forget(output);
+    packed
+}
+
+fn run(input: &[u8]) -> Value {
+    let arguments: Value = match serde_json::from_slice(input) {
+        Ok(value) => value,
+        Err(error) => return json!({ "status": "error", "message": error.to_string() }),
+    };
+    let Some(text) = arguments["text"].as_str() else {
+        return json!({ "status": "error", "message": "'text' is required" });
+    };
+    json!({ "status": "success", "sha256": hex::encode(Sha256::digest(text)) })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::run;
+
+    #[test]
+    fn hashes_the_text() {
+        let answer = run(br#"{"text": "hello"}"#);
+        assert_eq!(answer["sha256"], "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824");
+    }
+
+    #[test]
+    fn a_missing_field_is_an_error() {
+        assert_eq!(run(b"{}")["status"], "error");
     }
 }
-
-#[no_mangle]
-pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
-    let input = std::slice::from_raw_parts(ptr, len as usize);
-    
-    let mut hasher = Sha256::new();
-    hasher.update(input);
-    let result = hasher.finalize();
-    let hex_hash = hex::encode(result);
-    
-    let out_bytes = hex_hash.into_bytes();
-    let out_len = out_bytes.len() as u64;
-    let out_ptr = out_bytes.as_ptr() as u64;
-    std::mem::forget(out_bytes);
-    
-    (out_ptr << 32) | (out_len & 0xFFFFFFFF)
-}
 ```
 
----
+Keep the work in a normal function, as `run` is here. `cargo test` can then test it without WebAssembly.
 
-## 🔨 Step 3: Compile to WebAssembly
+## 3. Build
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release
-cp target/wasm32-unknown-unknown/release/hasher.wasm logic.wasm
+cargo test
+cargo build --release --target wasm32-unknown-unknown
 ```
 
----
+The file is `target/wasm32-unknown-unknown/release/hasher.wasm`.
 
-## 📦 Step 4: Create `package.json`
+## 4. Write `package.json`
 
 ```json
 {
@@ -87,44 +100,90 @@ cp target/wasm32-unknown-unknown/release/hasher.wasm logic.wasm
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "logo": "/assets/icon.svg",
-  "title": "Deterministic Cryptographic Hasher",
-  "description": "Deterministic SHA-256 cryptographic hashing plugin.",
-  "author": {
-    "name": "Aryan",
-    "url": "https://github.com/cluaiz"
-  },
+  "icon": "assets/icon.svg",
+  "description": "Computes the SHA-256 hash of a text. Use when the user asks for a hash or checksum.",
   "license": "Apache-2.0",
-  "tags": [
-    "Crypto",
-    "SHA256",
-    "Hashing"
+  "triggers": ["sha256", "hash", "checksum"],
+  "functions": [
+    {
+      "name": "hash_text",
+      "description": "Compute the SHA-256 hash of a text.",
+      "parameters": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      }
+    }
   ],
-  "dependencies": {
-    "plugins": {},
-    "mcp": {},
-    "skills": {}
-  },
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": [
-        "wasm"
-      ],
-      "files": {
-        "binary": "logic.wasm",
-        "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/hasher-files.zip"
-      }
+      "updated_at": "2026-11-06T12:00:00Z",
+      "builds_os": ["wasm"],
+      "files": { "icon": "assets/icon.svg" }
     }
   }
 }
 ```
 
----
+## 5. Add the icon
 
-## 🎨 Step 5: Add `assets/icon.svg` & Test Locally
+Create `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`:
 
-Add `assets/icon.svg`. Copy the folder to `~/.cluaiz/tools/plugins/hasher/`. The engine will auto-probe and make the plugin available for inference immediately!
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>
+</svg>
+```
 
+## 6. Test it in the Engine
+
+Install it by hand in a test home, so your real installation stays untouched.
+
+**PowerShell**
+
+```powershell
+$env:CLUAIZ_HOME = "$PWD\test-home"
+New-Item -ItemType Directory -Force "$env:CLUAIZ_HOME\tools\plugins\hasher\assets" | Out-Null
+Copy-Item package.json "$env:CLUAIZ_HOME\tools\plugins\hasher\"
+Copy-Item assets\icon.svg "$env:CLUAIZ_HOME\tools\plugins\hasher\assets\"
+Copy-Item target\wasm32-unknown-unknown\release\hasher.wasm "$env:CLUAIZ_HOME\tools\plugins\hasher\hasher.wasm"
+cluaiz plugin list
+```
+
+**Linux and macOS**
+
+```bash
+export CLUAIZ_HOME="$PWD/test-home"
+mkdir -p "$CLUAIZ_HOME/tools/plugins/hasher/assets"
+cp package.json "$CLUAIZ_HOME/tools/plugins/hasher/"
+cp assets/icon.svg "$CLUAIZ_HOME/tools/plugins/hasher/assets/"
+cp target/wasm32-unknown-unknown/release/hasher.wasm "$CLUAIZ_HOME/tools/plugins/hasher/hasher.wasm"
+cluaiz plugin list
+```
+
+Start `cluaiz serve` in that same shell, then send this to `POST /v1/cep`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools.call",
+  "params": { "kind": "plugin", "name": "hasher", "fn": "hash_text", "input": { "text": "hello" } }
+}
+```
+
+The result holds the same hash as the test.
+
+## 7. Publish
+
+1. Put the folder at `plugins/hasher/`, without `target/`.
+2. Add it to `plugins/family.json`:
+
+   ```json
+   "hasher": { "type": "local", "path": "hasher/package.json" }
+   ```
+
+3. Push. CI builds `hasher_v1.0.0.wasm` and the zip, and releases them under `plugin-hasher-v1.0.0`.
+4. Test with `cluaiz plugin install hasher` in a clean `CLUAIZ_HOME`.

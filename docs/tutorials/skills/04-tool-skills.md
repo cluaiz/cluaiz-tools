@@ -1,73 +1,42 @@
 ---
-title: "Creating SKILL.md for Tools"
-description: "How to properly build a SKILL.md file to give AI the power to understand and use Plugins and MCPs."
+title: "SKILL.md for plugins and MCP servers"
+description: "How to give a plugin or MCP server instructions for the model."
 category: "Tutorials"
 ---
 
-# 4. Creating `SKILL.md` for Your Tools
+# 4. `SKILL.md` for plugins and MCP servers
 
-When you build a new tool for cluaiz (whether it's a WASM/Native Plugin or an MCP Server), you are building **Muscle**. 
+A plugin or MCP server can include a `SKILL.md`. The model gets its body when it loads the tool, along with the function schemas. It is optional and worth adding when the schema alone does not explain how to use the tool.
 
-However, the AI does not automatically know how to use your tool. To give the AI power, context, and exact instructions, you can create a `SKILL.md` file.
-
-### Requirement Levels
-- **Native Plugins:** Recommended. You can write a `SKILL.md` to safely guide query construction and parameters.
-- **WASM Plugins & MCPs:** Optional, but useful for complex schemas. Without it, the AI calls the tool based on manifest schemas.
-
----
-
-## The `SKILL.md` Structure
-
-A `SKILL.md` file consists of two parts:
-1. **YAML Frontmatter:** For Engine routing and limits.
-2. **Markdown Body:** The system prompt injected into the AI.
-
-### Example `SKILL.md` for a Plugin
+## Example for a plugin
 
 ```markdown
 ---
-name: math-accelerator
-title: "Fast Math Accelerator"
-version: "1.0.0"
-description: "Equips the AI with an exact, hardware-accelerated math calculation tool."
-author: "Cluaiz"
-keywords: ["math", "calculator", "add", "multiply", "divide"]
-triggers:
-  semantic: ["calculate", "math problem"]
-permissions:
-  level: "ReadOnly"
-  filesystem: false
-  network: false
+name: math
+description: Evaluates math expressions exactly. Use for any calculation.
 ---
 
-# Math Execution Protocol
+# Math
 
-You are equipped with the `cluaiz-math-accelerator` plugin. When the user asks you to perform a calculation, you MUST NOT calculate it yourself (to avoid hallucination).
+When the user asks for a calculation, call `math_evaluate`. Do not calculate it yourself.
 
-Instead, you must use the plugin by emitting the following CEL command:
-
-`let $result = use plugin::cluaiz-math-accelerator -> invoke(calculate, expr: "<THE_EXPRESSION>");`
-
-Once the engine returns `$result`, you must present the final number clearly to the user.
+Write the whole expression, such as `sqrt(144) * 25`. Show the `formatted` value from the result.
 ```
 
----
+## Rules
 
-## Understanding the Frontmatter
+| Rule | Why |
+|---|---|
+| Name the functions exactly | The model must call them by name |
+| Put trigger words in `package.json` as a plain list | The Engine does not read them from `SKILL.md` when `package.json` exists. See [matching](../../architecture/engine-integration.md#matching-which-tools-are-offered) |
+| Keep the description in both files the same | `package.json` is what the catalog and matcher use |
+| Do not repeat the schema | The model already receives it |
+| Do not rely on `permissions` here | Security comes from the Engine and `package.json` |
 
-The Engine uses the YAML frontmatter to index the skill and route requests efficiently.
+## When to add one
 
-| Field | Purpose |
-|-------|---------|
-| `name` | Unique kebab-case name of the skill. |
-| `description` | Concise summary of the skill's capabilities. |
-| `triggers.semantic` | Exact keywords and semantic phrases that activate this skill when matched. |
-| `permissions` | Access controls defining whether the tool needs filesystem, network, or read-only access. |
-
----
-
-## Why Provide a `SKILL.md`?
-
-1. **Eliminate Hallucination:** If you just expose a tool or MCP, the AI might hallucinate commands. By providing a `SKILL.md`, you teach it the *exact* syntax and constraints.
-2. **Context Efficiency:** Instead of dumping instructions in a global prompt, the `SKILL.md` is lazily loaded only when a relevant trigger is matched.
-3. **Safety Boundaries:** The frontmatter defines explicit `permissions.level` (e.g., `ReadOnly`), ensuring the AI cannot accidentally trick your tool into deleting files.
+| Add one when | Skip it when |
+|---|---|
+| Arguments have a format or rules | The function explains itself |
+| Order of calls matters | There is one simple function |
+| There is a common mistake to prevent | The schema's descriptions are enough |

@@ -1,54 +1,54 @@
-# Tutorial: Using Plugins and Skills
+# Use a plugin
 
-This step-by-step guide will teach you how to install, configure, and use a plugin (or skill) in the cluaiz Engine. 
+Install a plugin, and use it through the model and directly.
 
-By the end of this tutorial, you will have successfully loaded the `cluaiz-search` plugin and used it to fetch live web data.
+You need Cluaiz installed and a model. See the Engine's quickstart for those.
 
-## Prerequisites
-- cluaiz Engine installed and running.
-- cluaiz CLI installed (`cluaiz` command available in your terminal).
-
----
-
-## Step 1: Install the Plugin
-First, we need to download the plugin into the engine's registry. Use the CLI to install the `cluaiz-search` plugin.
+## 1. Install
 
 ```bash
-cluaiz plugin install cluaiz-search
+cluaiz plugin install math
 ```
-The engine will download the plugin and automatically place it in its required `storage_domain` (e.g., `~/.cluaiz/plugins/cluaiz-search`). It also registers it in the master `registry.yaml` as a Lazy-loaded component.
 
-## Step 2: Verify Installation
-Verify that the plugin is recognized by the engine:
+## 2. Check
 
 ```bash
 cluaiz plugin list
 ```
-You should see `cluaiz-search` listed with its status as `enabled: true`.
 
-## Step 3: Trigger the Plugin via AI
-Because cluaiz uses an EventBus for Lazy-loaded components, you don't need to manually start any background processes. You simply ask the AI a question that matches the plugin's semantic keywords (like "search" or "web").
+It is now in `~/.cluaiz/tools/plugins/math/` as `math.wasm`, with its `package.json`.
 
-Open the cluaiz TUI dashboard or use the CLI:
-```bash
-cluaiz chat "What is the latest stable version of Rust?"
-```
-
-Behind the scenes, the AI engine will:
-1. Detect that your prompt requires web access.
-2. Emit the CEL (cluaiz Expression Language) command defined in the plugin's manifest: `use plugin::cluaiz-search -> query(q: 'latest stable version of Rust')`.
-3. The engine parses this CEL command, instantly loads the plugin's binary into RAM, executes the native FFI call, and injects the results back into your chat context window.
-
-## Step 4: Direct CEL Execution (Advanced)
-If you are writing scripts or testing the engine without the AI router, you can execute the CEL command directly using the CLI:
+## 3. Ask the model
 
 ```bash
-cluaiz run "use plugin::cluaiz-search -> query(q: 'latest stable version of Rust')"
+cluaiz agent -p "What is 1743 * 2291? Use the math tool."
 ```
 
-## Summary
-You have successfully:
-1. Installed a plugin via the CLI.
-2. Verified its registration in the engine.
-3. Triggered it using natural language.
-4. Triggered it using direct CEL syntax.
+Behind the scenes:
+
+1. The Engine matches your message and shows the model a card for `math`.
+2. The model calls `load_tool`, then `math_evaluate`, with standard tool calls.
+3. The Engine runs `math.wasm` in its sandbox, asking for approval if needed.
+4. The model answers with the result.
+
+`--yes` or `--mode full` lets it run without asking.
+
+## 4. Call it directly
+
+With `cluaiz serve` running, send this to `POST /v1/cep`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools.call",
+  "params": { "kind": "plugin", "name": "math", "fn": "math_evaluate", "input": { "expression": "17 * 23" } }
+}
+```
+
+Add `Authorization: Bearer <token>` when your server requires a token.
+
+## Next
+
+- [Which plugins run today](../plugins/build-types.md#which-plugin-is-which-today)
+- [Tutorial: first plugin](../plugins/tutorial-first-plugin.md)

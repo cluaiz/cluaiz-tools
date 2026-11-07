@@ -1,95 +1,45 @@
 ---
-title: "Fetching Settings for MCP"
-description: "How the Engine injects system bindings into the MCP process environment."
+title: "Settings in MCP servers"
+description: "How an MCP server gets configuration from the environment."
 category: "Tutorials"
 ---
 
-# 2. Fetching Settings & Variables in MCP
+# 2. Settings in MCP servers
 
-Unlike in-memory Plugins—which receive a C-Pointer containing a MsgPack or Bincode payload—MCP servers are entirely separate processes (e.g., Node.js). 
+An MCP server reads its settings from its environment, as any program does.
 
-They cannot read C-Pointers. So, how does an MCP server read cluaiz Engine settings like `system_booster.think_mode`?
+## What works
 
-## The Solution: Process Environment Variables
-
-When the cluaiz Engine spawns the MCP process via `stdio`, it resolves the requested `system_bindings` and passes them as **Environment Variables** to the child process.
-
----
-
-## Step 1: Subscribe to Environment Variables
-
-In your `package.json`, declare the environment variables you need in the version definition:
+| Source | Reaches the server | Status |
+|---|---|---|
+| `execution.env` in `package.json` | Yes, used as written | **Works** |
+| The environment of the Engine's process | Yes, it is inherited | **Works** |
+| Command-line values in `execution.args` | Yes | **Works** |
+| `cluaiz mcp config` | Edits the installed `package.json` | **Works** |
 
 ```json
-{
-  "id": "github-mcp-connector",
-  "name": "GitHub MCP Connector",
-  "versions": {
-    "1.0.0": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    }
-  }
+"execution": {
+  "command": "npx",
+  "args": ["-y", "some-server"],
+  "env": { "MODE": "fast" }
 }
 ```
 
-## Step 2: Reading the Variables in the MCP Server
+## What does not exist
 
-Because the Engine injects these bindings directly into the OS environment of the spawned process, the MCP server simply reads them like any other environment variable.
+| Described in older pages | Today |
+|---|---|
+| `${GITHUB_TOKEN}` expansion in `env` | **Planned.** It is passed as the literal text |
+| `system_bindings` | Not available |
+| `SYSTEM_BOOSTER__*` and `SETTINGS__*` variables | Not available |
 
-The Engine converts dot-notation (`system_booster.think_mode`) into double-underscore screaming snake case (`SYSTEM_BOOSTER__THINK_MODE`).
+## Secrets
 
-### Node.js Example (TypeScript/JavaScript)
-```typescript
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+Never put a real key in a published `package.json`. Until expansion exists, a server that needs a key can read it from the environment, and the user sets that variable before starting the Engine:
 
-const server = new McpServer({
-  name: "custom-github-connector",
-  version: "1.0.0"
-});
-
-// Read the cluaiz injected settings (System Bindings)
-const thinkMode = process.env.SYSTEM_BOOSTER__THINK_MODE || "Off";
-const responseLength = process.env.SYSTEM_BOOSTER__RESPONSE_LENGTH || "auto";
-
-// Read custom component settings (Injected as SETTINGS__KEY)
-const apiKey = process.env.SETTINGS__API_KEY || "";
-const mode = process.env.SETTINGS__MODE || "fast";
-
-console.error(`Starting MCP with Think Mode: ${thinkMode}`);
-
-server.tool(
-  "fetch_repo_data",
-  async ({ repoUrl }) => {
-      // Adjust the depth of API calls based on cluaiz's think_mode!
-      if (thinkMode === "On") {
-          return { content: [{ type: "text", text: "Deep fetching all issues and PRs..." }] };
-      } else {
-          return { content: [{ type: "text", text: "Shallow fetch complete." }] };
-      }
-  }
-);
+```bash
+export GITHUB_PERSONAL_ACCESS_TOKEN="..."
+cluaiz serve
 ```
 
-### Python Example
-```python
-import os
-from mcp.server import Server
-
-app = Server("custom-github-connector")
-
-# Read the cluaiz injected settings
-think_mode = os.environ.get("SYSTEM_BOOSTER__THINK_MODE", "Off")
-
-@app.tool()
-async def fetch_repo_data(repo_url: str) -> str:
-    if think_mode == "On":
-        return "Deep fetching all issues and PRs..."
-    return "Shallow fetch complete."
-```
-
-> [!TIP]
-> This design allows you to use standard, off-the-shelf MCP servers and still pass Engine-specific context to them without modifying their source code, simply by mapping environment variables in the execution block!
+Say which variable is needed in the description and in `SKILL.md`.

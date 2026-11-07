@@ -1,0 +1,78 @@
+{
+  "id": "example-extension",
+  "name": "Example Extension Companion",
+  "category": "companion",
+  "hub_type": "extension",
+  "build_type": "typescript",
+  "icon": "assets/icon.svg",
+  "title": "Interactive Client Companion Extension",
+  "description": "Port-free interactive canvas companion with lip-sync, expression engine, and background daemon execution.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "Extension",
+    "Companion",
+    "Canvas",
+    "Zero-VRAM"
+  ],
+  "dependencies": {
+    "plugins": {
+      "math": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/math/package.json"
+      }
+    },
+    "mcp": {
+      "fetch": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/fetch/package.json"
+      }
+    },
+    "skills": {
+      "learn-cluaiz": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
+      }
+    },
+    "extensions": {
+      "browser-voice": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/extensions/browser-voice/package.json"
+      }
+    }
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-26T12:00:00Z",
+      "builds_os": [
+        "all"
+      ],
+      "files": {
+        "entry": "dist/index.html",
+        "icon": "assets/icon.svg",
+        "assets": [
+          "assets/icon.svg",
+          "assets/banner.png",
+          "assets/preview1.png"
+        ],
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/example-extension.zip"
+      },
+      "execution": {
+        "modes": [
+          "foreground",
+          "headless"
+        ],
+        "run_in_background": true,
+        "permissions": [
+          "canvas",
+          "audio-sync",
+          "storage"
+        ]
+      }
+    }
+  }
+}

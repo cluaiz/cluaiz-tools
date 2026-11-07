@@ -1,10 +1,8 @@
-# 📋 Skill Package Specification (`package.json`)
+# Skill package fields
 
-This document defines the single-source package specification for Skills in the Cluaiz Tools ecosystem.
+All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a skill.
 
----
-
-## 📄 Complete Skill `package.json`
+## Example
 
 ```json
 {
@@ -12,58 +10,37 @@ This document defines the single-source package specification for Skills in the 
   "name": "Code Reviewer",
   "category": "engineering",
   "hub_type": "skill",
-  "logo": "/assets/reviewer.svg",
-  "title": "Strict Code Quality Protocol",
-  "description": "Multi-language code quality, memory safety, and DRY enforcement reasoning protocol.",
-  "author": {
-    "name": "Aryan",
-    "url": "https://github.com/cluaiz"
-  },
+  "icon": "assets/icon.svg",
+  "title": "Code review checklist",
+  "description": "Reviews code for bugs, security problems and duplication. Use when the user asks for a review.",
   "license": "Apache-2.0",
-  "tags": [
-    "Code Review",
-    "Security",
-    "Rust",
-    "TypeScript"
-  ],
-  "dependencies": {
-    "plugins": {
-      "text": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/text/package.json"
-      }
-    },
-    "mcp": {
-      "git": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json"
-      }
-    },
-    "skills": {}
-  },
+  "tags": ["Code Review", "Security"],
+  "triggers": { "semantic": ["review this code", "check for bugs"] },
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+      "updated_at": "2026-11-06T12:00:00Z",
       "files": {
-        "skill": "/SKILL.md",
-        "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/code-reviewer-files.zip"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
+        "assets": ["references/checklist.md"]
       }
     }
   }
 }
 ```
 
----
+## Fields a skill must get right
 
-## 🔍 Field Reference Table
+| Field | Why it matters |
+|---|---|
+| `id` | Must equal the folder, the family key and `name` in `SKILL.md` |
+| `description` | What the matcher and the model read first. Say what it does and when to use it |
+| `triggers.semantic`, `tags` | Extra words for matching. Both work for skills |
+| `versions.<v>.files` | **List every file.** A skill without a release is installed from this list, and a file not listed is not installed |
+| `build_type` | Leave it out, or `none`. Skills do not compile |
 
-| Field | Type | Required? | Description |
-| :--- | :---: | :---: | :--- |
-| `id` | `string` | **Yes** | Unique skill ID. |
-| `name` | `string` | **Yes** | Human-readable title. |
-| `hub_type` | `string` | **Yes** | Must be `"skill"`. |
-| `dependencies` | `object` | **Yes** | Required muscle plugins or MCP bridges needed by this reasoning skill. |
-| `versions.*.files.skill` | `string` | **Yes** | Relative path to `SKILL.md` containing prompt instructions. |
-| `versions.*.files.file_directory` | `string` | **Yes** | Release zip bundle download URL. |
+## With functions
+
+A skill can also offer functions by running a script. Add `functions` and `execution`, and the skill behaves as a [script plugin](../plugins/build-types.md#script-plugins). `code-interpreter` and `tool-creator` work this way.

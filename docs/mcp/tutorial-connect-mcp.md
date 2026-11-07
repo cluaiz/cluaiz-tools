@@ -1,77 +1,83 @@
-# 🚀 Tutorial: Connect an MCP Server to Cluaiz
+# Tutorial: connect an MCP server
 
-In this tutorial, we will configure, package, and test an official Model Context Protocol server in Cluaiz: **`everything`** (the official MCP reference test target).
+Connect the official `everything` test server. Its tools exercise the protocol, which makes it good for a first check. It needs Node.js.
 
----
-
-## 🛠️ Step 1: Create Directory Structure
+## 1. Check the server by itself
 
 ```bash
-mkdir -p everything/assets
-cd everything
+npx -y @modelcontextprotocol/server-everything
 ```
 
----
+It waits for input, which is expected. Press Ctrl+C.
 
-## 📦 Step 2: Create `package.json`
+## 2. Install it by hand in a test home
 
-Create `package.json` with the subprocess command and arguments:
+Using a test home leaves your real installation untouched.
+
+**PowerShell**
+
+```powershell
+$env:CLUAIZ_HOME = "$PWD\test-home"
+$dir = "$env:CLUAIZ_HOME\tools\mcp\everything"
+New-Item -ItemType Directory -Force $dir | Out-Null
+```
+
+**Linux and macOS**
+
+```bash
+export CLUAIZ_HOME="$PWD/test-home"
+dir="$CLUAIZ_HOME/tools/mcp/everything"
+mkdir -p "$dir"
+```
+
+Write this to `package.json` in that folder:
 
 ```json
 {
   "id": "everything",
-  "name": "MCP Everything Server",
+  "name": "MCP Everything",
   "category": "mcp",
   "hub_type": "mcp",
-  "logo": "/assets/icon.svg",
-  "title": "Model Context Protocol Reference Server",
-  "description": "Official reference MCP server exercising full tool, resource, and prompt protocols.",
-  "author": {
-    "name": "MCP Steering Group",
-    "url": "https://modelcontextprotocol.io"
-  },
+  "icon": "assets/icon.svg",
+  "description": "The official MCP test server. Use it to check MCP tools. Needs Node.js.",
   "license": "MIT",
-  "tags": [
-    "MCP",
-    "Reference",
-    "Bridge"
-  ],
-  "dependencies": {
-    "plugins": {},
-    "mcp": {},
-    "skills": {}
-  },
+  "triggers": ["mcp test"],
+  "execution": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-everything"] },
   "latest_version": "1.0.0",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-everything"
-      ],
-      "files": {
-        "icon": "/assets/icon.svg"
-      }
-    }
+    "1.0.0": { "updated_at": "2026-11-06T12:00:00Z", "files": { "icon": "assets/icon.svg" } }
   }
 }
 ```
 
----
+## 3. Check that Cluaiz sees it
 
-## 🎨 Step 3: Add `assets/icon.svg`
-
-Add `assets/icon.svg`:
-
-```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-</svg>
+```bash
+cluaiz mcp list
 ```
 
----
+## 4. Call a tool
 
-## 🧪 Step 4: Test in Cluaiz
+In the same shell, start `cluaiz serve`. Then send to `POST /v1/cep`:
 
-Copy the directory to `~/.cluaiz/tools/mcp/everything/`. When prompted with `"test mcp"`, the Cluaiz engine will spawn the subprocess, exchange JSON-RPC 2.0 frames over stdio, and return results seamlessly!
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools.call",
+  "params": { "kind": "mcp", "name": "everything", "fn": "echo", "input": { "message": "hello" } }
+}
+```
+
+The server starts on this first call, and the first call may be slow while `npx` downloads it.
+
+## 5. Publish
+
+1. Put the folder at `mcp/everything/` with `assets/icon.svg`.
+2. Add it to `mcp/family.json`:
+
+   ```json
+   "everything": { "type": "local", "path": "everything/package.json" }
+   ```
+
+3. Push, then test with `cluaiz mcp install everything` in a clean `CLUAIZ_HOME`.

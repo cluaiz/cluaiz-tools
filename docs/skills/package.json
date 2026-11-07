@@ -3,7 +3,7 @@
   "name": "Code Reviewer",
   "category": "engineering",
   "hub_type": "skill",
-  "logo": "/assets/reviewer.svg",
+  "icon": "assets/icon.svg",
   "title": "Strict Code Quality Protocol",
   "description": "Multi-language code quality, memory safety, and DRY enforcement reasoning protocol.",
   "author": {

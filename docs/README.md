@@ -1,54 +1,103 @@
-# Cluaiz Tools Documentation Portal
+# Cluaiz Tools documentation
 
-Welcome to the official developer documentation for the **Cluaiz Tools Ecosystem** and the **Cluaiz Inference Engine**.
+This folder explains how tools are written, published, installed and run by the Cluaiz Engine.
 
----
+## Status words
 
-## 🗺️ Documentation Sitemap & Navigation
+Every page uses the same three words, so you can tell the design from what runs today.
 
-```
-cluaiz-tools/docs/
-├── 🏗️ 1. architecture/      ← Full System Architecture & Engine Integration
-├── 🧠 2. skills/            ← Cognitive Brain, Prompt Frameworks, & Context Injection
-├── ⚡ 3. plugins/           ← In-Process WASM Execution Muscle, C-ABI & Sandboxing
-├── 🔌 4. mcp/               ← External Subprocess Bridges & Stdio JSON-RPC 2.0
-└── 📚 5. reference/         ← CLI Command Reference & Tools Registry Packaging
-```
+| Word | Meaning |
+|---|---|
+| **Works** | The Engine does this in the current release. |
+| **Partial** | Part of it works. The page says which part. |
+| **Planned** | This is the design. The Engine does not do it yet. Do not build on it. |
 
----
+**Experimental** applies to Extensions as a whole: they may or may not ship, and the Engine does not run them.
 
-## 🧭 Section Directory
+## Read in this order
 
-### 🏗️ 1. Architecture (`docs/architecture/`)
-- [System Overview](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/architecture/system-overview.md) — End-to-end system topology, engine boundaries, and security model.
-- [Turn Lifecycle](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/architecture/turn-lifecycle.md) — Single-pass `<TRIGGER:...>` interception, pivot continuations, and turn lifecycles.
-- [Registry & Auto-Probe](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/architecture/registry-and-discovery.md) — `ToolsRegistry`, boot-time filesystem probing, and Prefix Caching.
+1. [System overview](architecture/system-overview.md): the repositories and how they connect.
+2. [Skills, Plugins, MCP and Extensions](architecture/plugin_vs_mcp_vs_extension_vs_skill.md): what each type is and which one to build.
+3. [Registry and discovery](architecture/registry-and-discovery.md): `registry.json` to `family.json` to `package.json`.
+4. [Build pipeline](architecture/build-pipeline.md): what gets compiled, and what is used directly.
+5. [Engine integration](architecture/engine-integration.md): install, matching, loading, calling and approval.
+6. [Package specification](package-spec.md): every `package.json` field and who reads it.
 
----
+## Where each topic lives
 
-### 🧠 2. Skills (`docs/skills/`)
-- [Skills Overview](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/skills/overview.md) — Cognitive prompt architecture and KV-cache injection.
-- [Skill Package Schema](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/skills/manifest-schema.md) — `package.json` specification and field reference for skills.
-- [Authoring Guide](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/skills/authoring-guide.md) — Writing high-assurance `SKILL.md` prompts and YAML frontmatter.
-- [Tutorial: Build Your First Skill](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/skills/tutorial-first-skill.md) — Step-by-step walkthrough.
+Each topic has one owner page. Other pages link to it instead of repeating it.
 
----
+| Topic | Page |
+|---|---|
+| The tool types and how to choose | [plugin_vs_mcp_vs_extension_vs_skill.md](architecture/plugin_vs_mcp_vs_extension_vs_skill.md) |
+| `registry.json` and `family.json` | [registry-and-discovery.md](architecture/registry-and-discovery.md), [tools-registry.md](reference/tools-registry.md) |
+| Tools that live in another GitHub repository | [decoupled-ecosystem.md](architecture/decoupled-ecosystem.md) |
+| `package.json` fields | [package-spec.md](package-spec.md) |
+| `package.json` and `tools_registry.json` | [manifest_architecture.md](architecture/manifest_architecture.md) |
+| WebAssembly, binary, or no build | [plugins/build-types.md](plugins/build-types.md), [build-pipeline.md](architecture/build-pipeline.md) |
+| What a plugin may contain, and dependencies | [plugins/overview.md](plugins/overview.md) |
+| The WebAssembly interface | [plugins/wasm-abi-guide.md](plugins/wasm-abi-guide.md) |
+| How the Engine uses installed tools | [engine-integration.md](architecture/engine-integration.md) |
+| One turn with tools | [turn-lifecycle.md](architecture/turn-lifecycle.md) |
+| CEL, the old language, and CEP, the current protocol | [cel-to-cep.md](architecture/cel-to-cep.md) |
 
-### ⚡ 3. Plugins (`docs/plugins/`)
-- [Plugins Overview](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/plugins/overview.md) — Wasmtime sandbox, fuel limits, and memory caps.
-- [Plugin Package Schema](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/plugins/manifest-schema.md) — `package.json` specification for plugins.
-- [WASM C-ABI & Host ABI Guide](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/plugins/wasm-abi-guide.md) — Memory exports and Capability-Gated Host hooks.
-- [Tutorial: Build Your First Plugin](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/plugins/tutorial-first-plugin.md) — Writing and compiling a Rust WASM plugin.
+## Sections
 
----
+### Architecture
 
-### 🔌 4. MCP (`docs/mcp/`)
-- [MCP Overview](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/mcp/overview.md) — Model Context Protocol in Cluaiz, stdio JSON-RPC 2.0.
-- [MCP Package Schema](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/mcp/manifest-schema.md) — `package.json` specification for MCP connectors.
-- [Tutorial: Connect an MCP Server](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/mcp/tutorial-connect-mcp.md) — Packaging and testing an MCP server.
+- [System overview](architecture/system-overview.md)
+- [Skills, Plugins, MCP and Extensions](architecture/plugin_vs_mcp_vs_extension_vs_skill.md)
+- [Registry and discovery](architecture/registry-and-discovery.md)
+- [Tools from other repositories](architecture/decoupled-ecosystem.md)
+- [Package and local registry](architecture/manifest_architecture.md)
+- [Build pipeline](architecture/build-pipeline.md)
+- [Engine integration](architecture/engine-integration.md)
+- [Turn lifecycle](architecture/turn-lifecycle.md)
+- [Skills at run time](architecture/skill_architecture.md)
+- [From CEL to CEP](architecture/cel-to-cep.md)
 
----
+### Skills
 
-### 📚 5. Reference (`docs/reference/`)
-- [CLI Reference](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/reference/cli.md) — `cluaiz` CLI command reference.
-- [Tools Registry Architecture](file:///c:/Users/Aryan/my/Cluaiz-workspace/Cluaiz-Technologies/cluaiz-tools/docs/reference/tools-registry.md) — `registry.json`, `family.json`, `package.json`, and SVG assets.
+- [Overview](skills/overview.md)
+- [Package fields](skills/manifest-schema.md)
+- [Authoring guide](skills/authoring-guide.md)
+- [Tutorial: first skill](skills/tutorial-first-skill.md)
+- Guides: [creating skills](tutorials/skills/01-creating-ai-skills.md), [teaching tools](tutorials/skills/02-prompt-engineering-tools.md), [context](tutorials/skills/03-context-injection.md), [`SKILL.md` for tools](tutorials/skills/04-tool-skills.md)
+
+### Plugins
+
+- [Overview](plugins/overview.md)
+- [Build types](plugins/build-types.md)
+- [Package fields](plugins/manifest-schema.md)
+- [WebAssembly interface](plugins/wasm-abi-guide.md)
+- [Tutorial: first plugin](plugins/tutorial-first-plugin.md)
+- Guides: [building](tutorials/plugins/01-building-wasm-plugins.md), [settings](tutorials/plugins/02-fetching-settings.md), [CEP and plugins](tutorials/plugins/03-cep-architecture.md), [local testing](tutorials/plugins/04-local-testing.md)
+
+### MCP
+
+- [Overview](mcp/overview.md)
+- [Package fields](mcp/manifest-schema.md)
+- [Tutorial: connect a server](mcp/tutorial-connect-mcp.md)
+- Guides: [connecting](tutorials/mcp/01-connecting-mcp-servers.md), [settings](tutorials/mcp/02-fetching-settings.md), [CEP and MCP](tutorials/mcp/03-cep-architecture.md), [local testing](tutorials/mcp/04-local-testing.md)
+
+### Extensions (experimental)
+
+- [Overview](extensions/overview.md)
+- [Package fields](extensions/manifest-schema.md)
+- [Developer guide](extensions/developer-guide.md)
+
+### Reference
+
+- [Package specification](package-spec.md)
+- [Registry files](reference/tools-registry.md)
+- [Skill format](reference/skill-format.md)
+- [Plugin format](reference/plugin-format.md)
+- [CLI](reference/cli.md)
+- [Soul format](reference/soul-format.md) (not supported)
+
+### Get started
+
+- [Overview](get-started/overview.md)
+- [Quickstart: write a skill](get-started/quickstart.md)
+- [Use a plugin](get-started/plugin-tutorial.md)
+- [Contributing](get-started/contributing.md)

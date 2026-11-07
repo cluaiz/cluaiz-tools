@@ -27,6 +27,7 @@ node_modules/
 dist/
 
 # Cluaiz specific
+.agent/
 .cluaiz/
 zzz/
 

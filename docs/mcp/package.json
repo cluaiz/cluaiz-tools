@@ -3,7 +3,7 @@
   "name": "MCP Everything Server",
   "category": "mcp",
   "hub_type": "mcp",
-  "logo": "/assets/mcp.svg",
+  "icon": "assets/icon.svg",
   "title": "Model Context Protocol Reference Server",
   "description": "Official reference MCP server exercising full tool, resource, and prompt protocols.",
   "author": {

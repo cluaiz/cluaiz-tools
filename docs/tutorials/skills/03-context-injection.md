@@ -1,52 +1,39 @@
 ---
-title: "Dynamic Context Injection"
-description: "How the Engine manages VRAM by injecting Skill contexts dynamically."
+title: "Skills and context"
+description: "How the Engine keeps skills out of the context until they are needed."
 category: "Tutorials"
 ---
 
-# 3. Dynamic Context Injection (VRAM Management)
+# 3. Skills and context
 
-A common mistake in traditional LLM applications is the "God Prompt"—dumping every single instruction, tool, and rule into the system prompt at boot time.
-
-In cluaiz, this is an anti-pattern. Large system prompts consume massive amounts of VRAM (KV Cache) and drastically reduce response times.
-
-## How cluaiz Solves This
-
-cluaiz uses **Dynamic Context Injection**. 
-
-Instead of loading every Skill into memory at once, the Engine uses the `triggers.semantic` defined in your `SKILL.md` frontmatter to route inputs.
+A large system prompt fills the context and slows each answer. Instead, the Engine shows short cards and the model loads a skill when it needs it.
 
 ```mermaid
 flowchart TD
-    A["User: 'Review my code'"] -->|Fast Embedding Match| B{"Skill Router"}
-    B -->|Matches 'code', 'review'| C["Loads 'code-reviewer' Skill.md"]
-    C -->|Injects to LLM Context| D["LLM Evaluates Rule"]
-    D -->|Executes| E["Returns Result"]
-    E -->|Purges Context| F["VRAM Freed"]
+    A["User: review my code"] -->|"Whole-word matching"| B["Card: code-reviewer"]
+    B -->|"Model calls load_tool"| C["SKILL.md body in the conversation"]
+    C --> D["Model works"]
+    D -->|"Not used for 3 answers"| E["Unloaded: the body becomes a short note"]
 ```
 
-## Step 1: Small, Modular Skills
+## What this means for authors
 
-To take advantage of this architecture, you must write granular skills.
+**Write small skills, one for each job.** A large skill costs its full size every time it loads.
 
-### Instead of this (Anti-Pattern):
-`SKILL.md` (The God Prompt - 2000 lines):
-*"You are an AI. If the user asks for math, do X. If they ask for search, do Y. If they ask for github, do Z."*
+**Move detail to `references/`.** The model reads a file with `read_tool_file` only when it needs that file.
 
-### Do this (Modular Skills):
-**Skill 1: `math-assistant`**
-`discovery.semantic_triggers: ["calculate", "math"]`
-`SKILL.md`: *"Use the math plugin to calculate expressions."*
+```markdown
+For Rust code, also read `references/rust.md`.
+```
 
-**Skill 2: `github-assistant`**
-`discovery.semantic_triggers: ["pull request", "issue"]`
-`SKILL.md`: *"Use the github MCP server to fetch PRs."*
+**Say the load cost matters.** The card shows the model an estimate of a skill's size. A short skill is more likely to fit in a small context.
 
-## Step 2: Prefix Caching & VRAM KV-Injection (`vram_kv_inject` & `prefix_caching`)
+## What the Engine does and does not do
 
-If your skill orchestrates a powerful Plugin that generates massive amounts of data (like a database returning 50,000 rows), feeding that raw text into the LLM context will instantly cause an Out-Of-Memory (OOM) crash.
+| Works | Not available |
+|---|---|
+| Cards and titles before loading | Embedding-based skill matching |
+| Reusing the KV cache across rounds | Saved `state.kvcache.bin` files for a skill |
+| Replacing old load results with notes | `vram_kv_inject` and `prefix_caching` in a manifest |
 
-To handle this, Plugins use `vram_kv_inject: true` and `prefix_caching: true`. 
-When the plugin executes, instead of returning 50,000 rows to the LLM, the Plugin injects structured context into the KV-Cache prefix. The engine runs a sub-inference on the data in chunks, and only returns the final summary delta tokens to the primary LLM session.
-
-By structuring your Skills carefully, you ensure the Engine remains fast and VRAM-efficient.
+A large tool result is the other thing that fills context. A tool should return a short, structured result with the facts that matter, such as a file, line and message, not everything it read.

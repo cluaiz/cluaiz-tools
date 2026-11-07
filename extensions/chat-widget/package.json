@@ -1,0 +1,55 @@
+{
+  "id": "chat-widget",
+  "name": "Cluaiz Chat Widget",
+  "category": "ui",
+  "hub_type": "extension",
+  "build_type": "typescript",
+  "icon": "assets/icon.svg",
+  "description": "Zero-VRAM embeddable web chat widget extension for Cluaiz.",
+  "author": {
+    "name": "Cluaiz Team",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "chat-widget",
+    "embed",
+    "ui",
+    "zero-vram"
+  ],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {},
+    "extensions": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-26T12:00:00Z",
+      "builds_os": [
+        "all"
+      ],
+      "files": {
+        "entry": "dist/index.html",
+        "icon": "assets/icon.svg",
+        "assets": [
+          "assets/icon.svg"
+        ],
+        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/chat-widget.zip"
+      },
+      "execution": {
+        "modes": [
+          "foreground",
+          "headless"
+        ],
+        "run_in_background": false,
+        "permissions": [
+          "dom-injection",
+          "storage",
+          "audio-output"
+        ]
+      }
+    }
+  }
+}

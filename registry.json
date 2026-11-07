@@ -4,6 +4,6 @@
     "plugins": "plugins/family.json",
     "skills": "skills/family.json",
     "mcp": "mcp/family.json",
-    "souls": "souls/family.json"
+    "extensions": "extensions/family.json"
   }
 }

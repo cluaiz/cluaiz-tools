@@ -1,0 +1,35 @@
+{
+  "id": "git-assistant",
+  "name": "Git Safety & Conventional Commit Assistant",
+  "category": "engineering",
+  "hub_type": "skill",
+  "description": "Production git operations, conventional commit linting, staged diff auditing, and merge conflict resolution protocol.",
+  "author": {
+    "name": "Aryan",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": ["Git", "Version Control", "Commits", "Code Review", "Safety"],
+  "triggers": {
+    "semantic": [
+      "git commit", "smart commit", "git status", "git diff",
+      "git review", "audit diff", "git safety check", "branch check",
+      "resolve conflict", "git staging", "conventional commit"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-09-24T15:45:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@
   "name": "Code Reviewer",
   "category": "engineering",
   "hub_type": "skill",
+  "icon": "assets/icon.svg",
   "description": "Multi-language code quality, security vulnerability, memory safety, and DRY enforcement protocol across local git changes, pasted snippets, and pull requests.",
   "author": {
     "name": "Aryan",
@@ -21,6 +22,7 @@
       "updated_at": "2026-09-22T12:00:00Z",
       "files": {
         "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
         "references": [
           "references/security_checklist.md",
           "references/review_rubric.md"

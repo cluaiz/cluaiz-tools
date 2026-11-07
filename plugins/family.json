@@ -2,12 +2,31 @@
   "category": "plugins",
   "name": "Cluaiz Plugins",
   "items": {
-    "math": "math/package.json",
-    "text": "text/package.json",
-    "search": "search/package.json",
-    "time": "time/package.json",
-    "sysinfo": "sysinfo/package.json",
-    "cluaizdb": "cluaizdb/package.json",
-    "web-search": "web-search/package.json"
+    "math": {
+      "type": "local",
+      "path": "math/package.json"
+    },
+    "text": {
+      "type": "local",
+      "path": "text/package.json"
+    },
+    "search": {
+      "type": "local",
+      "path": "search/package.json"
+    },
+    "time": {
+      "type": "local",
+      "path": "time/package.json"
+    },
+    "web-search": {
+      "type": "local",
+      "path": "web-search/package.json"
+    },
+    "image-optimizer": {
+      "type": "remote",
+      "repo": "cluaiz-community/cluaiz-plugin-image-opt",
+      "branch": "main",
+      "manifest_path": "package.json"
+    }
   }
 }

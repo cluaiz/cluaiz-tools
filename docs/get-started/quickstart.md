@@ -1,113 +1,50 @@
-# Quickstart
+# Quickstart: write a skill
 
-Create, test, and publish a Cluaiz skill in 5 minutes.
+A skill is the quickest tool to write. It needs one file and no build.
 
-## 1. Create the skill folder
-
-Pick a category and a name. Use lowercase `kebab-case` for both.
+## 1. Create it in your project
 
 ```bash
-mkdir -p skills/productivity/my-skill
+mkdir -p .agents/skills/summarizer
 ```
 
-## 2. Write the SKILL.md
-
-Create `skills/productivity/my-skill/SKILL.md`:
+Write `.agents/skills/summarizer/SKILL.md`:
 
 ```markdown
 ---
-name: my-skill
-version: 1.0.0
-description: >
-  Summarize long documents into concise bullet points. Use when the user asks
-  to summarize, condense, or extract key points from text or files.
-author: Your Name
-
-permissions:
-  filesystem: true
-  network: false
-  level: ReadOnly
-
-triggers:
-  semantic:
-    - summarize
-    - bullet-points
-    - key-points
+name: summarizer
+description: Condenses long text into short bullet points. Use when the user asks to summarize or extract key points.
+license: Apache-2.0
 ---
 
-# Skill: Document Summarizer
+# Summarize
 
-You are equipped with the **Document Summarizer** skill. This skill allows you
-to condense long-form text into clear, structured bullet points.
-
-## When to use this skill
-Trigger this skill when the user asks you to:
-1. Summarize a document, article, or file.
-2. Extract key points or takeaways.
-3. Condense meeting notes or transcripts.
-
-## How to use this skill
-1. Read the full input text provided by the user.
-2. Identify the 5-10 most important points.
-3. Present them as concise bullet points, ordered by importance.
-
-## Guardrails and Rules
-1. Never fabricate information not present in the source text.
-2. Preserve critical numbers, dates, and proper nouns exactly.
-3. If the input is shorter than 100 words, tell the user it does not need
-   summarization.
+1. Read all of the text.
+2. Find the 5 to 10 most important points.
+3. Write them as short bullets, most important first.
+4. Keep names, numbers and dates exactly as written. Add nothing that is not in the text.
 ```
 
-That's it. One file. The frontmatter is the metadata, the body is the prompt.
+The frontmatter is the metadata, and the body is the prompt.
 
-## 3. Add supporting files (optional)
-
-If your skill needs native execution or persistent memory, add asset files
-alongside the `SKILL.md` and link them in the frontmatter:
-
-```
-skills/productivity/my-skill/
-├── SKILL.md
-├── logic.wasm           # Optional — native execution binary
-├── state.kvcache.bin       # Optional — persistent memory
-└── config.json          # Optional — runtime configuration
-```
-
-Link them in the YAML:
-
-```yaml
-links:
-  wasm: "./logic.wasm"
-  prompt_cache: "./state.kvcache.bin"
-  config: "./config.json"
-```
-
-Then explain each file in the Markdown body so the agent knows how to use them.
-
-## 4. Test locally
-
-Install your skill from the local registry:
+## 2. Try it
 
 ```bash
-cluaiz skill install my-skill
+cluaiz agent
 ```
 
-The CLI will download the `SKILL.md` and all linked assets to
-`~/.cluaiz/skills/my-skill/`.
+Type `/skills` to see it listed. Then ask: `summarize README.md`.
 
-## 5. Publish
+## 3. Improve it
 
-Commit your skill folder and push to the `cluaiz-tools` repository. The
-GitHub Action will automatically rebuild `registry.json` and create a release.
+Change the file and try again. No install step is needed. If the model does not use the skill, make the description more specific.
 
-```bash
-git add skills/productivity/my-skill/
-git commit -m "feat(my-skill): add document summarizer skill"
-git push
-```
+## 4. Publish it
 
-## Next steps
+See [Tutorial: first skill](../skills/tutorial-first-skill.md#4-prepare-to-publish), which adds `package.json`, the icon and the family entry.
 
-- Read [Skill format](./skill-format.md) for the complete frontmatter reference.
-- Read [Plugin format](./plugin-format.md) if your skill connects to external services.
-- Read [Contributing](./contributing.md) for PR requirements and review process.
+## Next
+
+- [Authoring guide](../skills/authoring-guide.md)
+- [Tutorial: first plugin](../plugins/tutorial-first-plugin.md)
+- [Tutorial: connect an MCP server](../mcp/tutorial-connect-mcp.md)

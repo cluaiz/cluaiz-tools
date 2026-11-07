@@ -1,60 +1,43 @@
 ---
-title: "Testing MCP Servers Locally"
-description: "How to test your MCP server directly in the terminal."
+title: "Testing MCP servers locally"
+description: "Test a server by itself, then in the Engine."
 category: "Tutorials"
 ---
 
-# 4. Local Testing for MCP Servers
+# 4. Testing MCP servers locally
 
-Testing an MCP server is straightforward. Because MCP servers are standard command-line applications that read from `stdin` and write to `stdout`, you don't even need a Rust unit test or a Named Pipe to test them.
+## Step 1: The server alone
 
----
-
-## Step 1: Export Environment Variables
-
-Since the Engine usually handles injecting `system_bindings` and `env` blocks into the process, you must simulate this manually in your terminal before running the server.
-
-### Windows (PowerShell)
-```powershell
-$env:GITHUB_PERSONAL_ACCESS_TOKEN = "your_actual_token_here"
-$env:SYSTEM_BOOSTER__THINK_MODE = "On"
-```
-
-### Linux / macOS (Bash)
-```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="your_actual_token_here"
-export SYSTEM_BOOSTER__THINK_MODE="On"
-```
-
-## Step 2: Run the Server Manually
-
-Run the exact command specified in your `package.json` `versions` block:
+An MCP server is a normal command-line program. Run the exact command from `execution`:
 
 ```bash
-npx -y @modelcontextprotocol/server-github
+npx -y @modelcontextprotocol/server-everything
 ```
 
-If the server boots correctly, it will appear to hang. This is expected! It is waiting for you to type a JSON-RPC request into `stdin`.
-
-## Step 3: Send a Mock Request
-
-Paste the following standard MCP JSON-RPC payload into your terminal and press Enter:
+It waits for input, which is expected. Send an `initialize` request followed by `tools/list`, each on one line:
 
 ```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "list_pull_requests",
-    "arguments": {
-      "owner": "cluaiz",
-      "repo": "engine"
-    }
-  }
-}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
 ```
 
-If your MCP server is functioning properly, it will instantly print a JSON-RPC response back to the terminal (`stdout`) containing the GitHub data. 
+You should see JSON answers on standard output. Logs must go to standard error, because anything else on standard output breaks the protocol.
 
-If this manual terminal test works, you can guarantee that the cluaiz Engine will be able to spawn and communicate with it!
+## Step 2: In the Engine
+
+Use a test home so your real installation is untouched, and place the package by hand, as [the tutorial](../../mcp/tutorial-connect-mcp.md) shows. Then:
+
+1. Run `cluaiz mcp list` and see it listed.
+2. Call it through CEP `tools.call`.
+3. Check how it is found, through `tools.discover`.
+
+## Common errors
+
+| Symptom | Cause |
+|---|---|
+| `Failed to spawn MCP server` | The command is not on `PATH`. Check Node or `uv` |
+| `No execution configuration` or an empty command | `execution.command` is missing |
+| A very slow first call | `npx` or `uvx` is downloading the package |
+| It reads the wrong folder | It runs in the open workspace, not in its package folder |
+| The tool never appears as a card | Add `triggers` as a plain list. Function names help only after the first start |

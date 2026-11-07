@@ -1,62 +1,73 @@
 ---
-title: "Testing WASM Plugins Locally"
-description: "How to test WASM sandbox execution without booting the entire Engine."
+title: "Testing plugins locally"
+description: "Test the logic with cargo, then the real plugin in the Engine."
 category: "Tutorials"
 ---
 
-# 4. Local Testing for WASM Plugins
+# 4. Testing plugins locally
 
-When developing a WASM plugin, testing inside the cluaiz LLM stack is slow and inefficient. You should write unit tests that manually serialize MsgPack and pass it to your `cluaiz_entry` function natively.
+Test in two steps. Do both before publishing.
 
----
+## Step 1: The logic
 
-## The Integration Test
-
-Create a `tests/wasm_execution_test.rs` file.
-
-Since the WASM is compiled to `wasm32-wasi`, your host machine (Windows/Linux) running `cargo test` won't be able to run it unless you use a WASM runtime, OR you write a standard native `#[test]` that calls your internal logic before compilation to WASM.
-
-The best practice is to extract your logic into a pure function and test that natively, simulating the MsgPack serialization.
+Keep the work in a plain function and test it natively. It is fast and needs no WebAssembly.
 
 ```rust
-use serde_json::json;
-use rmp_serde::Serializer;
-use serde::Serialize;
-use math_plugin::{PayloadType, CxpPayload, cluaiz_entry};
+fn run(input: &[u8]) -> serde_json::Value {
+    // ...
+}
 
-#[test]
-fn test_plugin_logic_via_msgpack() {
-    // 1. Create a mock payload matching the Engine's format
-    let payload_json = json!({
-        "action": "calculate",
-        "expr": "10 * 5"
-    });
+#[cfg(test)]
+mod tests {
+    use super::run;
 
-    // 2. Serialize to MsgPack
-    let mut msgpack_buf = Vec::new();
-    payload_json.serialize(&mut Serializer::new(&mut msgpack_buf)).unwrap();
-
-    // 3. Construct the FFI Struct
-    let ext_payload = CxpPayload {
-        payload_type: PayloadType::MsgPack,
-        data_ptr: msgpack_buf.as_ptr(),
-        data_len: msgpack_buf.len(),
-    };
-
-    // 4. Invoke the Entry Point directly
-    let result_ptr = cluaiz_entry(&ext_payload as *const _);
-    
-    // 5. Assert the result
-    assert!(!result_ptr.is_null());
-    let c_str = unsafe { std::ffi::CStr::from_ptr(result_ptr) };
-    let json_resp: serde_json::Value = serde_json::from_str(c_str.to_str().unwrap()).unwrap();
-    
-    assert_eq!(json_resp["status"], "success");
-    
-    // 6. Free the memory (CRITICAL)
-    math_plugin::cluaiz_free_payload(result_ptr, 0);
+    #[test]
+    fn adds() {
+        assert_eq!(run(br#"{"expression": "1 + 1"}"#)["result"], 2.0);
+    }
 }
 ```
 
-> [!TIP]
-> By passing a raw pointer to `cluaiz_entry` in a native unit test, you guarantee that when the Engine does the exact same thing across the Wasmtime boundary, your deserialization logic will perfectly parse the MsgPack payload.
+```bash
+cargo test
+```
+
+## Step 2: The real file in the Engine
+
+This catches what native tests cannot: wrong target, missing exports and unavailable imports.
+
+```bash
+cargo build --release --target wasm32-unknown-unknown
+```
+
+Check the first bytes of the file. They must be `\0asm`:
+
+```bash
+head -c 4 target/wasm32-unknown-unknown/release/my_plugin.wasm | xxd
+```
+
+Copy it into a test home as in [Tutorial: first plugin](../../plugins/tutorial-first-plugin.md#6-test-it-in-the-engine), then call it through `tools.call`.
+
+Check how the tool is found too. `tools.discover` shows what the matcher would offer:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools.discover",
+  "params": { "query": "what is 17 times 23", "explain": true }
+}
+```
+
+If your plugin is not among the candidates, improve its `description` and `triggers`.
+
+## Common errors
+
+| Error | Cause |
+|---|---|
+| `Not a valid WebAssembly plugin` | A native build was renamed to `.wasm` |
+| `The plugin could not start` | It imports something the Engine does not provide, usually WASI |
+| `The plugin has no 'allocate'` or `'execute_cel'` | Missing export or missing `#[no_mangle]` |
+| `The plugin has no 'memory'` | Memory is not exported |
+| `The plugin failed` | A panic, or the instruction limit was reached |
+| `The plugin gave an answer outside its memory` | A wrong address or length, or the output was freed too early |

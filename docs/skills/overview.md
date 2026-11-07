@@ -1,41 +1,42 @@
-# 🧠 Skills: Cognitive Architecture & Context Injection
+# Skills
 
-In Cluaiz, **Skills** represent the **Cognitive Brain** of the agentic system. While Plugins and MCP servers provide computational muscle (binaries and APIs), a Skill provides the neural reasoning frameworks, domain rules, and prompt guardrails that guide the LLM.
+A skill is a set of instructions the model reads when it needs them. It teaches a procedure: how to review code, how to write a release note, which tool to use for a job.
 
----
+Skills use the open [Agent Skills](https://agentskills.io/specification) format, so a skill written for Cluaiz can also work in other agents, and the other way round.
 
-## 🎯 1. What is a Skill?
-
-A Skill is a declarative package containing:
-- **`package.json`**: Single-source package distribution metadata and dependency resolution rules for Cluaiz Tools.
-- **`SKILL.md`**: The structured prompt instructions dynamically injected into the LLM system context.
-- **`assets/icon.svg`**: A pure SVG vector icon for native UI rendering.
+## What a skill contains
 
 ```
-skills/my-skill/
-├── package.json         ← Tools registry packaging & dependencies
-├── SKILL.md             ← Neural instructions & domain protocol
-└── assets/
-    └── icon.svg         ← Vector UI icon
+my-skill/
+├── SKILL.md            Required: frontmatter and instructions
+├── package.json        Required to publish in this registry
+├── assets/icon.svg     Required to publish in this registry
+├── references/         Optional: read on demand
+└── scripts/            Optional: run by the model
 ```
 
----
+A bare folder with only `SKILL.md` works when placed by hand, as other agents' skills are.
 
-## ⚡ 2. Dynamic KV-Cache Context Injection
+## How the model gets it
 
-Traditional AI applications suffer from the **"God Prompt" Anti-Pattern**—dumping thousands of lines of prompt instructions into the LLM context at boot time. This consumes massive amounts of memory and degrades attention accuracy.
+1. The Engine matches the user's message against installed skills and shows short cards.
+2. The model calls `load_tool` and receives the `SKILL.md` body.
+3. If the body points to a reference, the model reads it with `read_tool_file`.
 
-### The Cluaiz Solution: Prefix Caching & Dynamic Context Injection
-1. **Dormant by Default:** Skills occupy zero context memory when inactive.
-2. **Semantic Activation:** When a user's prompt matches a skill's triggers, the `SkillRouter` activates the skill.
-3. **Dynamic Prompt Injection:** The contents of `SKILL.md` are injected into the active turn context.
-4. **Prefix Caching & Delta Decoding:** The engine matches prompt prefixes against active KV-cache memory and decodes only new delta tokens, eliminating redundant prefill computation.
-5. **Auto-Purge:** Upon turn completion, the prompt is purged from the context window, keeping inference fast and memory-efficient.
+An unmatched skill costs nothing or only a title, however long it is. See [Skills at run time](../architecture/skill_architecture.md).
 
----
+## What a skill can do
 
-## 🛡️ 3. Execution Constraints & Guardrails
+| Can | Cannot |
+|---|---|
+| Tell the model which tools to use | Call a tool by itself |
+| Include reference files | Keep memory by itself |
+| Include scripts for the model to run | Grant itself approval |
+| Offer functions through `execution` | Install its dependencies. See [Dependencies](../plugins/overview.md#dependencies) |
 
-- **Zero Binary Overhead:** Skills never execute foreign machine code directly.
-- **Dependency Binding:** A Skill can declare dependencies on underlying Plugins (`package.json -> dependencies.plugins: { "math": "^1.0.0" }`) to instruct the LLM on which execution muscle to trigger.
-- **Determinism:** Skills must be written with unambiguous, structured protocol rules to prevent LLM hallucinations.
+## Where to go next
+
+- [Authoring guide](authoring-guide.md)
+- [Package fields](manifest-schema.md)
+- [Tutorial: first skill](tutorial-first-skill.md)
+- [Skill format](../reference/skill-format.md)

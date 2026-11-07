@@ -1,72 +1,42 @@
-# 💻 Cluaiz CLI Command Reference
+# CLI for tools
 
-The `cluaiz` Command Line Interface (CLI) manages local tool installation, discovery, removal, and tools registry synchronization.
-
----
-
-## 📦 1. Skill Commands
+The commands are the same for `skill`, `plugin` and `mcp`.
 
 ```bash
-# Search for skills on Cluaiz Tools
-cluaiz skill search <query>
-
-# Install a skill from Cluaiz Tools
-cluaiz skill install <name>
-
-# Install a specific version of a skill
-cluaiz skill install <name>@1.2.0
-
-# List all locally installed skills
-cluaiz skill list
-
-# Update a skill to latest version
-cluaiz skill update <name>
-
-# Remove an installed skill
-cluaiz skill remove <name>
+cluaiz plugin install math          # The latest version
+cluaiz plugin install math@1.0.1    # A listed version
+cluaiz plugin list                  # What is installed
+cluaiz plugin remove math
+cluaiz plugin config math           # View or change its settings
+cluaiz plugin cache                 # Cached downloads
+cluaiz mcp start filesystem         # Start an MCP server in the background
+cluaiz plugin link                  # Link a plugin to a skill
 ```
 
----
+Each exits with a non-zero code on failure.
 
-## ⚡ 2. Plugin Commands
+`install` takes an id from the registry, not a URL or a path. A folder copied by hand into `~/.cluaiz/tools/<type>/<id>/` is also picked up.
+
+## Using tools
 
 ```bash
-# Search for plugins on Cluaiz Tools
-cluaiz plugin search <query>
-
-# Install a plugin
-cluaiz plugin install <name>
-
-# List all locally installed plugins
-cluaiz plugin list
-
-# Remove an installed plugin
-cluaiz plugin remove <name>
+cluaiz agent                        # The coding agent in this folder
+cluaiz agent -p "What is 17 * 23?"  # One task, then exit
+cluaiz run <model> "..."            # Chat with a model
 ```
 
----
+In the agent, `/skills` lists the skills it found.
 
-## 🔌 3. MCP Commands
+## Programs
 
-```bash
-# Search for MCP servers
-cluaiz mcp search <query>
+Other programs use CEP at `POST /v1/cep` while `cluaiz serve` runs. See [Engine integration](../architecture/engine-integration.md#managing-tools-through-cep).
 
-# Install an MCP server bridge
-cluaiz mcp install <name>
+## Environment
 
-# List all locally installed MCP bridges
-cluaiz mcp list
+| Variable | Effect |
+|---|---|
+| `CLUAIZ_HOME` | Use another folder instead of `~/.cluaiz` |
 
-# Remove an installed MCP bridge
-cluaiz mcp remove <name>
-```
+## Commands that do not exist
 
----
-
-## 🌐 4. Environment Variables
-
-| Variable | Default Value | Description |
-|---|---|---|
-| `CLUAIZ_HOME` | `~/.cluaiz` | Base root directory for all local tools and configuration. |
-| `CLUAIZ_REGISTRY_URL` | Official GitHub Tools Registry URL | Override URL for custom private or corporate registries. |
+Older pages list these: `cluaiz skill search`, `cluaiz skill update`, `cluaiz registry sync`, `cluaiz list --all` and `cluaiz chat`. To update a tool, run `install` again.

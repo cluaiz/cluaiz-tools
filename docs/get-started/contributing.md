@@ -1,128 +1,56 @@
-# Contributing to Cluaiz Skills
+# Contributing a tool
 
-Thank you for contributing to the Cluaiz skill ecosystem.
+## Pull requests
 
-## Pull Request Requirements
+**One pull request, one purpose:** a new tool, a fix to a tool, or documentation.
 
-### Title format
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) style:
+Use [Conventional Commits](https://www.conventionalcommits.org/) in the title:
 
 ```
-feat(<skill-name>): add new skill for X
-fix(<skill-name>): fix frontmatter parsing
-docs: update skill-format reference
-chore: update CI workflow
+feat(commit-helper): add a skill for commit messages
+fix(math): handle division by zero
+docs: explain script plugins
 ```
 
-### Scope
+Say what changed and why.
 
-**One PR, one purpose.** Each PR should do exactly one of:
+## Before you open it
 
-- Add a new skill or plugin
-- Fix a bug in an existing skill or plugin
-- Improve documentation
+For every tool:
 
-Do not bundle unrelated changes together.
+- [ ] The family key, the folder name and `id` in `package.json` are the same, in lowercase kebab-case.
+- [ ] `assets/icon.svg` is a pure SVG with a 24 by 24 `viewBox`.
+- [ ] `description` says what it does and when to use it.
+- [ ] Trigger words are in `package.json`, in the form for its type. See the [package specification](../package-spec.md#what-the-model-sees).
+- [ ] `latest_version` is bumped, or CI will not build.
+- [ ] It works when installed in a clean `CLUAIZ_HOME`, and you called it.
+- [ ] It contains no secrets and no compiled files.
 
-### PR description
+For a skill:
 
-Every PR must include:
+- [ ] `name` in `SKILL.md` equals the folder name.
+- [ ] Frontmatter uses the [standard fields](../reference/skill-format.md#standard-fields).
+- [ ] Every file is listed under `versions.<v>.files`.
 
-1. **What** — what you added or changed
-2. **Why** — the motivation or use case
+For a plugin:
 
-## Skill Structure
+- [ ] `functions` has a clear description and JSON schema for each function.
+- [ ] A WebAssembly plugin builds with `wasm32-unknown-unknown` and has tests.
+- [ ] `build_type` is not `binary`: the Engine cannot run those yet.
 
-### Directory layout
+For an MCP server:
 
-```
-skills/<category>/<skill-name>/
-├── SKILL.md                 # Required — entry point with YAML frontmatter
-├── logic.wasm               # Optional — native execution binary
-├── state.kvcache.bin           # Optional — persistent memory
-├── scripts/                 # Optional — helper scripts
-│   └── *.py
-└── references/              # Optional — detailed reference docs
-    └── *.md
-```
+- [ ] The command is in `execution`.
+- [ ] The description names what the user needs, such as Node.js.
+- [ ] Required environment variables are documented.
 
-- The directory name is the skill identifier. Use lowercase `kebab-case`
-  (e.g., `pdf-extractor`).
-- `SKILL.md` is the only required file.
+## Licences
 
-### SKILL.md frontmatter
+Include a licence that allows distribution, and name it in `license`. For third-party code or an outside server, keep the author's licence and credit.
 
-```yaml
----
-name: my-skill                    # Required — must match directory name
-description: >                    # Required — what this skill does and when to
-  Short description including       trigger it
-  trigger conditions.
-version: 1.0.0                    # Required
-author: Your Name                 # Recommended
----
-```
+## Documentation rules
 
-**Required fields:** `name`, `description`, `version`
-
-- `name` must exactly match the directory name.
-- `description` must clearly state trigger conditions — this is what the agent
-  uses to decide whether to load your skill.
-
-See [Skill format](./skill-format.md) for the full frontmatter reference.
-
-### No hardcoded secrets
-
-**Never hardcode API keys, tokens, or credentials in any file.**
-
-If your skill calls an external API, instruct the agent to read credentials
-from environment variables:
-
-```python
-API_KEY = os.getenv("MY_API_KEY")
-if not API_KEY:
-    raise SystemExit("ERROR: MY_API_KEY is not set.")
-```
-
-Document required environment variables in your `SKILL.md`.
-
-## Guidelines
-
-### 1. Avoid overlap
-
-Before creating a new skill, check existing skills for functional overlap. If
-your feature could extend an existing skill, prefer extending over creating new.
-
-### 2. Keep files focused
-
-Skills are loaded into the agent's context window. Every token counts.
-
-- Keep `.md` files concise and focused.
-- Split large reference docs into parts.
-- Do not embed large data blobs in Markdown files.
-
-### 3. Script standards
-
-If your skill includes helper scripts:
-
-- Include a shebang line (e.g., `#!/usr/bin/env python3`).
-- Handle errors gracefully with clear messages.
-- Document script usage in the `SKILL.md`.
-
-### 4. Naming and encoding
-
-- Skill names and file names: ASCII only, `kebab-case`.
-- All content in English.
-- All files UTF-8 encoded.
-
-## Review process
-
-1. Submit your PR following the requirements above.
-2. At least one maintainer will review.
-3. Address review feedback.
-4. Once approved, a maintainer will merge.
-
-## Questions?
-
-Open an issue if you have questions about contributing.
+- English only.
+- Each topic has one owner page. See the [documentation map](../README.md#where-each-topic-lives). Link to it instead of repeating it.
+- Use **Works**, **Partial** or **Planned** whenever a feature is not obvious.
+- Do not claim speed or memory numbers without a benchmark you can reproduce.

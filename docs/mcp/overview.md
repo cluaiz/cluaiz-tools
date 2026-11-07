@@ -1,36 +1,55 @@
-# 🔌 Model Context Protocol (MCP) in Cluaiz
+# MCP servers
 
-The **Model Context Protocol (MCP)** is an open industry standard that allows AI engines to communicate with external tools, services, and environments.
+The [Model Context Protocol](https://modelcontextprotocol.io) is the open standard for connecting AI to outside tools. An MCP server is a separate program that offers tools. Cluaiz starts it, lists its tools and calls them.
 
-In Cluaiz, MCP servers run as **isolated local subprocesses** communicating with the Inference Engine over Standard Input/Output (stdio) using JSON-RPC 2.0.
+An MCP package in this repository holds no server code. It is a `package.json` that says how to start a server published elsewhere, such as on npm or PyPI.
 
----
+## What works
 
-## 🏗️ 1. Cluaiz Local MCP Architecture
+| Feature | Status |
+|---|---|
+| Local servers over standard input and output | **Works** |
+| `tools/list` and `tools/call` | **Works** |
+| Tool list changes and tool annotations | **Works** |
+| Roots: the server is told the open workspace | **Works** |
+| Remote servers over Streamable HTTP | **Planned** |
+| Resources and prompts | Not used |
+| Sampling: a server asking the model for text | **Planned** |
+| A newer protocol version than `2025-06-18` | **Planned** |
 
-While cloud-based AI engines require OAuth handoffs and remote network endpoints, Cluaiz prioritizes **Local Sovereign Execution**:
-
-```
-"Your MCP servers run locally on your machine. Zero OAuth handoffs, zero data leaving the box."
-```
+## How it runs
 
 ```mermaid
 sequenceDiagram
-    participant Engine as Cluaiz Engine (chat.rs)
-    participant Client as McpClient (tokio::process::Command)
-    participant Server as External MCP Process (Node.js / Python)
+    participant Engine
+    participant Server as MCP server
 
-    Engine->>Client: McpClient::call_tool("filesystem", "read_file", args)
-    Note over Client: Spawns subprocess with piped stdio & timeout guard
-    Client->>Server: Write to stdin: {"jsonrpc":"2.0","method":"tools/call","params":{...},"id":1}
-    Server-->>Client: Read from stdout: {"jsonrpc":"2.0","result":{"content":[...]},"id":1}
-    Client-->>Engine: Parsed Result Value
+    Note over Engine: The model loads or calls the tool
+    Engine->>Server: Start the command in the open workspace
+    Engine->>Server: initialize
+    Engine->>Server: tools/list
+    Server-->>Engine: Tools
+    Engine->>Server: tools/call
+    Server-->>Engine: Result
+    Note over Engine: Stopped after a period without use
 ```
 
----
+- A server starts on first use, so an installed server costs nothing until then.
+- Its tool list is cached after the first start, and the matcher then uses it.
+- The user needs whatever the command needs, usually Node for `npx` or `uv` for `uvx`. Say so in the description.
+- A call asks for approval under the security mode. A user can trust a server's read-only marks, with `trust_annotations`.
 
-## 🛡️ 2. Security & Process Isolation
+## What is in a package
 
-1. **Explicit Whitelisting:** External commands (`command: "npx"`, `args: [...]`) must be explicitly declared in `package.json`.
-2. **Timeout Guards:** Every stdio read is guarded by an asynchronous timeout guard (`tokio::time::timeout`).
-3. **No Ambient Host Authority:** MCP processes run in their own process sandbox with standard OS user-level permissions.
+```
+mcp/git/
+├── package.json        Required: how to start it
+├── assets/icon.svg     Required
+└── SKILL.md            Optional: guidance for the model
+```
+
+## Where to go next
+
+- [Package fields](manifest-schema.md)
+- [Tutorial: connect a server](tutorial-connect-mcp.md)
+- [Engine integration](../architecture/engine-integration.md#mcp-servers)

@@ -1,90 +1,47 @@
-# 🔄 Single-Pass Tool Interception & Turn Lifecycle
+# Turn lifecycle
 
-This document explains the **Single-Pass Tool Interception Engine** and the **Session Turn Lifecycle** in Cluaiz, contrasting it with traditional multi-round LLM tool-calling models.
+One turn is one user message and everything the model does to answer it, including tool calls. The terminal agent and the API share the same turn logic in the Engine.
 
----
-
-## ⚡ 1. The Single-Pass Paradigm vs Traditional Multi-Round Tool Calling
-
-Traditional AI frameworks (e.g. OpenAI function calling, standard ReAct agents) require multiple independent roundtrips to the server to execute a tool:
-
-```
-Traditional Flow (Slow & Wasteful):
-User Query ──> Server (Round 1) ──> Emits JSON Tool Call ──> Client Executes ──> Server (Round 2) ──> Final Response
-Total Latency: 2-3x network overhead + full context re-evaluation.
-```
-
-**Cluaiz Single-Pass Stream Interception (In-Process & Instant):**
-
-```
-Cluaiz Flow (Single-Pass & Mid-Stream):
-User Query ──> Engine Streams Tokens ──> Encounters <TRIGGER:...> ──> In-Process WASM / Subprocess Executed ──> Resumes Streaming
-Total Latency: ~1ms tool overhead + ZERO extra network roundtrips.
-```
-
----
-
-## 🔍 2. Mid-Stream Trigger Interception Sequence
+## A turn with a tool
 
 ```mermaid
 sequenceDiagram
-    autonumber
     actor User
-    participant ChatAPI as chat.rs (Inference Streamer)
-    participant LLM as Llama Inference Engine
-    participant Dispatcher as ToolsEngine::execute_tool_by_name
-    participant Sandbox as WASM Sandbox / MCP Subprocess
+    participant Engine
+    participant Model
+    participant Tool
 
-    User->>ChatAPI: POST /v1/chat/completions (Stream Request)
-    ChatAPI->>LLM: Begin Token Generation
-    LLM-->>ChatAPI: "The current system time is "
-    LLM-->>ChatAPI: "<TRIGGER:plugin:time>{}</TRIGGER>"
-    
-    Note over ChatAPI: Trigger Interceptor detects complete closing tag
-    ChatAPI->>Dispatcher: execute_tool_by_name("plugin", "time", payload)
-    Dispatcher->>Sandbox: Execute logic.wasm in sandbox
-    Sandbox-->>Dispatcher: JSON Result: {"iso_8601": "2026-08-29T21:40:00+05:30"}
-    Dispatcher-->>ChatAPI: Formatted String Result
-    
-    Note over ChatAPI: Wrap in [PIVOT_CONTINUE] Envelope
-    ChatAPI->>LLM: Inject Pivot Context & Resume Generation
-    LLM-->>ChatAPI: "Saturday, August 29, 2026."
-    ChatAPI-->>User: Stream completed in a single HTTP SSE session
+    User->>Engine: Message
+    Engine->>Engine: Match installed tools
+    Engine->>Model: Message, short tool cards, load_tool
+    Model-->>Engine: Tool call: load_tool("math")
+    Engine->>Model: Instructions and function schemas
+    Model-->>Engine: Tool call: math_evaluate
+    Engine->>Engine: Approval if needed
+    Engine->>Tool: Run with the arguments
+    Tool-->>Engine: Result
+    Engine->>Model: Tool result
+    Model-->>Engine: Final answer
+    Engine-->>User: Answer
 ```
 
----
+Each step after a tool call is a new round of generation with the result added to the context. The Engine reuses its KV cache for the unchanged part of the prompt, so the whole prompt is not processed again.
 
-## 🎯 3. The Pivot Envelope (`[PIVOT_CONTINUE]`)
+## Tool calls
 
-When a tool finishes execution mid-stream, `chat.rs` formats the result into a clean pivot continuation envelope before resuming LLM decoding:
+The model writes a tool call in the form its chat template uses, and the Engine turns that into one internal form. The API returns standard `tool_calls`, as OpenAI-compatible clients expect.
 
-```text
-[PIVOT_CONTINUE]
-Tool: time
-Execution Envelope: WASM (in-process)
-Result: {"iso_8601": "2026-08-29T21:40:00+05:30", "day_of_week": "Saturday", "utc_offset": "+05:30"}
-[RESUME_GENERATION]
-```
+A `<TRIGGER:...>` tag or a CEL statement means nothing to the Engine. See [From CEL to CEP](cel-to-cep.md).
 
-This ensures the LLM seamlessly absorbs the tool output into its current attention context without hallucinating synthetic responses or breaking token streaming.
+## How long a tool stays
 
----
+| Kind | Stays |
+|---|---|
+| Loaded with `load_tool` | Until the model unloads it, or after 3 answers that did not use it, or after `default_turns` when that is above 0 |
+| Bound to the chat by the caller | For the set number of turns; `-1` means until removed |
 
-## ⏳ 4. Session Tool Lifecycle & Turn Engine
+Earlier load results of an unloaded tool become short notes in the conversation, which keeps the context small.
 
-Tools attached to a session are managed dynamically by `TurnLifecycleEngine` (`engines/src/tools/lifecycle/turn_engine.rs`):
+## Stopping
 
-### Execution Modes:
-1. **Auto (`execution_mode: auto`):**
-   - Activated automatically by semantic keyword matches.
-   - Typically configured with `default_turns: 1` or `default_turns: 2`.
-2. **Manual (`execution_mode: manual`):**
-   - Explicitly bound by user command or client attachment.
-   - Remains active for a configured turn count or indefinitely (`default_turns: -1`).
-
-### Turn Decrementing & Expiration:
-```
-User Prompt (Turn 1) ──> Tool Active (turns_remaining: 2) ──> Output Generated ──> turns_remaining: 1
-User Prompt (Turn 2) ──> Tool Active (turns_remaining: 1) ──> Output Generated ──> turns_remaining: 0
-User Prompt (Turn 3) ──> Tool Expired! Auto-purged from session context ──> VRAM/KV-Cache instantly reclaimed.
-```
+A turn stops when the model answers without a tool call, when it reaches a limit, or when the user cancels. A rejected approval goes back to the model as a tool result, so it can try another way.

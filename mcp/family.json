@@ -1,11 +1,32 @@
 {
   "category": "mcp",
-  "name": "Cluaiz MCPs",
+  "name": "Cluaiz MCP Servers",
   "items": {
-    "everything": "everything/package.json",
-    "filesystem": "filesystem/package.json",
-    "git": "git/package.json",
-    "fetch": "fetch/package.json",
-    "context7": "context7/package.json"
+    "everything": {
+      "type": "local",
+      "path": "everything/package.json"
+    },
+    "filesystem": {
+      "type": "local",
+      "path": "filesystem/package.json"
+    },
+    "git": {
+      "type": "local",
+      "path": "git/package.json"
+    },
+    "fetch": {
+      "type": "local",
+      "path": "fetch/package.json"
+    },
+    "context7": {
+      "type": "local",
+      "path": "context7/package.json"
+    },
+    "postgres": {
+      "type": "remote",
+      "repo": "cluaiz-community/cluaiz-mcp-postgres",
+      "branch": "main",
+      "manifest_path": "package.json"
+    }
   }
 }

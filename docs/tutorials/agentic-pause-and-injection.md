@@ -1,51 +1,23 @@
 ---
-title: "Agentic Pause & Mid-Layer Injection"
-description: "How the cluaiz Engine halts generation, injects tool schemas, and resumes inference via C-FFI interception."
+title: "Loading a tool during an answer"
+description: "How the model gets a tool's instructions only when it needs them."
 category: "Plugins"
 ---
 
-# Agentic Pause & Mid-Layer Injection
+# Loading a tool during an answer
 
-The cluaiz Engine does not rely on standard REST API-based tool calling for native plugins. Instead, it uses a highly optimized C-FFI interception mechanism known as an **Agentic Pause** to dynamically inject instructions (like `SKILL.md`) into the AI's context window exactly when needed.
+The model does not start with every tool in its prompt. It sees short cards, and loads a tool when it needs it. This keeps the context small, which matters most on small models.
 
-This document explains the reality of how AI triggers plugins in cluaiz.
+An older design did this with a `<TRIGGER:plugin:x>` token and a pause in generation. That is gone. The current way uses standard tool calls.
 
-## 1. The Trigger Token
+## The steps
 
-When the AI determines it needs external data (e.g., searching the web), it does not emit a JSON payload or write raw CEL code immediately. Instead, it emits a specific, raw native token in its generation stream:
+1. The Engine matches the user's message against installed tools, and adds short cards and the function `load_tool`.
+2. The model calls `load_tool` with the tool's id, like any other tool call.
+3. The Engine answers with the tool's `SKILL.md` body and its function schemas, and generation continues in a new round.
+4. The model calls one of the functions.
+5. The Engine runs it and returns the result, and the model answers.
 
-```
-<TRIGGER:plugin:cluaiz-search>
-```
+The Engine reuses its KV cache for the part of the prompt that did not change, so loading a tool does not process the whole conversation again.
 
-This token is the core signaling mechanism.
-
-## 2. The Agentic Pause (Interception)
-
-Inside the Engine's dispatcher (`chat.rs`), there is a strict monitoring loop. When the dispatcher detects the `<TRIGGER:X:Y>` token pattern, it immediately **breaks the streaming loop**. 
-
-The generation halts. This is the **Agentic Pause**. The user's screen pauses, and the Engine takes control.
-
-## 3. Mid-Layer Dual-Cache Injection
-
-Once paused, the Engine performs the following operations without the LLM's knowledge:
-1. **Registry Lookup:** It queries the `MasterRegistry` for the requested plugin (e.g., `cluaiz-search`).
-2. **Schema & Manual Fetch:** It reads the `package.json` and the `SKILL.md` files directly from the plugin's domain folder.
-3. **Prompt Mutation:** The Engine modifies the ongoing conversation prompt, appending the schema:
-   ```text
-   [SYSTEM INJECTION: TOOL SCHEMA FOR cluaiz-search]
-   --- AI SKILL MANUAL ---
-   <contents of SKILL.md>
-   [SYSTEM: RESUME GENERATION]
-   ```
-4. **VRAM Optimization:** It triggers `agentic_pause_compile_cache` to calculate the newly expanded context length and dynamically allocate or swap KV Cache in VRAM.
-
-## 4. Resuming Generation
-
-After the injection and cache compilation are complete, the Engine re-invokes the dispatcher (`dispatch_stream`). 
-
-The AI wakes up from the pause, reads the newly injected `SKILL.md`, and now understands exactly *how* to use the tool. It then generates the required parameters or query strings as specified by the `SKILL.md` guidelines.
-
-## Why This Architecture?
-
-By keeping `SKILL.md` out of the initial system prompt, cluaiz saves hundreds of context tokens. The AI only learns about a plugin *after* it attempts to trigger it, ensuring zero VRAM waste for tools that are not used in a given session.
+[Engine integration](../architecture/engine-integration.md) and [Turn lifecycle](../architecture/turn-lifecycle.md) have the details.

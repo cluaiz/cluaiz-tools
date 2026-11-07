@@ -2,11 +2,31 @@
   "category": "skills",
   "name": "Cluaiz Skills",
   "items": {
-    "code-reviewer": "code-reviewer/package.json",
-    "code-interpreter": "code-interpreter/package.json",
-    "tdd-workflow": "tdd-workflow/package.json",
-    "tool-creator": "tool-creator/package.json",
-    "spec-driven": "spec-driven/package.json",
-    "learn-cluaiz": "learn-cluaiz/package.json"
+    "code-reviewer": {
+      "type": "local",
+      "path": "code-reviewer/package.json"
+    },
+    "code-interpreter": {
+      "type": "local",
+      "path": "code-interpreter/package.json"
+    },
+    "tool-creator": {
+      "type": "local",
+      "path": "tool-creator/package.json"
+    },
+    "learn-cluaiz": {
+      "type": "local",
+      "path": "learn-cluaiz/package.json"
+    },
+    "git-assistant": {
+      "type": "local",
+      "path": "git-assistant/package.json"
+    },
+    "deep-researcher": {
+      "type": "remote",
+      "repo": "cluaiz-community/cluaiz-skill-deep-research",
+      "branch": "main",
+      "manifest_path": "package.json"
+    }
   }
 }

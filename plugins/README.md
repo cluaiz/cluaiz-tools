@@ -1,23 +1,26 @@
-# 🔌 Cluaiz Tools: Plugins (Unified Tool Ecosystem)
+# Plugins
 
-Welcome to the **Plugins** directory of the Cluaiz Tools.
+A plugin is a program the Engine runs when the model calls one of its functions.
 
-## What is a Plugin?
-A Plugin represents the execution layer of the Cluaiz Ecosystem. It encompasses both:
-1. **Sandboxed Tools (`WASM`):** Lightweight, fully isolated WebAssembly binaries executing with strict CPU fuel limits and RAM caps.
-2. **Native C-FFI Plugins (`NATIVE`):** High-performance bare-metal C-FFI binaries (`.dll`, `.so`, `.dylib`) for deep hardware, VRAM, and database subsystems.
+Each folder here is one plugin. `family.json` lists them.
 
-## Anatomy of a Plugin
-Every folder in this directory follows this standard structure:
-```text
-cluaiz-search/               <-- Plugin Name
-├── package.json             <-- Single source of truth: capabilities, envelope (WASM/NATIVE), OS binaries, metadata
-├── assets/icon.svg          <-- Vector UI icon
-└── src/ (or native/)        <-- Source code (Rust/C++)
+```
+math/
+├── package.json     Identity, functions and how it is built
+├── SKILL.md         Instructions for the model
+├── assets/icon.svg  The icon
+├── Cargo.toml       Source, for a built plugin
+└── src/
 ```
 
-## How It Works
-1. When installed (`cluaiz plugin install <name>`), the Engine downloads and places the package into `~/.cluaiz/plugins/<name>`.
-2. If `SKILL.md` is present, the Engine injects the tool prompt into the AI's context.
-3. The AI outputs a CEL query (e.g., `use plugin::cluaiz-search { "query": "..." }`).
-4. The Engine executes the plugin in its declared envelope (`WASM` sandbox or `NATIVE` C-FFI) with sub-millisecond latency.
+| Kind | Status |
+|---|---|
+| WebAssembly (`build_type: "wasm"`) | Works |
+| Script (`execution`) | Works |
+| Native binary (`build_type: "binary"`) | Planned: the Engine cannot run these yet |
+
+Full documentation:
+
+- [Plugins](../docs/plugins/overview.md)
+- [Build types](../docs/plugins/build-types.md)
+- [Tutorial: first plugin](../docs/plugins/tutorial-first-plugin.md)

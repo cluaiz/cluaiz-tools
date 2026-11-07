@@ -1,83 +1,92 @@
-# 🗂️ Tools Registry, Filesystem Auto-Probe & Tools Ingestion
+# Registry and discovery
 
-This document describes how the Cluaiz engine maintains an in-memory, zero-latency registry of all installed tools, auto-probes local disk directories on boot, and dynamically ingests packages from Cluaiz Tools.
+This page follows a tool from the published registry to the Engine's list of installed tools. File formats are in [Registry files](../reference/tools-registry.md).
 
----
+## The chain
 
-## 🗃️ 1. The Registry Architecture (`ToolsRegistry`)
+```mermaid
+flowchart LR
+    R["registry.json<br/>which families exist"] --> F["family.json<br/>which tools exist"]
+    F --> P["package.json<br/>this tool's details"]
+    P --> B["Files and program"]
+    B --> D["~/.cluaiz/tools/type/id/"]
+    D --> L["tools_registry.json<br/>what is installed here"]
+```
 
-The central catalog of all tools is managed by `ToolsRegistry` (`engines/src/tools/registry/`):
+| File | Lives | Answers |
+|---|---|---|
+| `registry.json` | Repository root | Where is each family? |
+| `family.json` | `skills/`, `plugins/`, `mcp/`, `extensions/` | Which tools does this family have, and where is each one? |
+| `package.json` | Each tool's folder or its own repository | What is this tool and what do I download? |
+| `tools_registry.json` | The user's `~/.cluaiz/config/` | What is installed, and how is it set? |
 
-- **Disk Persistence:** `~/.cluaiz/engine/config/tools_registry.json`
-- **In-Memory Cache:** Thread-safe `HashMap<String, ToolEntry>` providing $O(1)$ lookups during inference requests.
-- **Atomic Serialization:** Sealed atomically to disk upon any install, remove, or state toggle.
+The first three are published. The last is local and written by the Engine. It is not the same file as `registry.json`.
 
-```rust
-pub struct ToolEntry {
-    pub id: String,
-    pub name: String,
-    pub category: String, // "skill" | "plugin" | "mcp"
-    pub version: String,
-    pub description: String,
-    pub local_dir: String,
-    pub binary_path: Option<String>,
-    pub enabled: bool,
-    pub execution_mode: ExecutionMode, // Auto | Manual
-    pub default_turns: i32,
-    pub permissions: Vec<String>,
-    pub semantic_triggers: Vec<String>,
-    pub activation_events: Vec<String>,
+## Installing
+
+`cluaiz plugin install math` or the CEP method `tools.install`:
+
+1. Read `registry.json` and find `routing.plugins`. The default address is `https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/registry.json`.
+2. Read `plugins/family.json` and find `items.math`.
+3. Read `plugins/math/package.json`. Use `latest_version`, or the version asked for with `math@1.0.1`, which must be listed under `versions`.
+4. Download what the type needs. See below.
+5. Put it in a staging folder and check it, then swap it into `~/.cluaiz/tools/plugins/math/`. A failed install leaves the previous version in place.
+6. Scan the tools folders and update `tools_registry.json`.
+
+**The family key is the tool's id.** The key, the folder name and `id` in `package.json` must be the same. Release addresses and the installed folder are built from it.
+
+### What gets downloaded
+
+| Type | Files | Program |
+|---|---|---|
+| Skill, MCP | `versions.<v>.files.file_directory`, else the release `<type>-<id>-v<v>/<id>-files.zip` | None |
+| Plugin `wasm` | Same as above | Required: `plugin-<id>-v<v>/<id>_v<v>.wasm`, saved as `<id>.wasm` |
+| Plugin `binary` | Same as above | `versions.<v>.os.<system>`, saved as `<id>.dll`, `.dylib` or `.so`. **The Engine cannot run these yet** |
+| Plugin with `execution` | Same as above | None. The command uses files from the bundle |
+
+When a skill or MCP server has no release (HTTP 404), the Engine writes `package.json` and fetches each path listed in `versions.<v>.files` from the same folder as the manifest. That folder is on the `main` branch, so a requested older version gets its current files.
+
+A plugin has no such fallback: it needs its release. A plugin with no program it can run is refused and nothing is installed.
+
+Downloads are not checked against a hash today.
+
+## Scanning
+
+The Engine rebuilds its view from the folders. An installed tool is any folder in `tools/skills`, `tools/plugins` or `tools/mcp`:
+
+- A listed tool whose folder was removed is dropped from `tools_registry.json`.
+- A new folder is added, so a folder copied by hand works too. This is the simple way to test locally.
+- Name, version, description and triggers are refreshed from the tool's files.
+- User choices such as on or off and security mode stay.
+
+## Local and remote entries
+
+A family entry can point at this repository or at another one.
+
+```json
+{
+  "category": "plugins",
+  "name": "Cluaiz Plugins",
+  "items": {
+    "math": { "type": "local", "path": "math/package.json" },
+    "image-optimizer": {
+      "type": "remote",
+      "repo": "cluaiz-community/cluaiz-plugin-image-opt",
+      "branch": "main",
+      "manifest_path": "package.json"
+    }
+  }
 }
 ```
 
----
+| Entry | Status |
+|---|---|
+| `"math": "math/package.json"` (short form) | **Works** |
+| `{ "type": "local", "path": "..." }` | **Works** |
+| `{ "type": "remote", ... }` | **Planned**: today the Engine answers "not found" |
 
-## 🔍 2. Boot-Time Filesystem Auto-Probing (`sync_with_filesystem`)
+[Tools from other repositories](decoupled-ecosystem.md) explains how remote entries work.
 
-Whenever the engine boots or installs a new component, `ToolsRegistry::sync_with_filesystem` executes a comprehensive scan of the 3 local directories:
+## From installed to offered
 
-```
-~/.cluaiz/tools/
-├── skills/   ──> Scanned for SKILL.md and package.json
-├── plugins/  ──> Scanned for logic.wasm / binaries and package.json
-└── mcp/      ──> Scanned for package.json
-```
-
-### Probing Steps:
-1. **Purge Dangling Entries:** If a directory listed in `tools_registry.json` was deleted manually from disk, the entry is automatically purged from the registry.
-2. **Metadata Extraction:**
-   - **Skills:** `probe_skill_frontmatter` parses YAML frontmatter in `SKILL.md` or `package.json`.
-   - **Plugins:** `probe_plugin_metadata` parses `package.json` and links the `.wasm`/`.dll` binary.
-   - **MCPs:** `probe_mcp_metadata` parses `package.json` and extracts commands and arguments.
-3. **Atomic Save:** The updated catalog is written back to `tools_registry.json`.
-
----
-
-## 🚀 3. Cluaiz Tools Package Ingestion (`ToolsInstaller`)
-
-When a developer installs a package via `cluaiz <category> install <name>`, the `ToolsInstaller` executes the following secure pipeline:
-
-```mermaid
-flowchart TD
-    A["cluaiz skill install code-reviewer"] --> B["Fetch registry.json from Tools Registry"]
-    B --> C["Resolve Routing Pointer (e.g. skills/family.json)"]
-    C --> D["Fetch Package Catalog (skills/code-reviewer/package.json)"]
-    D --> E["Download Package Bundle (ZIP Archive)"]
-    E --> F["Extract files into ~/.cluaiz/tools/skills/code-reviewer/"]
-    F --> G{"Is Native/WASM Binary Included?"}
-    G -->|Yes| H["Download Pre-Compiled OS Binary (.wasm / .dll)"]
-    G -->|No| I["Skip Binary Download"]
-    H --> J["Trigger ToolsRegistry::sync_with_filesystem()"]
-    I --> J
-    J --> K["Tool Live & Ready for Inference"]
-```
-
----
-
-## 🧠 4. Dynamic Semantic Trigger Matching (`SkillRouter`)
-
-During chat sessions, the engine does NOT dump all skill prompts into the context window (which wastes VRAM and slows down attention). Instead:
-
-1. **Fast Keyword & Embedding Matching:** `SkillRouter::match_query` matches the user prompt against `discovery.semantic_triggers` in $O(1)$ time.
-2. **Prefix Caching & Dynamic Context Injection:** Only the matched `SKILL.md` prompt body is injected into the active turn context, preserving cached token prefixes.
-3. **Turn Purge:** Once the turn completes, the prompt is purged, keeping KV-cache lightweight and fast.
+Installing does not put anything in the model's prompt. [Engine integration](engine-integration.md) explains how installed tools are matched and loaded.

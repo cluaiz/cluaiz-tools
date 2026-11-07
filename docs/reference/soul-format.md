@@ -1,5 +1,7 @@
 # Soul format
 
+> **Not supported.** The Engine and the registry have no souls. This page is kept for reference only.
+
 ## On disk
 
 A soul is a folder inside `souls/<name>/`.

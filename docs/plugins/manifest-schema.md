@@ -1,79 +1,63 @@
-# 📋 Plugin Package Specification (`package.json`)
+# Plugin package fields
 
-This document defines the single-source package specification for Plugins in the Cluaiz Tools ecosystem.
+All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a plugin.
 
----
-
-## 📄 Complete Plugin `package.json`
+## Example
 
 ```json
 {
   "id": "math",
-  "name": "Math Evaluator",
+  "name": "Math",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "logo": "/assets/math.svg",
-  "title": "Deterministic Math Plugin",
-  "description": "High-precision arithmetic, calculus, and mathematical expression evaluator for Cluaiz.",
-  "author": {
-    "name": "Aryan",
-    "url": "https://github.com/cluaiz"
-  },
+  "icon": "assets/icon.svg",
+  "description": "Evaluates math expressions exactly. Use for any calculation.",
   "license": "Apache-2.0",
-  "tags": [
-    "Math",
-    "Calculus",
-    "Precision",
-    "WASM"
-  ],
-  "dependencies": {
-    "plugins": {
-      "text": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/text/package.json"
-      }
-    },
-    "mcp": {
-      "fetch": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/fetch/package.json"
-      }
-    },
-    "skills": {
-      "learn-cluaiz": {
-        "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
+  "triggers": ["calculate", "solve equation", "trigonometry"],
+  "functions": [
+    {
+      "name": "math_evaluate",
+      "description": "Evaluate a math expression exactly.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "expression": { "type": "string", "description": "Such as 'sqrt(144) * 25'" }
+        },
+        "required": ["expression"]
       }
     }
-  },
-  "latest_version": "1.0.0",
+  ],
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": [
-        "wasm"
-      ],
-      "files": {
-        "binary": "logic.wasm",
-        "icon": "/assets/icon.svg",
-        "file_directory": "https://github.com/cluaiz/cluaiz-tools/releases/download/v1.0.0/math-files.zip"
-      }
+    "1.0.1": {
+      "updated_at": "2026-11-06T12:00:00Z",
+      "builds_os": ["wasm"],
+      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
 ```
 
----
+## Fields a plugin must get right
 
-## 🔍 Field Reference Table
+| Field | Why it matters |
+|---|---|
+| `id` | Must equal the folder and the family key. Release addresses and the installed file are built from it |
+| `build_type` | Decides what CI builds and what the Engine downloads. See [Build types](build-types.md) |
+| `functions` | Without it the model has nothing to call |
+| `description` | What the matcher and the model read first |
+| `triggers` | A plain list. This is the only way to add trigger words to a plugin |
+| `latest_version` | Bump it in the commit that changes the code, or CI will not build |
 
-| Field | Type | Required? | Description |
-| :--- | :---: | :---: | :--- |
-| `id` | `string` | **Yes** | Unique plugin ID in lowercase kebab-case. |
-| `name` | `string` | **Yes** | Human-readable name. |
-| `category` | `string` | **Yes** | Categorization group (`utility`, `research`, `engineering`). |
-| `hub_type` | `string` | **Yes** | Must be `"plugin"`. |
-| `build_type` | `string` | **Yes** | `"wasm"` for WebAssembly or `"binary"` for native C-FFI. |
-| `dependencies` | `object` | **Yes** | Transitive plugins, MCPs, and skills with SemVer ranges and package URLs. |
-| `versions` | `object` | **Yes** | Map of version release objects with download URLs and file bundles. |
+## Common mistakes
+
+| Mistake | What happens |
+|---|---|
+| Trigger words only in `SKILL.md` | The Engine does not read them for a plugin |
+| `triggers` as `{ "semantic": [...] }`, or `tags` | No effect for a plugin |
+| `id` differs from the folder name | The install looks for a release that does not exist |
+| Changing code without changing `package.json` | CI builds nothing |
+| Listing `execution` with `args` | `args` is ignored for a plugin. Put the whole line in `command` |
+| Expecting the function name in the input | It is not passed. Use a field such as `action` |

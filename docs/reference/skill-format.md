@@ -1,186 +1,59 @@
 # Skill format
 
-## On disk
+The open [Agent Skills](https://agentskills.io/specification) format, with some optional Cluaiz fields. For how to write one, see the [authoring guide](../skills/authoring-guide.md).
 
-A skill is a folder inside `skills/<category>/`.
+## Folder
 
-Required:
-
-- `SKILL.md` (or `skill.md`)
-
-Optional:
-
-- Any supporting files: `logic.wasm`, `state.kvcache.bin`, config JSONs, scripts,
-  reference docs, templates.
-
-### Assets (MANDATORY)
-
-Every skill **MUST** have an `assets` folder containing a valid `icon.svg` file (`assets/icon.svg`). 
-- Only pure SVG is accepted (no `.png`, `.jpg`, `.webp`).
-- This SVG icon is directly fetched by the Cluaiz UI and rendered inline for a premium, native look.
-- The `icon.svg` must be a valid, standalone SVG document (`<svg>...</svg>`).
-
-Installed skill metadata (written by the CLI):
-
-- `<skill>/.cluaiz/origin.json`
+```
+<name>/
+├── SKILL.md            Required
+├── package.json        Required to publish here
+├── assets/icon.svg     Required to publish here
+├── references/         Optional, read on demand
+└── scripts/            Optional, run by the model
+```
 
 ## `SKILL.md`
 
-Markdown with YAML frontmatter. The frontmatter declares metadata. The Markdown
-body is the agent's system prompt — it tells the agent what the skill
-does, when to activate it, how to use its tools, and what rules to follow.
+YAML frontmatter between `---` lines, then Markdown.
 
-## Frontmatter metadata
+### Standard fields
 
-### Basic frontmatter
+| Field | Required | Rules | Used by the Engine |
+|---|---|---|---|
+| `name` | Yes | 1 to 64 characters: lowercase letters, digits and single hyphens. Must equal the folder name | Yes |
+| `description` | Yes | 1 to 1024 characters. What it does and when to use it | Yes |
+| `license` | No | A license name | No |
+| `compatibility` | No | Up to 500 characters. What the skill needs | No |
+| `metadata` | No | A map of text keys and values | No |
+| `allowed-tools` | No | Experimental in the standard | Read as a list only, and not acted on |
 
-```yaml
----
-name: my-skill
-description: Short summary of what this skill does and when to trigger it.
-version: 1.0.0
----
-```
+### Cluaiz fields
 
-### Full frontmatter (Cluaiz native skill)
+The Engine reads these, but they are outside the standard, and strict validators in other agents may reject them. For new skills, prefer `package.json` where the table says so.
 
-```yaml
----
-name: storage-probe
-version: 1.0.0
-description: Hardware-level storage health and speed benchmarking.
-author: Cluaiz
-
-triggers:
-  semantic:
-    - storage-probe
-    - disk-benchmark
-
-links:
-  wasm: "./logic.wasm"
-  prompt_cache: "./state.kvcache.bin"
----
-```
-
-### Field reference
-
-| Field | Type | Description |
+| Field | Meaning | Prefer |
 |---|---|---|
-| `name` | `string` | Skill name. Must match the directory name. Lowercase `kebab-case`. |
-| `version` | `string` | Semver version string. |
-| `description` | `string` | What this skill does. Also used as the summary in registry search. |
-| `author` | `string` | Skill author or organization. |
-| `triggers.semantic` | `string[]` | Semantic keywords that activate this skill. |
-| `allowed-tools` | `string[]` | Optional tool whitelist for sandboxing (e.g. `[read_file, grep_search]`). |
-| `links` | `object` | Paths to associated asset files (see "Linking assets" below). |
+| `version` | Version | `latest_version` in `package.json` |
+| `triggers` | A list, or `semantic` under an object | `triggers.semantic` in `package.json` |
+| `execution_mode` | `auto`, `manual`, `confirm_destructive` | Keep here if needed |
+| `default_turns` | Answers it stays loaded when unused | Keep here if needed |
+| `security_mode` | `inherit` or `require_approval` | Keep here if needed |
 
-### Linking assets
+### Fields that do nothing
 
-The `links` object in the frontmatter maps asset types to relative file paths.
-The Cluaiz engine reads these links at runtime and loads the referenced files
-alongside the skill.
+`id`, `title`, `author`, `keywords`, `permissions`, `links` and `hard_trigger_tokens` appear in older skills and pages. The Engine ignores them for skills. `metadata.author` is the standard place for an author.
 
-```yaml
-links:
-  wasm: "./logic.wasm"
-  prompt_cache: "./state.kvcache.bin"
-  config: "./settings.json"
-  mcp: "./connector.json"
-```
+## Body
 
-| Link key | File type | Purpose |
-|---|---|---|
-| `wasm` | `.wasm` | WebAssembly binary. High-performance native logic executed in a secure sandbox. Zero-copy, memory-safe. |
-| `prompt_cache` | `.kvcache.bin` | Persistent key-value memory. Stores historical data, baselines, or session state across agent runs. |
-| `config` | `.json` / `.yaml` | Configuration data the agent reads at runtime (API endpoints, default parameters, tool schemas). |
-| `mcp` | `.json` / `.js` | MCP (Model Context Protocol) server connector. Allows the agent to communicate with local or remote tool servers. |
-| `db` | `.db` / `.sqlite` | Embedded database for skills that need structured query access. |
-| `scripts` | `./scripts/` | Directory of helper scripts (Python, Bash) the agent can invoke. |
-
-All paths are relative to the skill folder.
-
-## The agent prompt (Markdown body)
-
-Everything below the closing `---` of the frontmatter is the agent prompt. This
-is loaded directly into the agent's context window.
-
-**This is not a user-facing README.** Write it as direct instructions to the AI.
-
-A well-structured agent prompt includes:
-
-### 1. Skill identity
-
-Tell the agent what capability it now has.
+The instructions the model gets from `load_tool`. Under 500 lines is the standard's limit, and shorter is better for small models. Use relative paths for other files:
 
 ```markdown
-# Skill: Storage Probe
-
-You are equipped with the **Storage Probe** native skill. This skill allows you
-to run low-level hardware diagnostics on NVMe and SSD drives.
+See [the guide](references/guide.md).
 ```
 
-### 2. When to use this skill
+The model reads those with `read_tool_file`. Text files only, and the first 40 are listed.
 
-Explicit trigger conditions so the agent knows when to activate.
+## Where the Engine and agent look
 
-```markdown
-## When to use this skill
-Trigger this skill when the user asks you to:
-1. Benchmark read/write speeds of a disk.
-2. Check S.M.A.R.T. health data.
-3. Diagnose slow IO or system bottlenecks.
-```
-
-### 3. How to use this skill (Associated files)
-
-Explain what each linked file does and how the agent should interact with it.
-
-```markdown
-## How to use this skill (Associated Files)
-
-- **`logic.wasm`**: The core execution binary. Invoke via `cluaiz-run`.
-- **`state.kvcache.bin`**: Historical baseline metrics. Read before giving results.
-```
-
-### 4. Execution instructions
-
-Concrete commands or API calls the agent should run.
-
-```markdown
-### Execution Instructions
-cluaiz-run ./logic.wasm --mode <read|write|health> --target <path>
-```
-
-### 5. Guardrails and rules
-
-Hard constraints the agent must obey.
-
-```markdown
-## Guardrails and Rules
-1. NEVER run write benchmarks on OS directories without explicit consent.
-2. Always compare results against kvcache.bin baselines.
-3. No network access. Do not send results externally.
-```
-
-## Allowed files
-
-Only text-based files and the following binary types are accepted:
-
-- `.wasm` — WebAssembly binaries
-- `.kvcache.bin` — Key-value cache state files
-- `.db` / `.sqlite` — Embedded databases
-
-Text file types: `.md`, `.json`, `.yaml`, `.yml`, `.toml`, `.js`, `.ts`, `.py`,
-`.sh`, `.txt`, `.csv`, `.svg`.
-
-## Naming conventions
-
-- Skill directory names: lowercase `kebab-case` (e.g., `pdf-extractor`, `code-auditor`).
-- Category directory names: lowercase `kebab-case` (e.g., `dev-suite`, `system-ops`).
-- `SKILL.md` filename: uppercase `SKILL.md` preferred, lowercase `skill.md` accepted.
-
-## Versioning
-
-Each skill declares its version in the frontmatter. The registry tracks the
-latest published version. When a skill is updated, bump the version following
-semver conventions.
+See [Skills at run time](../architecture/skill_architecture.md#where-skills-come-from).

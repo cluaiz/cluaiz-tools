@@ -1,67 +1,352 @@
 [
   {
     "id": "get-started",
-    "title": "🚀 Get Started",
+    "title": "Get Started",
     "groups": [
       {
         "group": "Overview",
         "pages": [
-          { "slug": "overview", "title": "📖 Overview", "file_path": "docs/get-started/overview.md" },
-          { "slug": "quickstart", "title": "⚡ Quickstart", "file_path": "docs/get-started/quickstart.md" },
-          { "slug": "plugin-tutorial", "title": "🎓 Plugin Tutorial", "file_path": "docs/get-started/plugin-tutorial.md" }
+          {
+            "slug": "overview",
+            "title": "Overview",
+            "file_path": "docs/get-started/overview.md"
+          },
+          {
+            "slug": "quickstart",
+            "title": "Quickstart",
+            "file_path": "docs/get-started/quickstart.md"
+          },
+          {
+            "slug": "plugin-tutorial",
+            "title": "Use a plugin",
+            "file_path": "docs/get-started/plugin-tutorial.md"
+          }
         ]
       },
       {
         "group": "Community",
         "pages": [
-          { "slug": "contributing", "title": "🤝 Contributing", "file_path": "docs/get-started/contributing.md" }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "reference-manual",
-    "title": "📚 Reference Manual",
-    "groups": [
-      {
-        "group": "Formats & Specs",
-        "pages": [
-          { "slug": "skill-format", "title": "🛠️ Skill Format", "file_path": "docs/reference/skill-format.md" },
-          { "slug": "plugin-format", "title": "🔌 Plugin Format", "file_path": "docs/reference/plugin-format.md" },
-          { "slug": "soul-format", "title": "🧠 Soul Format", "file_path": "docs/reference/soul-format.md" }
-        ]
-      },
-      {
-        "group": "Tools",
-        "pages": [
-          { "slug": "cli", "title": "💻 CLI Reference", "file_path": "docs/reference/cli.md" }
+          {
+            "slug": "contributing",
+            "title": "Contributing",
+            "file_path": "docs/get-started/contributing.md"
+          }
         ]
       }
     ]
   },
   {
     "id": "architecture-topics",
-    "title": "⚙️ Architecture",
+    "title": "Architecture",
     "groups": [
       {
         "group": "System Design",
         "pages": [
-          { "slug": "manifest-architecture", "title": "📜 Manifest & Registry", "file_path": "docs/architecture/manifest_architecture.md" },
-          { "slug": "build-pipeline", "title": "🏗️ Build Pipeline", "file_path": "docs/architecture/build-pipeline.md" },
-          { "slug": "skill-architecture", "title": "🧠 Skill Architecture", "file_path": "docs/architecture/skill_architecture.md" }
+          {
+            "slug": "system-overview",
+            "title": "System overview",
+            "file_path": "docs/architecture/system-overview.md"
+          },
+          {
+            "slug": "tool-types",
+            "title": "Skills, Plugins, MCP and Extensions",
+            "file_path": "docs/architecture/plugin_vs_mcp_vs_extension_vs_skill.md"
+          },
+          {
+            "slug": "registry-and-discovery",
+            "title": "Registry and discovery",
+            "file_path": "docs/architecture/registry-and-discovery.md"
+          },
+          {
+            "slug": "decoupled-ecosystem",
+            "title": "Tools from other repositories",
+            "file_path": "docs/architecture/decoupled-ecosystem.md"
+          },
+          {
+            "slug": "manifest-architecture",
+            "title": "Package and local registry",
+            "file_path": "docs/architecture/manifest_architecture.md"
+          },
+          {
+            "slug": "build-pipeline",
+            "title": "Build pipeline",
+            "file_path": "docs/architecture/build-pipeline.md"
+          },
+          {
+            "slug": "engine-integration",
+            "title": "Engine integration",
+            "file_path": "docs/architecture/engine-integration.md"
+          },
+          {
+            "slug": "turn-lifecycle",
+            "title": "Turn lifecycle",
+            "file_path": "docs/architecture/turn-lifecycle.md"
+          },
+          {
+            "slug": "skill-architecture",
+            "title": "Skills at run time",
+            "file_path": "docs/architecture/skill_architecture.md"
+          },
+          {
+            "slug": "cel-to-cep",
+            "title": "From CEL to CEP",
+            "file_path": "docs/architecture/cel-to-cep.md"
+          }
         ]
       }
     ]
   },
   {
-    "id": "tools-tutorials",
-    "title": "🛠️ Tools Tutorials",
+    "id": "skills",
+    "title": "Skills",
+    "groups": [
+      {
+        "group": "Skills",
+        "pages": [
+          {
+            "slug": "skills-overview",
+            "title": "Overview",
+            "file_path": "docs/skills/overview.md"
+          },
+          {
+            "slug": "skills-fields",
+            "title": "Package fields",
+            "file_path": "docs/skills/manifest-schema.md"
+          },
+          {
+            "slug": "skills-authoring",
+            "title": "Authoring guide",
+            "file_path": "docs/skills/authoring-guide.md"
+          },
+          {
+            "slug": "skills-tutorial",
+            "title": "Tutorial: first skill",
+            "file_path": "docs/skills/tutorial-first-skill.md"
+          }
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          {
+            "slug": "skills-creating",
+            "title": "Creating skills",
+            "file_path": "docs/tutorials/skills/01-creating-ai-skills.md"
+          },
+          {
+            "slug": "skills-tools",
+            "title": "Teaching tools",
+            "file_path": "docs/tutorials/skills/02-prompt-engineering-tools.md"
+          },
+          {
+            "slug": "skills-context",
+            "title": "Skills and context",
+            "file_path": "docs/tutorials/skills/03-context-injection.md"
+          },
+          {
+            "slug": "skills-for-tools",
+            "title": "SKILL.md for tools",
+            "file_path": "docs/tutorials/skills/04-tool-skills.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plugins",
+    "title": "Plugins",
     "groups": [
       {
         "group": "Plugins",
         "pages": [
-          { "slug": "cluaiz-db", "title": "💾 cluaiz-db", "file_path": "docs/tools/cluaiz-db.md" },
-          { "slug": "cluaiz-search", "title": "🔍 cluaiz-search", "file_path": "docs/tools/cluaiz-search.md" }
+          {
+            "slug": "plugins-overview",
+            "title": "Overview",
+            "file_path": "docs/plugins/overview.md"
+          },
+          {
+            "slug": "plugins-build-types",
+            "title": "Build types",
+            "file_path": "docs/plugins/build-types.md"
+          },
+          {
+            "slug": "plugins-fields",
+            "title": "Package fields",
+            "file_path": "docs/plugins/manifest-schema.md"
+          },
+          {
+            "slug": "plugins-interface",
+            "title": "WebAssembly interface",
+            "file_path": "docs/plugins/wasm-abi-guide.md"
+          },
+          {
+            "slug": "plugins-tutorial",
+            "title": "Tutorial: first plugin",
+            "file_path": "docs/plugins/tutorial-first-plugin.md"
+          }
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          {
+            "slug": "plugins-building",
+            "title": "Building",
+            "file_path": "docs/tutorials/plugins/01-building-wasm-plugins.md"
+          },
+          {
+            "slug": "plugins-settings",
+            "title": "Settings",
+            "file_path": "docs/tutorials/plugins/02-fetching-settings.md"
+          },
+          {
+            "slug": "plugins-cep",
+            "title": "CEP and plugins",
+            "file_path": "docs/tutorials/plugins/03-cep-architecture.md"
+          },
+          {
+            "slug": "plugins-testing",
+            "title": "Local testing",
+            "file_path": "docs/tutorials/plugins/04-local-testing.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mcp",
+    "title": "MCP",
+    "groups": [
+      {
+        "group": "MCP",
+        "pages": [
+          {
+            "slug": "mcp-overview",
+            "title": "Overview",
+            "file_path": "docs/mcp/overview.md"
+          },
+          {
+            "slug": "mcp-fields",
+            "title": "Package fields",
+            "file_path": "docs/mcp/manifest-schema.md"
+          },
+          {
+            "slug": "mcp-tutorial",
+            "title": "Tutorial: connect a server",
+            "file_path": "docs/mcp/tutorial-connect-mcp.md"
+          }
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          {
+            "slug": "mcp-connecting",
+            "title": "Connecting",
+            "file_path": "docs/tutorials/mcp/01-connecting-mcp-servers.md"
+          },
+          {
+            "slug": "mcp-settings",
+            "title": "Settings",
+            "file_path": "docs/tutorials/mcp/02-fetching-settings.md"
+          },
+          {
+            "slug": "mcp-cep",
+            "title": "CEP and MCP",
+            "file_path": "docs/tutorials/mcp/03-cep-architecture.md"
+          },
+          {
+            "slug": "mcp-testing",
+            "title": "Local testing",
+            "file_path": "docs/tutorials/mcp/04-local-testing.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "extensions",
+    "title": "Extensions (experimental)",
+    "groups": [
+      {
+        "group": "Extensions",
+        "pages": [
+          {
+            "slug": "extensions-overview",
+            "title": "Overview",
+            "file_path": "docs/extensions/overview.md"
+          },
+          {
+            "slug": "extensions-fields",
+            "title": "Package fields",
+            "file_path": "docs/extensions/manifest-schema.md"
+          },
+          {
+            "slug": "extensions-guide",
+            "title": "Developer guide",
+            "file_path": "docs/extensions/developer-guide.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reference-manual",
+    "title": "Reference",
+    "groups": [
+      {
+        "group": "Formats",
+        "pages": [
+          {
+            "slug": "package-spec",
+            "title": "Package specification",
+            "file_path": "docs/package-spec.md"
+          },
+          {
+            "slug": "tools-registry",
+            "title": "Registry files",
+            "file_path": "docs/reference/tools-registry.md"
+          },
+          {
+            "slug": "skill-format",
+            "title": "Skill format",
+            "file_path": "docs/reference/skill-format.md"
+          },
+          {
+            "slug": "plugin-format",
+            "title": "Plugin format",
+            "file_path": "docs/reference/plugin-format.md"
+          },
+          {
+            "slug": "soul-format",
+            "title": "Soul format (not supported)",
+            "file_path": "docs/reference/soul-format.md"
+          }
+        ]
+      },
+      {
+        "group": "Tools",
+        "pages": [
+          {
+            "slug": "cli",
+            "title": "CLI",
+            "file_path": "docs/reference/cli.md"
+          },
+          {
+            "slug": "web-search",
+            "title": "web-search",
+            "file_path": "docs/tools/cluaize-search.md"
+          }
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          {
+            "slug": "loading-tools",
+            "title": "Loading a tool during an answer",
+            "file_path": "docs/tutorials/agentic-pause-and-injection.md"
+          }
         ]
       }
     ]
