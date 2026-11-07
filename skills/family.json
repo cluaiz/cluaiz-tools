@@ -25,6 +25,18 @@
     "speech": {
       "type": "local",
       "path": "speech/package.json"
+    },
+    "github": {
+      "type": "local",
+      "path": "github/package.json"
+    },
+    "build-feature": {
+      "type": "local",
+      "path": "build-feature/package.json"
+    },
+    "frontend-design": {
+      "type": "local",
+      "path": "frontend-design/package.json"
     }
   }
 }

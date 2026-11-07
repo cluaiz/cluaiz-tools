@@ -1,0 +1,47 @@
+{
+  "id": "build-feature",
+  "name": "Build Feature",
+  "category": "engineering",
+  "hub_type": "skill",
+  "description": "A way of working for a new feature or a bug fix: understand, plan, write a failing test, make it pass, and verify before saying it is done.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "Workflow",
+    "Planning",
+    "TDD",
+    "Testing"
+  ],
+  "triggers": {
+    "semantic": [
+      "add a feature",
+      "build a feature",
+      "implement",
+      "new feature",
+      "fix this bug",
+      "bug fix",
+      "write tests",
+      "tdd",
+      "plan this",
+      "refactor"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-07T21:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}

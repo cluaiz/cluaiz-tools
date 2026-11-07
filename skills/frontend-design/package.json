@@ -1,0 +1,47 @@
+{
+  "id": "frontend-design",
+  "name": "Frontend Design",
+  "category": "design",
+  "hub_type": "skill",
+  "description": "Rules for web pages and app screens that look finished: layout, type, color, spacing, states, responsiveness and accessibility.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "Frontend",
+    "UI",
+    "Design",
+    "CSS"
+  ],
+  "triggers": {
+    "semantic": [
+      "design a page",
+      "landing page",
+      "ui",
+      "frontend",
+      "make it look better",
+      "css",
+      "tailwind",
+      "react component",
+      "dashboard design",
+      "web page design"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-07T21:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}

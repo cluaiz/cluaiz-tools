@@ -1,0 +1,48 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "category": "engineering",
+  "hub_type": "skill",
+  "description": "Works with GitHub through the GitHub CLI: issues, pull requests, CI runs, reviews and search. Needs gh, signed in.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "GitHub",
+    "Pull Requests",
+    "Issues",
+    "CI"
+  ],
+  "triggers": {
+    "semantic": [
+      "github",
+      "pull request",
+      "pr",
+      "issue",
+      "issues",
+      "ci failed",
+      "github actions",
+      "workflow run",
+      "review this pr",
+      "open a pr",
+      "gh"
+    ]
+  },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-07T21:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}
