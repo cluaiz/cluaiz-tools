@@ -25,6 +25,10 @@
     "browser": {
       "type": "local",
       "path": "browser/package.json"
+    },
+    "documents": {
+      "type": "local",
+      "path": "documents/package.json"
     }
   }
 }

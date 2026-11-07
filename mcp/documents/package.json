@@ -1,0 +1,66 @@
+{
+  "id": "documents",
+  "name": "Documents",
+  "category": "mcp",
+  "hub_type": "mcp",
+  "description": "Reads PDF, Word, Excel, PowerPoint, HTML, CSV and other files as text, so the model can answer from them. Runs on this computer. Needs uv.",
+  "author": {
+    "name": "Microsoft",
+    "url": "https://github.com/microsoft/markitdown"
+  },
+  "license": "MIT",
+  "tags": [
+    "Documents",
+    "PDF",
+    "Office"
+  ],
+  "triggers": [
+    "read this pdf",
+    "summarize this document",
+    "summarize",
+    "document",
+    "read",
+    "pdf",
+    "docx",
+    "xlsx",
+    "pptx",
+    "csv",
+    "epub",
+    "word document",
+    "excel file",
+    "powerpoint",
+    "spreadsheet",
+    "convert",
+    "convert to markdown"
+  ],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "expose": {
+    "convert_to_markdown": [
+      "uri"
+    ]
+  },
+  "execution": {
+    "command": "uvx",
+    "args": [
+      "markitdown-mcp@0.0.1a8"
+    ]
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-07T19:30:00Z",
+      "command": "uvx",
+      "args": [
+        "markitdown-mcp@0.0.1a8"
+      ],
+      "files": {
+        "icon": "assets/icon.svg",
+        "skill": "SKILL.md"
+      }
+    }
+  }
+}

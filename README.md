@@ -94,6 +94,7 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 | `context7` | Node | `npx -y @upstash/context7-mcp@4.5.1` |
 | `fetch` | `uv` | `uvx mcp-server-fetch@2026.11.4` |
 | `git` | `uv` | `uvx mcp-server-git@2026.11.4` |
+| `documents` | `uv` | `uvx markitdown-mcp@0.0.1a8` |
 
 ## Write a tool
 
