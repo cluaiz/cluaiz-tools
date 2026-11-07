@@ -69,6 +69,9 @@
     "agent_browser_back": [],
     "agent_browser_close": []
   },
+  "user_env": [
+    "AGENT_BROWSER_HEADED"
+  ],
   "execution": {
     "command": "npx",
     "args": [
@@ -81,7 +84,7 @@
     "env": {
       "AGENT_BROWSER_CONTENT_BOUNDARIES": "1",
       "AGENT_BROWSER_MAX_OUTPUT": "20000",
-      "AGENT_BROWSER_IDLE_TIMEOUT_MS": "600000"
+      "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"
     }
   },
   "latest_version": "1.0.0",
@@ -99,7 +102,7 @@
       "env": {
         "AGENT_BROWSER_CONTENT_BOUNDARIES": "1",
         "AGENT_BROWSER_MAX_OUTPUT": "20000",
-        "AGENT_BROWSER_IDLE_TIMEOUT_MS": "600000"
+        "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"
       },
       "files": {
         "icon": "assets/icon.svg",
