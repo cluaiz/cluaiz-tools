@@ -7,7 +7,9 @@ description: "Reads PDF, Word, Excel, PowerPoint, HTML and CSV files as text, so
 
 Call `convert_to_markdown` with the file as a `uri`, then answer from the text it returns.
 
-- A file on this computer is `file:///` and its full path with forward slashes, such as `file:///C:/Users/me/report.pdf` or `file:///home/me/report.pdf`. For a file in the open folder, join the folder and the file name.
+- A file in the open folder: `file:` and its name, such as `file:invoice.pdf` or `file:reports/q3.docx`.
+- A file elsewhere: `file:///` and its full path, such as `file:///C:/Users/me/report.pdf` or `file:///home/me/report.pdf`.
+- A bare name or path without `file:` is refused.
 - It reads PDF, Word (`.docx`), Excel (`.xlsx`), PowerPoint (`.pptx`), HTML, CSV, JSON, XML, EPUB and ZIP files. A table comes back as a Markdown table.
 - A scanned PDF has no text, so the answer is empty. Tell the user it needs OCR.
 - Do not pass audio or video files: this tool sends their sound to an online speech service. For a web page, use `fetch` or `web_fetch` if installed.

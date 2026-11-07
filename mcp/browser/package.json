@@ -24,7 +24,18 @@
     "open localhost",
     "find errors on my site",
     "check console errors",
-    "accessibility check"
+    "accessibility check",
+    "website",
+    "test the website",
+    "click",
+    "button",
+    "console",
+    "console errors",
+    "script errors",
+    "failed requests",
+    "form",
+    "login page",
+    "screenshot"
   ],
   "dependencies": {
     "plugins": {},
