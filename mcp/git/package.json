@@ -3,7 +3,7 @@
   "name": "Git",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Inspects a Git repository: status, diffs, log and branches. Needs uv.",
+  "description": "Reads a Git repository, and can stage, commit, branch and merge in it. Needs uv.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
@@ -14,10 +14,13 @@
     "Version Control"
   ],
   "triggers": [
+    "git status",
     "git log",
     "git history",
     "inspect repository",
-    "show git diff"
+    "show git diff",
+    "commit my changes",
+    "create a branch"
   ],
   "dependencies": {
     "plugins": {},
@@ -27,19 +30,20 @@
   "execution": {
     "command": "uvx",
     "args": [
-      "mcp-server-git"
+      "mcp-server-git@2026.11.4"
     ]
   },
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
+    "1.1.0": {
       "updated_at": "2026-11-07T12:00:00Z",
       "command": "uvx",
       "args": [
-        "mcp-server-git"
+        "mcp-server-git@2026.11.4"
       ],
       "files": {
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "skill": "SKILL.md"
       }
     }
   }

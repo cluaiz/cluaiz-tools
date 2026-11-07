@@ -23,22 +23,31 @@
     "mcp": {},
     "skills": {}
   },
+  "expose": {
+    "fetch": [
+      "url",
+      "max_length",
+      "start_index",
+      "raw"
+    ]
+  },
   "execution": {
     "command": "uvx",
     "args": [
-      "mcp-server-fetch"
+      "mcp-server-fetch@2026.11.4"
     ]
   },
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
+    "1.1.0": {
       "updated_at": "2026-11-07T12:00:00Z",
       "command": "uvx",
       "args": [
-        "mcp-server-fetch"
+        "mcp-server-fetch@2026.11.4"
       ],
       "files": {
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "skill": "SKILL.md"
       }
     }
   }

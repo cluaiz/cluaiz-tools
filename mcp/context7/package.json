@@ -3,10 +3,10 @@
   "name": "Context7 Docs",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Looks up current documentation for programming libraries. Needs Node.",
+  "description": "Looks up current documentation for programming libraries. Needs Node and internet access.",
   "author": {
-    "name": "Cluaiz Core Team",
-    "url": "https://github.com/cluaiz"
+    "name": "Upstash",
+    "url": "https://github.com/upstash/context7"
   },
   "license": "MIT",
   "tags": [
@@ -24,24 +24,28 @@
     "mcp": {},
     "skills": {}
   },
+  "user_env": [
+    "CONTEXT7_API_KEY"
+  ],
   "execution": {
     "command": "npx",
     "args": [
       "-y",
-      "@upstash/context7-mcp"
+      "@upstash/context7-mcp@4.5.1"
     ]
   },
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
+    "1.1.0": {
       "updated_at": "2026-11-07T12:00:00Z",
       "command": "npx",
       "args": [
         "-y",
-        "@upstash/context7-mcp"
+        "@upstash/context7-mcp@4.5.1"
       ],
       "files": {
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "skill": "SKILL.md"
       }
     }
   }
