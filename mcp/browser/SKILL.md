@@ -15,6 +15,14 @@ For a page that needs no clicks, `web_fetch` is faster if it is installed.
 4. See the result: `agent_browser_read` for the text of the open page, or `agent_browser_snapshot` again.
 5. `agent_browser_close` when the task is finished.
 
+## Showing the browser
+
+The browser has no window unless someone wants one. Pass `headed: true` to `agent_browser_open` only if the user asks to see or watch the work, or if a step needs them, such as a login or a captcha. Pass it on every open while they are watching.
+
+Changing between hidden and visible restarts the browser and loses the open page and anything typed. So decide at the first open.
+
+## Refs
+
 Refs last only until the page changes. After a click that changes the page, take a new snapshot.
 
 Do not guess CSS selectors. Take a snapshot and use a ref. Do not open the same address again to check a result: that loads a fresh page and loses what you did.

@@ -17,13 +17,18 @@ The model can open any address the browser can, including local ones such as `ht
 
 ## Settings
 
-The browser runs without a window, and closes itself after 5 minutes without a call. To watch it work:
+The browser runs without a window, and closes itself after 5 minutes without a call. There are two ways to see it:
+
+- **For one task:** ask the model to show you, and it opens the browser with a window.
+- **Always:**
 
 ```bash
 cluaiz mcp config browser AGENT_BROWSER_HEADED 1
 ```
 
 Set it to an empty value to hide the window again. A change applies when the server next starts.
+
+Switching between hidden and visible restarts the browser, which loses the open page. The window shows what happens on the page, but no mouse pointer is drawn.
 
 ## Status
 

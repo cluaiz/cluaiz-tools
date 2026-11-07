@@ -30,7 +30,8 @@
   },
   "expose": {
     "agent_browser_open": [
-      "url"
+      "url",
+      "headed"
     ],
     "agent_browser_snapshot": [
       "interactive",
