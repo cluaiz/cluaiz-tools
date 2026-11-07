@@ -1,22 +1,6 @@
 ---
 name: code-reviewer
-version: 1.0.0
-description: Multi-language code quality, security vulnerability, memory safety, and DRY enforcement protocol across local git changes, pasted snippets, and pull requests.
-author: Aryan
-triggers:
-  semantic:
-    - "review this code"
-    - "review my changes"
-    - "audit security"
-    - "check bugs"
-    - "code quality audit"
-    - "dry check"
-    - "audit code"
-    - "review pr"
-allowed-tools:
-  - read_file
-  - grep_search
-  - git_diff
+description: "Reviews code for bugs, security problems, memory safety and duplicated logic, in local changes, pasted snippets, files and pull requests."
 ---
 
 # Code Reviewer & Security Audit Protocol
@@ -34,7 +18,7 @@ Determine which operational scenario applies to the user request and follow its 
 ### Mode A: Local Working Tree & Staged Changes
 * **Trigger:** User asks to "review my changes", "review staged code", "check uncommitted changes", or similar repository-level inspection.
 * **Execution Workflow:**
-  1. Inspect changed files using `git_diff` (or inspect working tree status).
+  1. Get the changes with `run_command`: `git status --short`, then `git diff` (add `--staged` for staged changes).
   2. For every modified hunk, use `read_file` to inspect at least 25-30 lines of **surrounding context** (the enclosing function, struct definition, or caller lifecycle). Never audit diffs in total isolation.
   3. Evaluate the diff against the **Mandatory Audit Pillars** below.
   4. Generate the structured review report with exact file paths and line numbers.
@@ -51,7 +35,7 @@ Determine which operational scenario applies to the user request and follow its 
 * **Trigger:** User provides a specific file path (e.g. `review src/network/router.rs`).
 * **Execution Workflow:**
   1. Use `read_file` to read the target file completely.
-  2. If the file references related shared modules, verify traits and imports with `grep_search`.
+  2. If the file references related shared modules, verify traits and imports with the `search` tool.
   3. Conduct full audit against the 5 pillars.
 
 ### Mode D: Remote Pull Request (PR) Review

@@ -1,21 +1,6 @@
 ---
 name: git-assistant
-version: 1.0.0
-description: Production git operations, conventional commit linting, staged diff auditing, and merge conflict resolution protocol.
-author: Aryan
-triggers:
-  semantic:
-    - "git commit"
-    - "smart commit"
-    - "git status"
-    - "git diff"
-    - "git review"
-    - "audit diff"
-    - "git safety check"
-    - "branch check"
-    - "resolve conflict"
-    - "git staging"
-    - "conventional commit"
+description: "Helps with git: clear commit messages, checking staged changes for secrets and build output, and resolving merge conflicts."
 ---
 
 # 🌿 Git Assistant Protocol

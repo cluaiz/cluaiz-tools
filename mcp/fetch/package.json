@@ -1,15 +1,23 @@
 {
   "id": "fetch",
-  "name": "Web Content Fetcher",
+  "name": "Web Fetch",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Official Model Context Protocol web content fetching and HTML-to-markdown conversion bridge",
+  "description": "Fetches a web page and returns it as Markdown. Needs uv.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
-  "tags": ["MCP", "Fetch", "Web", "Bridge"],
+  "tags": [
+    "Web",
+    "Fetch"
+  ],
+  "triggers": [
+    "fetch this page",
+    "download web page",
+    "read this url as markdown"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -17,15 +25,21 @@
   },
   "execution": {
     "command": "uvx",
-    "args": ["mcp-server-fetch"]
+    "args": [
+      "mcp-server-fetch"
+    ]
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "command": "uvx",
-      "args": ["mcp-server-fetch"],
-      "files": {}
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "files": {
+        "icon": "assets/icon.svg"
+      }
     }
   }
 }

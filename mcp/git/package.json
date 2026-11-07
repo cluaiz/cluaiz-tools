@@ -1,15 +1,24 @@
 {
   "id": "git",
-  "name": "Git Repository Bridge",
+  "name": "Git",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Official Model Context Protocol Git repository inspection and diff analysis bridge",
+  "description": "Inspects a Git repository: status, diffs, log and branches. Needs uv.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
-  "tags": ["MCP", "Git", "VCS", "Bridge"],
+  "tags": [
+    "Git",
+    "Version Control"
+  ],
+  "triggers": [
+    "git log",
+    "git history",
+    "inspect repository",
+    "show git diff"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -17,15 +26,21 @@
   },
   "execution": {
     "command": "uvx",
-    "args": ["mcp-server-git"]
+    "args": [
+      "mcp-server-git"
+    ]
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "command": "uvx",
-      "args": ["mcp-server-git"],
-      "files": {}
+      "args": [
+        "mcp-server-git"
+      ],
+      "files": {
+        "icon": "assets/icon.svg"
+      }
     }
   }
 }

@@ -1,15 +1,24 @@
 {
   "id": "context7",
-  "name": "Context7 Documentation Engine",
+  "name": "Context7 Docs",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Version-specific live library documentation and API reference lookup engine",
+  "description": "Looks up current documentation for programming libraries. Needs Node.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
   },
   "license": "MIT",
-  "tags": ["MCP", "Documentation", "Bridge"],
+  "tags": [
+    "Documentation",
+    "Libraries"
+  ],
+  "triggers": [
+    "library documentation",
+    "latest api docs",
+    "how do i use this library",
+    "context7"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -17,15 +26,23 @@
   },
   "execution": {
     "command": "npx",
-    "args": ["-y", "@upstash/context7-mcp"]
+    "args": [
+      "-y",
+      "@upstash/context7-mcp"
+    ]
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "files": {}
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "files": {
+        "icon": "assets/icon.svg"
+      }
     }
   }
 }

@@ -3,18 +3,26 @@
   "name": "Autonomous Tool Creator",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Autonomous tool scaffolding and validation engine for Skills, WASM Plugins, and MCP Servers.",
+  "description": "Creates new skills, WebAssembly plugins and MCP packages for Cluaiz, with correct manifests and registry entries.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Scaffold", "Tool Foundry", "Code Generation", "Protocol"],
+  "tags": [
+    "Scaffold",
+    "Developer Tools"
+  ],
   "triggers": {
     "semantic": [
-      "create plugin", "build mcp", "create skill", "new tool",
-      "scaffold tool", "tool foundry", "generate tool", "build tool",
-      "tool creator", "create tool", "make tool", "tool maker"
+      "create plugin",
+      "create skill",
+      "create mcp",
+      "build mcp",
+      "new tool",
+      "scaffold tool",
+      "create tool",
+      "build a plugin"
     ]
   },
   "dependencies": {
@@ -26,23 +34,27 @@
     "type": "script_runner",
     "scratch_dir": "scratch",
     "default_language": "python",
-    "command": "python \"{tool_dir}/scripts/scaffold.py\" \"{file}\""
+    "command": "{python} \"{tool_dir}/scripts/scaffold.py\" \"{file}\""
   },
   "functions": [
     {
       "name": "create_tool",
-      "description": "Autonomously scaffolds and creates a new Skill, Plugin, or MCP Server in the Cluaiz ecosystem and registers it in tools registry.",
+      "description": "Create a new skill, WebAssembly plugin or MCP package, installed on this computer and added to the cluaiz-tools repository if that is the open folder.",
       "parameters": {
         "type": "object",
         "properties": {
           "category": {
             "type": "string",
-            "enum": ["skills", "plugins", "mcp"],
+            "enum": [
+              "skills",
+              "plugins",
+              "mcp"
+            ],
             "description": "Pillar category for the tool"
           },
           "tool_id": {
             "type": "string",
-            "description": "Unique kebab-case slug for the tool"
+            "description": "Lowercase words joined by hyphens, such as my-tool"
           },
           "name": {
             "type": "string",
@@ -50,26 +62,54 @@
           },
           "description": {
             "type": "string",
-            "description": "Accurate summary of capabilities"
+            "description": "What it does and when to use it"
           },
           "triggers": {
             "type": "array",
-            "items": { "type": "string" },
-            "description": "Semantic keyword phrases that activate the tool"
+            "items": {
+              "type": "string"
+            },
+            "description": "Short phrases a user would say when they need this tool"
+          },
+          "skill_instructions": {
+            "type": "string",
+            "description": "For a skill or plugin: the body of SKILL.md"
+          },
+          "command": {
+            "type": "string",
+            "description": "For mcp: the program that starts the server, such as npx or uvx"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "For mcp: its arguments"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Replace a tool that already exists"
           }
         },
-        "required": ["category", "tool_id", "name", "description"]
+        "required": [
+          "category",
+          "tool_id",
+          "name",
+          "description"
+        ]
       }
     }
   ],
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-09-24T12:00:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "files": {
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
-        "scripts": ["scripts/scaffold.py"]
+        "scripts": [
+          "scripts/scaffold.py"
+        ]
       }
     }
   }

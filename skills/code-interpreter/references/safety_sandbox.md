@@ -6,11 +6,9 @@ This document outlines execution boundaries, safety envelopes, and resource guar
 
 ## 1. Execution Timeout Envelopes
 
-* **Default Timeout:** 10,000 ms (10 seconds).
-* **Maximum Allowed Timeout:** 30,000 ms (30 seconds) for heavy computations.
+* **Default Timeout:** 30 seconds. Pass `timeout` in the call to change it.
 * **Timeout Behavior:**
   - If a script exceeds the designated threshold, the subprocess must be terminated immediately.
-  - Return a structured timeout report (`EXECUTION_TIMED_OUT`) explaining that execution exceeded the safety limit.
 
 ---
 

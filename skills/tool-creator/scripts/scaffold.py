@@ -1,231 +1,236 @@
 #!/usr/bin/env python3
-"""
-Autonomous Tool Scaffolding Worker for Cluaiz ecosystem.
-Part of the 'tool-creator' skill.
-Zero-hardcoding in engine; executes domain-level tool scaffolding for Skills, Plugins, and MCP servers.
-"""
+"""Creates a new skill, WebAssembly plugin or MCP package. The Engine calls it with a JSON file of arguments."""
 
-import sys
+import json
 import os
 import re
-import json
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
-def get_default_icon(category: str) -> str:
-    color = "#3B82F6" if category == "skills" else ("#F59E0B" if category == "plugins" else "#8B5CF6")
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-</svg>
+ICON_COLOR = {"skills": "#3B82F6", "plugins": "#F59E0B", "mcp": "#8B5CF6"}
+HUB_TYPE = {"skills": "skill", "plugins": "plugin", "mcp": "mcp"}
+
+CARGO_TOML = """[package]
+name = "cluaiz_plugin_{crate}"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+serde_json = "1.0"
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+strip = true
 """
 
-def parse_input_payload(raw_text: str) -> dict:
-    # 1. Try direct JSON parse
+LIB_RS = """use serde_json::{{json, Value}};
+
+#[no_mangle]
+pub extern "C" fn allocate(len: u32) -> *mut u8 {{
+    let mut buffer = Vec::<u8>::with_capacity(len as usize);
+    let start = buffer.as_mut_ptr();
+    core::mem::forget(buffer);
+    start
+}}
+
+/// The Engine passes the function's arguments as JSON. The answer is JSON too.
+///
+/// # Safety
+/// The Engine passes an input it wrote through `allocate`.
+#[no_mangle]
+pub unsafe extern "C" fn execute_cel(start: *const u8, len: u32) -> u64 {{
+    let input = if len > 0 && !start.is_null() {{
+        core::slice::from_raw_parts(start, len as usize)
+    }} else {{
+        &[]
+    }};
+    let answer = run(input).to_string().into_bytes();
+    let (at, length) = (answer.as_ptr() as u64, answer.len() as u64);
+    core::mem::forget(answer);
+    (at << 32) | length
+}}
+
+fn run(input: &[u8]) -> Value {{
+    let Ok(args) = serde_json::from_slice::<Value>(input) else {{
+        return json!({{ "status": "error", "error": "The input must be JSON" }});
+    }};
+    let Some(text) = args.get("input").and_then(Value::as_str) else {{
+        return json!({{ "status": "error", "error": "Give an \\"input\\"" }});
+    }};
+    // Replace this with what {name} does
+    json!({{ "status": "success", "result": text }})
+}}
+"""
+
+
+def fail(message):
+    print(json.dumps({"status": "error", "message": message}))
+    sys.exit(1)
+
+
+def read_arguments():
+    if len(sys.argv) < 2 or not Path(sys.argv[1]).is_file():
+        fail("Expected the path of a JSON file of arguments.")
     try:
-        data = json.loads(raw_text.strip())
-        if isinstance(data, dict):
-            # If wrapped in "arguments" or "input"
-            if "arguments" in data and isinstance(data["arguments"], dict):
-                data = data["arguments"]
-            elif "input" in data and isinstance(data["input"], str):
-                extracted = extract_from_natural_text(data["input"])
-                extracted.update({k: v for k, v in data.items() if k != "input"})
-                return extracted
-            return data
-    except Exception:
-        pass
-
-    # 2. Extract from natural/markdown text
-    return extract_from_natural_text(raw_text)
-
-def extract_from_natural_text(text: str) -> dict:
-    data = {}
-    
-    # Detect category
-    lower = text.lower()
-    if "plugin" in lower:
-        data["category"] = "plugins"
-    elif "mcp" in lower:
-        data["category"] = "mcp"
-    else:
-        data["category"] = "skills"
-
-    # Detect tool ID / slug
-    id_match = re.search(r"(?:skills?|plugins?|mcp)/([a-z0-9_\-]+)", text, re.IGNORECASE)
-    if id_match:
-        data["tool_id"] = id_match.group(1).lower()
-    else:
-        name_match = re.search(r"(?:skill|plugin|mcp|tool)[:\s]+([A-Za-z0-9\s_\-]+)", text, re.IGNORECASE)
-        if name_match:
-            raw_name = name_match.group(1).strip().split("\n")[0]
-            data["name"] = raw_name
-            data["tool_id"] = re.sub(r"[^a-z0-9]+", "-", raw_name.lower()).strip("-")
-        else:
-            data["tool_id"] = "custom-tool"
-
-    if "name" not in data:
-        data["name"] = data["tool_id"].replace("-", " ").title()
-
-    # Detect description
-    desc_match = re.search(r"description[:\s]+([^\n]+)", text, re.IGNORECASE)
-    if desc_match:
-        data["description"] = desc_match.group(1).strip()
-    else:
-        data["description"] = f"Autonomous {data['category'][:-1]} for {data['name']}."
-
-    # Detect semantic triggers
-    triggers = []
-    triggers_match = re.findall(r'["\']([a-zA-Z0-9\s_\-]+)["\']', text)
-    if triggers_match:
-        triggers = [t.strip().lower() for t in triggers_match if len(t.strip()) > 2 and t.strip().lower() != data["tool_id"]][:8]
-    if not triggers:
-        triggers = [data["tool_id"].replace("-", " "), data["name"].lower(), f"run {data['tool_id']}"]
-    data["triggers"] = triggers
-
+        data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    except ValueError as error:
+        fail(f"The arguments are not valid JSON: {error}")
+    if not isinstance(data, dict):
+        fail("The arguments must be a JSON object.")
     return data
 
-def main():
-    raw_input = ""
-    if len(sys.argv) > 1:
-        arg_path = Path(sys.argv[1])
-        if arg_path.exists() and arg_path.is_file():
-            raw_input = arg_path.read_text(encoding="utf-8")
-        else:
-            raw_input = " ".join(sys.argv[1:])
-    else:
-        raw_input = sys.stdin.read()
 
-    if not raw_input.strip():
-        print(json.dumps({"status": "error", "message": "No input payload provided to tool scaffolder."}))
-        sys.exit(1)
+def tools_home():
+    home = os.environ.get("CLUAIZ_HOME")
+    if home:
+        return Path(home) / "tools"
+    return Path(os.environ.get("USERPROFILE") or os.environ.get("HOME") or ".") / ".cluaiz" / "tools"
 
-    spec = parse_input_payload(raw_input)
-    category = spec.get("category", "skills").lower()
-    if not category.endswith("s") and category != "mcp":
-        category = category + "s"
-    if category not in ["skills", "plugins", "mcp"]:
-        category = "skills"
 
-    tool_id = spec.get("tool_id") or spec.get("id") or "custom-tool"
-    tool_id = re.sub(r"[^a-z0-9-_]+", "-", tool_id.lower()).strip("-")
-    tool_name = spec.get("name") or tool_id.replace("-", " ").title()
-    description = spec.get("description") or f"Autonomous {category[:-1]} for {tool_name}."
-    triggers = spec.get("triggers", [tool_id.replace("-", " "), tool_name.lower()])
-    if isinstance(triggers, str):
-        triggers = [t.strip() for t in triggers.split(",")]
+def repository_root():
+    """The cluaiz-tools repository this is running in, if any."""
+    current = Path.cwd()
+    for folder in [current, *current.parents]:
+        if all((folder / kind / "family.json").exists() for kind in HUB_TYPE):
+            return folder
+    return None
 
-    # 1. Resolve Host Target: %USERPROFILE%/.cluaiz/tools/<category>/<tool_id>/
-    user_home = Path(os.environ.get("USERPROFILE") or os.environ.get("HOME") or ".")
-    host_target = user_home / ".cluaiz" / "tools" / category / tool_id
-    host_target.mkdir(parents=True, exist_ok=True)
-    (host_target / "assets").mkdir(parents=True, exist_ok=True)
 
-    # 2. Resolve Workspace Target if inside repo
-    curr = Path.cwd()
-    workspace_target = None
-    repo_root = None
-    for p in [curr] + list(curr.parents):
-        if (p / "skills" / "family.json").exists() or (p / "cluaiz-tools").exists():
-            repo_root = p if (p / "skills" / "family.json").exists() else (p / "cluaiz-tools")
-            break
-
-    if repo_root and repo_root.exists():
-        workspace_target = repo_root / category / tool_id
-        workspace_target.mkdir(parents=True, exist_ok=True)
-        (workspace_target / "assets").mkdir(parents=True, exist_ok=True)
-
-    # 3. Construct package.json
-    pkg_data = {
+def manifest(spec):
+    category, tool_id, triggers = spec["category"], spec["tool_id"], spec["triggers"]
+    data = {
         "id": tool_id,
-        "name": tool_name,
-        "category": "engineering",
-        "hub_type": category[:-1] if category.endswith("s") else category,
-        "description": description,
-        "author": {
-            "name": "Aryan",
-            "url": "https://github.com/cluaiz"
-        },
-        "license": "Apache-2.0",
-        "tags": [t.title() for t in triggers[:4]],
-        "triggers": {
-            "semantic": triggers
-        },
-        "dependencies": {
-            "plugins": {},
-            "mcp": {},
-            "skills": {}
-        },
-        "latest_version": "1.0.0",
-        "versions": {
-            "1.0.0": {
-                "updated_at": "2026-09-24T12:00:00Z",
-                "files": {
-                    category[:-1] if category.endswith("s") else category: "SKILL.md" if category == "skills" else "src/lib.rs",
-                    "icon": "assets/icon.svg"
-                }
-            }
-        }
+        "name": spec["name"],
+        "category": "utility",
+        "hub_type": HUB_TYPE[category],
     }
-    pkg_content = json.dumps(pkg_data, indent=2) + "\n"
+    if category == "plugins":
+        data["build_type"] = "wasm"
+    data.update({
+        "description": spec["description"],
+        "author": {"name": spec.get("author") or "Cluaiz Community"},
+        "license": "Apache-2.0",
+        "tags": [],
+        # The Engine reads a skill's triggers from `semantic`, and a plugin's or server's from a plain list
+        "triggers": {"semantic": triggers} if category == "skills" else triggers,
+        "dependencies": {"plugins": {}, "mcp": {}, "skills": {}},
+    })
+    files = {"icon": "assets/icon.svg"}
+    version = {"updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    if category != "mcp":
+        files["skill"] = "SKILL.md"
+    if category == "plugins":
+        version["builds_os"] = ["wasm"]
+        data["functions"] = [{
+            "name": tool_id.replace("-", "_"),
+            "description": spec["description"],
+            "parameters": {
+                "type": "object",
+                "properties": {"input": {"type": "string", "description": "What to work on"}},
+                "required": ["input"],
+            },
+        }]
+    if category == "mcp":
+        data["execution"] = {"command": spec["command"], "args": spec["args"]}
+        version.update(command=spec["command"], args=spec["args"])
+    version["files"] = files
+    data["latest_version"] = "1.0.0"
+    data["versions"] = {"1.0.0": version}
+    return data
 
-    # 4. Construct SKILL.md (or code file)
-    skill_content = spec.get("skill_instructions") or f"""---
-name: {tool_id}
-version: 1.0.0
-description: {description}
-author: Aryan
-triggers:
-  semantic:
-{chr(10).join(f'    - "{t}"' for t in triggers)}
----
 
-# 🛠️ {tool_name} Protocol
+def skill_text(spec):
+    description = spec["description"].replace('"', "'")
+    body = spec.get("skill_instructions") or f"# {spec['name']}\n\nDescribe when to use this and exactly what to do, step by step.\n"
+    return f'---\nname: {spec["tool_id"]}\ndescription: "{description}"\n---\n\n{body.strip()}\n'
 
-When this skill is activated, you operate as the specialized agent for **{tool_name}**.
 
-## Operational Guidelines
-1. Adhere to zero-hardcoding and clean deterministic workflows.
-2. Provide concise, production-ready outputs.
-3. Verify all code changes against local system targets.
-"""
+def package_files(spec):
+    category = spec["category"]
+    color = ICON_COLOR[category]
+    files = {
+        "package.json": json.dumps(manifest(spec), indent=2) + "\n",
+        "assets/icon.svg": spec.get("icon_svg") or (
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" '
+            f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n'
+            f'  <circle cx="12" cy="12" r="9"/>\n  <path d="M12 8v8M8 12h8"/>\n</svg>\n'
+        ),
+    }
+    if category != "mcp":
+        files["SKILL.md"] = skill_text(spec)
+    if category == "plugins":
+        files["Cargo.toml"] = CARGO_TOML.format(crate=spec["tool_id"].replace("-", "_"))
+        files["src/lib.rs"] = LIB_RS.format(name=spec["name"])
+    return files
 
-    icon_content = spec.get("icon_svg") or get_default_icon(category)
 
-    # 5. Write to Host
-    (host_target / "package.json").write_text(pkg_content, encoding="utf-8")
-    if category == "skills":
-        (host_target / "SKILL.md").write_text(skill_content, encoding="utf-8")
-    (host_target / "assets" / "icon.svg").write_text(icon_content, encoding="utf-8")
+def write_package(folder, files, overwrite):
+    if (folder / "package.json").exists() and not overwrite:
+        fail(f"{folder} already exists. Pass overwrite: true to replace it.")
+    for relative, text in files.items():
+        path = folder / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8", newline="\n")
 
-    # 6. Write to Workspace (if present)
-    if workspace_target:
-        (workspace_target / "package.json").write_text(pkg_content, encoding="utf-8")
-        if category == "skills":
-            (workspace_target / "SKILL.md").write_text(skill_content, encoding="utf-8")
-        (workspace_target / "assets" / "icon.svg").write_text(icon_content, encoding="utf-8")
 
-        # Update family.json
-        family_file = repo_root / category / "family.json"
-        if family_file.exists():
-            try:
-                family_data = json.loads(family_file.read_text(encoding="utf-8"))
-                if "items" in family_data and isinstance(family_data["items"], dict):
-                    family_data["items"][tool_id] = f"{tool_id}/package.json"
-                    family_file.write_text(json.dumps(family_data, indent=2) + "\n", encoding="utf-8")
-            except Exception:
-                pass
+def main():
+    args = read_arguments()
+    category = str(args.get("category", "")).lower()
+    if category in ("skill", "plugin"):
+        category += "s"
+    if category not in HUB_TYPE:
+        fail("category must be skills, plugins or mcp.")
+    tool_id = str(args.get("tool_id") or "")
+    if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", tool_id):
+        fail("tool_id must be lowercase words joined by hyphens, like my-tool.")
+    for field in ("name", "description"):
+        if not str(args.get(field) or "").strip():
+            fail(f"{field} is required.")
+    triggers = args.get("triggers") or [tool_id.replace("-", " ")]
+    if isinstance(triggers, str):
+        triggers = [part.strip() for part in triggers.split(",") if part.strip()]
+    spec = {**args, "category": category, "tool_id": tool_id, "triggers": triggers}
+    if category == "mcp":
+        if not str(args.get("command") or "").strip():
+            fail("An MCP package needs command, the program that starts the server, such as npx.")
+        spec["args"] = [str(arg) for arg in args.get("args") or []]
+
+    files = package_files(spec)
+    overwrite = args.get("overwrite") is True
+    installed = tools_home() / category / tool_id
+    root = repository_root()
+    in_repository = root / category / tool_id if root else None
+    write_package(installed, files, overwrite)
+    if in_repository:
+        write_package(in_repository, files, overwrite)
+        family_path = root / category / "family.json"
+        family = json.loads(family_path.read_text(encoding="utf-8"))
+        family["items"][tool_id] = {"type": "local", "path": f"{tool_id}/package.json"}
+        family_path.write_text(json.dumps(family, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     report = {
         "status": "success",
-        "category": category,
         "tool_id": tool_id,
-        "name": tool_name,
-        "host_path": str(host_target),
-        "workspace_path": str(workspace_target) if workspace_target else None,
-        "files_created": ["package.json", "SKILL.md" if category == "skills" else "src/lib.rs", "assets/icon.svg"],
-        "message": f"Successfully scaffolded {category[:-1]} '{tool_id}' at {host_target}"
+        "installed_at": str(installed),
+        "repository_path": str(in_repository) if in_repository else None,
+        "files": sorted(files),
     }
-
+    if category == "plugins":
+        report["next"] = (
+            f"Write the logic in src/lib.rs, then run: cargo build --release --target wasm32-unknown-unknown. "
+            f"Copy the .wasm from target/wasm32-unknown-unknown/release/ to {installed / (tool_id + '.wasm')}. "
+            "The plugin cannot run until then."
+        )
+    elif category == "skills":
+        report["next"] = "Write the real instructions in SKILL.md."
     print(json.dumps(report, indent=2))
+
 
 if __name__ == "__main__":
     main()

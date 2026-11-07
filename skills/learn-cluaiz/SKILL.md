@@ -1,81 +1,38 @@
 ---
 name: learn-cluaiz
-version: 1.0.0
-description: Technical tutorial and architecture guide for the Cluaiz ecosystem.
-author: Aryan
-triggers:
-  semantic:
-    - "learn cluaiz"
-    - "what is cluaiz"
-    - "how does cluaiz work"
-    - "cluaiz architecture"
-    - "explain cel"
-    - "explain tools in cluaiz"
+description: "Explains what Cluaiz is and how its Engine and tools work. Use when the user asks about Cluaiz itself."
 ---
 
-# 🎓 Cluaiz Architecture & Developer Guide
+# Learn Cluaiz
 
-When this skill is active, you operate as the **Cluaiz Technical Guide**. Your mission is to provide crystal-clear, deep, technical explanations of the Cluaiz ecosystem without marketing fluff.
+Use this to explain Cluaiz plainly and correctly. If something is not covered here, say so instead of guessing, and point to https://cluaiz.com.
 
----
+## What it is
 
-## 🏛️ 1. What is Cluaiz?
+Cluaiz is a local AI engine written in Rust. It runs GGUF and ONNX models for chat, vision, speech and embeddings on the user's own GPU, RAM and CPU. It places models automatically and offers OpenAI-compatible APIs.
 
-Cluaiz is a high-performance, cross-platform local AI inference engine written in Rust. It enables developers to execute open-weights LLMs (Llama, Qwen, DeepSeek, Gemma) locally on consumer hardware (NVIDIA CUDA, Apple Metal, Vulkan, CPU) with zero external server dependencies and zero data leaving the host.
+## Tools
 
----
+| Type | What it is | Needs on the machine |
+|---|---|---|
+| Skill | Instructions the model loads when needed (`SKILL.md`) | Nothing |
+| Plugin | A program the Engine runs, usually one WebAssembly file in a sandbox | Nothing, for WebAssembly |
+| MCP server | An outside program using the Model Context Protocol | Usually Node or `uv` |
+| Extension | A mini-application in the App | Experimental |
 
-## 🧩 2. The Three Sovereign Extension Pillars
+The model first sees only short cards for the installed tools. When a tool fits, it loads that tool's instructions and functions, and then makes standard tool calls. The Engine runs each call, asks for approval when needed, and returns the result.
 
-Cluaiz enforces a strict separation between Cognition, In-Process Compute, and External Subprocesses:
+A WebAssembly plugin has no files or other programs. It can reach the web only if its `package.json` asks for network access, and then only public https addresses.
 
-### 🧠 1. Skills (Cognitive Brain)
-- **Role:** Reasoning frameworks, domain rules, coding standards, prompt templates.
-- **Execution:** Injected dynamically into LLM system prompt context via `SkillRouter`.
-- **Files:** `package.json`, `SKILL.md`, `assets/icon.svg`.
+Programs talk to the Engine through CEP: JSON-RPC at `POST /v1/cep`, for example the method `tools.call`.
 
-### ⚡ 2. Plugins (WASM In-Process Muscle)
-- **Role:** Deterministic calculations, regex parsers, local vector operations.
-- **Execution:** In-process WebAssembly sandbox via `wasmtime` with memory caps (`ResourceLimiter`) and instruction fuel counters.
-- **Files:** `package.json`, `logic.wasm` / `src/lib.rs`, `assets/icon.svg`.
-
-### 🔌 3. MCP Servers (Subprocess Stdio IPC)
-- **Role:** External system bridges (Filesystem, Git, Databases).
-- **Execution:** Out-of-process child processes communicating over stdio using JSON-RPC 2.0 with 30-second timeout guards.
-- **Files:** `package.json`, `assets/icon.svg`.
-
----
-
-## ⚡ 3. Single-Pass Mid-Stream Tool Interception
-
-Unlike traditional AI architectures that require multiple slow HTTP roundtrips to execute tools:
-
-1. The LLM streams tokens normally.
-2. When a tool call is required, the LLM emits `<TRIGGER:category:name>{"arg": "val"}</TRIGGER>`.
-3. The engine pauses generation, executes the plugin/MCP in ~1ms, wraps the output in a `[PIVOT_CONTINUE]` envelope, and resumes token streaming seamlessly in the same HTTP SSE connection!
-
----
-
-## 🏎️ 4. Dynamic Prefix Caching & Delta Decoding
-
-- When continuing dialogues or receiving tool execution results, Cluaiz matches the prompt token prefix against active KV-cache memory.
-- **Zero-Recompute Prefill:** Shared prompt tokens are reused directly from memory. The compute backend only decodes new delta tokens, drastically cutting Time-To-First-Token (TTFT) latency.
-
----
-
-## 💻 5. Standard CLI Workflows
+## Commands
 
 ```bash
-# Manage Skills
-cluaiz skill search <query>
-cluaiz skill install <name>
-cluaiz skill list
-
-# Manage Plugins
-cluaiz plugin install <name>
+cluaiz skill install code-reviewer
+cluaiz plugin install web-search
+cluaiz mcp install filesystem
 cluaiz plugin list
-
-# Manage MCP Servers
-cluaiz mcp install <name>
-cluaiz mcp list
+cluaiz plugin config web-search TAVILY_API_KEY
+cluaiz agent
 ```

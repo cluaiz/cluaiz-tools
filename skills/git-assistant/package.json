@@ -9,12 +9,20 @@
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Git", "Version Control", "Commits", "Code Review", "Safety"],
+  "tags": [
+    "Git",
+    "Version Control"
+  ],
   "triggers": {
     "semantic": [
-      "git commit", "smart commit", "git status", "git diff",
-      "git review", "audit diff", "git safety check", "branch check",
-      "resolve conflict", "git staging", "conventional commit"
+      "git commit",
+      "commit message",
+      "git status",
+      "git diff",
+      "audit diff",
+      "resolve conflict",
+      "merge conflict",
+      "conventional commit"
     ]
   },
   "dependencies": {
@@ -22,10 +30,10 @@
     "mcp": {},
     "skills": {}
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-09-24T15:45:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "files": {
         "skill": "SKILL.md",
         "icon": "assets/icon.svg"

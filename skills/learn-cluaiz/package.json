@@ -9,19 +9,34 @@
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Tutorial", "Architecture", "Learning", "Protocol"],
+  "tags": [
+    "Tutorial",
+    "Documentation"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
     "skills": {}
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-07-01T12:00:00Z",
+    "1.0.1": {
+      "updated_at": "2026-11-07T12:00:00Z",
       "files": {
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
+  },
+  "triggers": {
+    "semantic": [
+      "learn cluaiz",
+      "what is cluaiz",
+      "how does cluaiz work",
+      "cluaiz architecture",
+      "explain tools in cluaiz",
+      "cluaiz plugin",
+      "cluaiz skill"
+    ]
   }
 }
