@@ -1,6 +1,10 @@
 # Browser
 
-Lets a model use a real browser through [agent-browser](https://github.com/vercel-labs/agent-browser): open pages, read them, click, type and take screenshots.
+Lets a model use a real browser through [agent-browser](https://github.com/vercel-labs/agent-browser): open pages, read them, click, type and take screenshots. It also tests a website: script errors, console messages, failed requests and an accessibility audit.
+
+```text
+Test the sign-up form on http://localhost:3000 and tell me what is broken.
+```
 
 ## What it needs
 
@@ -11,7 +15,7 @@ Firefox and Safari are not supported.
 
 ## What the model can reach
 
-The browser runs in its own window and profile, so the model does not get your logins. `expose` in `package.json` gives the model 14 of the server's 29 tools. It cannot run JavaScript in a page, change certificate settings or pass extra arguments, and the Engine refuses such a call.
+The browser runs in its own window and profile, so the model does not get your logins. `expose` in `package.json` gives the model 18 of the server's tools. It cannot run JavaScript in a page, change certificate settings or pass extra arguments, and the Engine refuses such a call.
 
 The model can open any address the browser can, including local ones such as `http://localhost:3000`, so a website under development can be tested. Calls ask for approval unless you allow them.
 

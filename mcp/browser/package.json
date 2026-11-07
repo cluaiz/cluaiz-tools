@@ -3,7 +3,7 @@
   "name": "Browser",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Opens web pages in a real browser, reads them, clicks and types. Use for sites that need JavaScript, for forms, and for testing a website. Needs Node.",
+  "description": "Opens web pages in a real browser, reads them, clicks and types, and tests a website: console errors, failed requests and accessibility. Needs Node.",
   "author": {
     "name": "Vercel Labs",
     "url": "https://github.com/vercel-labs/agent-browser"
@@ -21,7 +21,10 @@
     "fill this form",
     "test my website",
     "take a screenshot of the page",
-    "open localhost"
+    "open localhost",
+    "find errors on my site",
+    "check console errors",
+    "accessibility check"
   ],
   "dependencies": {
     "plugins": {},
@@ -68,7 +71,24 @@
       "fullPage"
     ],
     "agent_browser_back": [],
-    "agent_browser_close": []
+    "agent_browser_close": [],
+    "agent_browser_console": [
+      "clear"
+    ],
+    "agent_browser_errors": [
+      "clear"
+    ],
+    "agent_browser_network_requests": [
+      "filter",
+      "status",
+      "method",
+      "type",
+      "clear"
+    ],
+    "agent_browser_a11y": [
+      "selector",
+      "tags"
+    ]
   },
   "user_env": [
     "AGENT_BROWSER_HEADED"
@@ -80,7 +100,7 @@
       "agent-browser@0.41.2",
       "mcp",
       "--tools",
-      "core"
+      "core,debug,network"
     ],
     "env": {
       "AGENT_BROWSER_CONTENT_BOUNDARIES": "1",
@@ -88,17 +108,17 @@
       "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"
     }
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.0": {
-      "updated_at": "2026-11-07T12:00:00Z",
+    "1.1.0": {
+      "updated_at": "2026-11-07T19:00:00Z",
       "command": "npx",
       "args": [
         "-y",
         "agent-browser@0.41.2",
         "mcp",
         "--tools",
-        "core"
+        "core,debug,network"
       ],
       "env": {
         "AGENT_BROWSER_CONTENT_BOUNDARIES": "1",
