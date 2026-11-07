@@ -14,7 +14,7 @@ CEP (Cluaiz Engine Protocol) is how programs talk to the Engine: `POST /v1/cep`,
 |---|---|
 | Model calls a plugin | A standard tool call. The Engine runs the plugin. No CEP is involved |
 | A program calls a plugin | CEP `tools.call` |
-| A plugin calls the Engine | **Not possible through CEP.** It has only `now_utc_ms`, `os_platform` and `http_fetch` |
+| A plugin calls the Engine | **Not possible through CEP.** It has only `now_utc_ms`, `utc_offset_minutes`, `os_platform` and `http_fetch` |
 
 A direct call, useful for testing:
 

@@ -10,7 +10,7 @@ use urlencoding::{decode, encode};
 const DEFAULT_RESULTS: u64 = 5;
 const MOST_RESULTS: u64 = 10;
 const SNIPPET_CHARS: usize = 400;
-const SET_UP_HINT: &str = "For dependable results, add a free key such as TAVILY_API_KEY or EXA_API_KEY, or SEARXNG_URL, under \"web-search\" in the Engine's config/tool_settings.json.";
+const SET_UP_HINT: &str = "For dependable results, the user can add a free key: cluaiz plugin config web-search TAVILY_API_KEY";
 
 struct Hit {
     title: String,

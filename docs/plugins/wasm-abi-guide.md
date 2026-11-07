@@ -73,6 +73,7 @@ These are the only things a plugin can call outside itself. They are in the `clu
 |---|---|---|
 | `now_utc_ms` | `() -> i64` | Current UTC time in milliseconds |
 | `os_platform` | `() -> i32` | 1 Windows, 2 macOS, 3 Linux, 0 other |
+| `utc_offset_minutes` | `() -> i32` | This computer's offset from UTC, in minutes |
 | `http_fetch` | `(ptr: i32, len: u32) -> u64` | `(ptr << 32) \| len` of a JSON answer, written through `allocate` |
 
 ```rust
@@ -80,6 +81,7 @@ These are the only things a plugin can call outside itself. They are in the `clu
 extern "C" {
     fn now_utc_ms() -> i64;
     fn os_platform() -> i32;
+    fn utc_offset_minutes() -> i32;
     fn http_fetch(ptr: *const u8, len: u32) -> u64;
 }
 ```
@@ -129,11 +131,14 @@ Only `url` is required, and `method` is `GET` or `POST`. The answer is one of th
 }
 ```
 
-The user sets the values in `config/tool_settings.json` in the Engine's data folder. A plugin reads only the section named after its own folder:
+The user sets the values with a command. Without a value, a key is asked for and does not show on screen:
 
-```json
-{ "my-plugin": { "EXAMPLE_API_KEY": "...", "OWN_SERVER_URL": "http://localhost:8080" } }
+```bash
+cluaiz plugin config my-plugin EXAMPLE_API_KEY
+cluaiz plugin config my-plugin OWN_SERVER_URL http://localhost:8080
 ```
+
+They are kept in `config/tool_settings.json` in the Engine's data folder, not in the plugin's files. A plugin reaches only the section named after its own folder.
 
 ## Limits
 

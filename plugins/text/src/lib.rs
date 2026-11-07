@@ -2,6 +2,10 @@ use base64::Engine;
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
 
+const MAX_MATCHES: usize = 1000;
+/// Lines of one text times lines of the other. Beyond this, aligning them costs too much
+const MAX_DIFF_CELLS: usize = 4_000_000;
+
 #[derive(Deserialize)]
 struct TextRequest {
     action: String,
@@ -174,93 +178,41 @@ fn process_text_request(req: TextRequest) -> TextResponse {
         }
         "diff" => {
             let target = req.target.unwrap_or_default();
-            let src_lines: Vec<&str> = req.input.lines().collect();
-            let tgt_lines: Vec<&str> = target.lines().collect();
-
-            let mut patch = String::new();
-            let mut added = 0;
-            let mut removed = 0;
-            let mut common = 0;
-
-            let max_len = if src_lines.len() > tgt_lines.len() { src_lines.len() } else { tgt_lines.len() };
-            for i in 0..max_len {
-                match (src_lines.get(i), tgt_lines.get(i)) {
-                    (Some(s), Some(t)) if s == t => {
-                        common += 1;
-                        patch.push_str(" ");
-                        patch.push_str(s);
-                        patch.push('\n');
-                    }
-                    (Some(s), Some(t)) => {
-                        removed += 1;
-                        added += 1;
-                        patch.push_str("-");
-                        patch.push_str(s);
-                        patch.push_str("\n+");
-                        patch.push_str(t);
-                        patch.push('\n');
-                    }
-                    (Some(s), None) => {
-                        removed += 1;
-                        patch.push_str("-");
-                        patch.push_str(s);
-                        patch.push('\n');
-                    }
-                    (None, Some(t)) => {
-                        added += 1;
-                        patch.push_str("+");
-                        patch.push_str(t);
-                        patch.push('\n');
-                    }
-                    (None, None) => {}
-                }
-            }
-
+            let summary = line_diff(&req.input, &target);
             TextResponse {
                 status: "success".into(),
                 action,
                 result: None,
                 matches: None,
-                diff_summary: Some(DiffSummary {
-                    added_lines: added,
-                    removed_lines: removed,
-                    common_lines: common,
-                    diff_patch: patch,
-                }),
+                diff_summary: Some(summary),
                 stats: None,
                 error: None,
             }
         }
         "extract" | "find" | "regex" => {
+            let failure = |action: String, message: String| TextResponse {
+                status: "error".into(),
+                action,
+                result: None,
+                matches: None,
+                diff_summary: None,
+                stats: None,
+                error: Some(message),
+            };
             let pattern = req.pattern.unwrap_or_default();
             if pattern.is_empty() {
-                return TextResponse {
-                    status: "error".into(),
-                    action,
-                    result: None,
-                    matches: None,
-                    diff_summary: None,
-                    stats: None,
-                    error: Some("Pattern parameter is required for regex/extract action".into()),
-                };
+                return failure(action, "The extract action needs a pattern".into());
             }
-
-            // Lightweight deterministic substring / pattern finder
-            let mut matches = Vec::new();
-            let mut start = 0;
-            while let Some(pos) = req.input[start..].find(&pattern) {
-                let actual_idx = start + pos;
-                matches.push(pattern.clone());
-                start = actual_idx + pattern.len();
-                if start >= req.input.len() {
-                    break;
-                }
-            }
-
+            let expression = match regex::Regex::new(&pattern) {
+                Ok(expression) => expression,
+                Err(e) => return failure(action, format!("The pattern is not a valid regular expression: {e}")),
+            };
+            let matches: Vec<String> =
+                expression.find_iter(&req.input).take(MAX_MATCHES).map(|found| found.as_str().to_owned()).collect();
             TextResponse {
                 status: "success".into(),
                 action,
-                result: Some(format!("Found {} occurrences", matches.len())),
+                result: Some(format!("Found {} matches", matches.len())),
                 matches: Some(matches),
                 diff_summary: None,
                 stats: None,
@@ -279,8 +231,102 @@ fn process_text_request(req: TextRequest) -> TextResponse {
     }
 }
 
+/// A line diff that follows what stayed the same, so one inserted line does not mark the rest as changed
+fn line_diff(source: &str, target: &str) -> DiffSummary {
+    let a: Vec<&str> = source.lines().collect();
+    let b: Vec<&str> = target.lines().collect();
+    let (mut added, mut removed, mut common) = (0, 0, 0);
+    let mut patch = String::new();
+    let mut line = |mark: char, text: &str| {
+        patch.push(mark);
+        patch.push_str(text);
+        patch.push('\n');
+    };
+
+    if a.len().saturating_mul(b.len()) > MAX_DIFF_CELLS {
+        // Too long to align: compare by position
+        for i in 0..a.len().max(b.len()) {
+            match (a.get(i), b.get(i)) {
+                (Some(x), Some(y)) if x == y => { common += 1; line(' ', x); }
+                (x, y) => {
+                    if let Some(x) = x { removed += 1; line('-', x); }
+                    if let Some(y) = y { added += 1; line('+', y); }
+                }
+            }
+        }
+    } else {
+        // table[i][j]: the longest common run of lines from a[i..] and b[j..]
+        let width = b.len() + 1;
+        let mut table = vec![0u32; (a.len() + 1) * width];
+        for i in (0..a.len()).rev() {
+            for j in (0..b.len()).rev() {
+                table[i * width + j] = if a[i] == b[j] {
+                    table[(i + 1) * width + j + 1] + 1
+                } else {
+                    table[(i + 1) * width + j].max(table[i * width + j + 1])
+                };
+            }
+        }
+        let (mut i, mut j) = (0, 0);
+        while i < a.len() || j < b.len() {
+            if i < a.len() && j < b.len() && a[i] == b[j] {
+                common += 1;
+                line(' ', a[i]);
+                i += 1;
+                j += 1;
+            } else if j < b.len() && (i == a.len() || table[i * width + j + 1] >= table[(i + 1) * width + j]) {
+                added += 1;
+                line('+', b[j]);
+                j += 1;
+            } else {
+                removed += 1;
+                line('-', a[i]);
+                i += 1;
+            }
+        }
+    }
+    DiffSummary { added_lines: added, removed_lines: removed, common_lines: common, diff_patch: patch }
+}
+
 fn write_hex_byte(s: &mut String, b: u8) {
     const HEX_CHARS: &[u8; 16] = b"0123456789abcdef";
     s.push(HEX_CHARS[(b >> 4) as usize] as char);
     s.push(HEX_CHARS[(b & 0x0F) as usize] as char);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn run(action: &str, input: &str, pattern: Option<&str>, target: Option<&str>) -> TextResponse {
+        process_text_request(TextRequest {
+            action: action.into(),
+            input: input.into(),
+            pattern: pattern.map(Into::into),
+            target: target.map(Into::into),
+        })
+    }
+
+    #[test]
+    fn extract_uses_a_real_regular_expression() {
+        let found = run("extract", "mail a@b.com or c@d.org", Some("[a-z]+@[a-z.]+"), None);
+        assert_eq!(found.matches.unwrap(), ["a@b.com", "c@d.org"]);
+        assert_eq!(run("extract", "x", Some("("), None).status, "error");
+        assert_eq!(run("extract", "x", None, None).status, "error");
+    }
+
+    #[test]
+    fn one_inserted_line_is_one_change() {
+        let diff = run("diff", "a\nb\nc", None, Some("a\nnew\nb\nc")).diff_summary.unwrap();
+        assert_eq!((diff.added_lines, diff.removed_lines, diff.common_lines), (1, 0, 3));
+        assert_eq!(diff.diff_patch, " a\n+new\n b\n c\n");
+    }
+
+    #[test]
+    fn hash_and_base64_match_known_values() {
+        let hash = run("sha256", "abc", None, None).result.unwrap();
+        assert_eq!(hash, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+        assert_eq!(run("base64_encode", "हिंदी", None, None).result.unwrap(), "4KS54KS/4KSC4KSm4KWA");
+        assert_eq!(run("base64_decode", "4KS54KS/4KSC4KSm4KWA", None, None).result.unwrap(), "हिंदी");
+    }
 }

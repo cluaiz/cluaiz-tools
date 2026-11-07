@@ -34,7 +34,7 @@ flowchart TD
 | Built by | CI, with `--target wasm32-unknown-unknown` |
 | Runs on | Every system, from one file |
 | Needs on the machine | Nothing |
-| Can reach | Time, system name, and public https addresses if it asks for `permissions.network_access` |
+| Can reach | Time, time zone offset, system name, and public https addresses if it asks for `permissions.network_access` |
 | Commit | Source only. Do not commit a compiled file |
 
 The program name after install is always `<id>.wasm`. Older pages mention `logic.wasm`, which is not used.
@@ -61,7 +61,7 @@ The program name after install is always `<id>.wasm`. Older pages mention `logic
   ],
   "execution": {
     "type": "script_runner",
-    "command": "python \"{tool_dir}/scripts/summary.py\" \"{file}\""
+    "command": "{python} \"{tool_dir}/scripts/summary.py\" \"{file}\""
   },
   "latest_version": "1.0.0",
   "versions": {
@@ -73,14 +73,14 @@ The program name after install is always `<id>.wasm`. Older pages mention `logic
 }
 ```
 
-The script reads its arguments as JSON from the file named by `{file}`, and prints its output.
+The script reads its arguments as JSON from the file named by `{file}`, and prints its output. `{python}` becomes `python3` or `python`, whichever this system has.
 
 | Behaviour | Value |
 |---|---|
 | Runs through | The system shell: PowerShell on Windows, `sh` elsewhere |
 | Working folder | The open workspace |
 | Temporary files | `<workspace>/<scratch_dir>/`, removed afterwards |
-| Time limit | 30 seconds, or a `timeout` field in the input |
+| Time limit | 30 seconds, or a `timeout` field in the input. It also ends what the script started |
 | Answer | JSON: exit code, standard output, standard error |
 | Rights | The user's. Not sandboxed |
 

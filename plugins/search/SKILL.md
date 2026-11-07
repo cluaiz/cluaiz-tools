@@ -1,32 +1,14 @@
 ---
 name: search
-description: High performance local workspace documentation and keyword retrieval engine.
-version: 1.0.0
-triggers:
-  - "search docs"
-  - "find documentation"
-  - "search workspace"
-  - "lookup keyword"
-execution_mode: auto
-default_turns: 1
+description: "Ranks documents passed to it by a keyword query. It cannot read files or the web."
 ---
 
-# 🔍 Local Documentation & Search Plugin
+# Document Search
 
-This plugin indexes and searches local workspace markdown, source code comments, and technical documentation offline with sub-millisecond retrieval.
+Call `rank_documents` when you already hold several texts and want the ones that best match a query. It scores words found in the title and content, and returns snippets.
 
-## 📋 Input Payload Schema (JSON)
+It cannot read files or the web, so the text must be in the call.
+
 ```json
-{
-  "query": "search query string",
-  "limit": 5
-}
-```
-
-## ⚡ Usage
-Emit standard tool call when local project or workspace search is required:
-```xml
-<tool_call>
-{"name": "workspace_search", "arguments": {"query": "<search_term>"}}
-</tool_call>
+{"query": "memory limit", "documents": [{"id": "1", "title": "Plugins", "content": "Each call has a memory limit."}], "limit": 3}
 ```

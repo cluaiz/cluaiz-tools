@@ -1,16 +1,28 @@
 {
   "id": "math",
-  "name": "Mathematical Calculation Engine",
+  "name": "Math",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "Deterministic high-precision mathematical evaluation engine",
+  "description": "Evaluates math expressions with arithmetic, powers, roots, trigonometry and logarithms.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Math", "Calculus", "Precision", "WASM"],
+  "tags": [
+    "Math",
+    "Calculator",
+    "WASM"
+  ],
+  "triggers": [
+    "calculate",
+    "solve this expression",
+    "math expression",
+    "trigonometry",
+    "square root",
+    "percentage"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -19,27 +31,35 @@
   "functions": [
     {
       "name": "math_evaluate",
-      "description": "Evaluate exact mathematical expressions, calculus, and arithmetic deterministically without hallucination",
+      "description": "Evaluate a math expression. Supports + - * / % ^, parentheses, pi, e, sqrt, cbrt, abs, floor, ceil, round, sin, cos, tan, asin, acos, atan (radians), ln, log10, log2 and exp. Numbers are 64-bit floats, about 15 significant digits.",
       "parameters": {
         "type": "object",
         "properties": {
           "expression": {
             "type": "string",
-            "description": "Mathematical expression to compute (e.g. 'sqrt(144) * 25' or 'sin(pi / 4)')"
+            "description": "The expression, for example 'sqrt(144) * 25' or 'sin(pi / 4)'"
+          },
+          "precision": {
+            "type": "integer",
+            "description": "Digits after the decimal point in 'formatted'"
           }
         },
-        "required": ["expression"]
+        "required": [
+          "expression"
+        ]
       }
     }
   ],
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": ["wasm"],
+    "1.1.0": {
+      "updated_at": "2026-11-07T12:00:00Z",
+      "builds_os": [
+        "wasm"
+      ],
       "files": {
-        "binary": "logic.wasm",
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
   }

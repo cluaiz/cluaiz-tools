@@ -1,33 +1,18 @@
 ---
 name: math
-description: Deterministic high-precision mathematical evaluation engine. Eliminates LLM calculation and arithmetic hallucination.
-version: 1.0.0
-triggers:
-  - "calculate"
-  - "solve equation"
-  - "math expression"
-  - "trigonometry"
-  - "evaluate math"
-execution_mode: auto
-default_turns: 1
+description: "Evaluates math expressions, so results are computed rather than guessed."
 ---
 
-# 📐 Math Evaluation Plugin
+# Math
 
-This plugin provides exact, deterministic arithmetic, trigonometry, calculus, and large-number computations inside an isolated WASM sandbox with zero hallucination.
+Call `math_evaluate` whenever a result needs arithmetic. Do not work it out yourself.
 
-## 📋 Input Payload Schema (JSON)
 ```json
-{
-  "expression": "2^64 - 1",
-  "precision": 10
-}
+{"expression": "(2^10 + sqrt(144)) / 4", "precision": 2}
 ```
 
-## ⚡ Usage
-Emit standard tool call when exact numeric precision is required:
-```xml
-<tool_call>
-{"name": "math_evaluate", "arguments": {"expression": "<math_expr>"}}
-</tool_call>
-```
+The answer has `result`, `formatted`, and `error` if the expression is not valid.
+
+- Angles are in radians.
+- `log` is not accepted, because it can mean base 10 or base e. Use `log10` or `ln`.
+- Numbers are 64-bit floats. A `note` in the answer means the result is too large to be exact.

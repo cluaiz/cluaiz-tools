@@ -75,13 +75,13 @@ The function's arguments go in as JSON text, and the plugin's output goes back. 
 |---|---|
 | Instructions per call | 2,000,000,000 |
 | Memory per call | 256 MB |
-| Host functions | `cluaiz.now_utc_ms`, `cluaiz.os_platform`, `cluaiz.http_fetch` |
+| Host functions | `cluaiz.now_utc_ms`, `cluaiz.utc_offset_minutes`, `cluaiz.os_platform`, `cluaiz.http_fetch` |
 | Network | Public https addresses, with `permissions.network_access`. See [Network access](../plugins/wasm-abi-guide.md#network-access) |
 | Files, other programs | None |
 
 ### Script plugins
 
-The arguments are written to a temporary file in `<workspace>/<scratch_dir>/`. The command runs in the workspace with `{file}`, `{tool_dir}` and `{bin}` replaced. The default timeout is 30 seconds, and the answer is a JSON object with the exit code, output and errors. See [Build types](../plugins/build-types.md#script-plugins).
+The arguments are written to a temporary file in `<workspace>/<scratch_dir>/`. The command runs in the workspace with `{file}`, `{tool_dir}` and `{bin}` replaced. `{python}` becomes the command that runs Python on this system. The default timeout is 30 seconds, and a timeout also ends what the command started. The answer is a JSON object with the exit code, output and errors. See [Build types](../plugins/build-types.md#script-plugins).
 
 ### MCP servers
 

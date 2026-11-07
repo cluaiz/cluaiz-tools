@@ -35,7 +35,7 @@ The model passes results from one tool to the next. Write it as steps:
 To analyse an issue:
 
 1. Call `read_issue` with the issue number.
-2. Call `text_transform` on the issue text with `action` set to `word_count`.
+2. Call `text_transform` on the issue text with `action` set to `stats`.
 3. Summarise both results for the user.
 ```
 

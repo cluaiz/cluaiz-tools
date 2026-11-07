@@ -15,8 +15,13 @@ struct MathResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     formatted: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    note: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<String>,
 }
+
+/// Above this, a 64-bit float cannot hold every whole number
+const LARGEST_EXACT: f64 = 9007199254740992.0;
 
 #[no_mangle]
 pub extern "C" fn allocate(len: u32) -> *mut u8 {
@@ -55,6 +60,8 @@ pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
                     expression: req.expression,
                     result: Some(val),
                     formatted,
+                    note: (val.abs() > LARGEST_EXACT)
+                        .then(|| "This result is too large for a 64-bit float to hold exactly".to_string()),
                     error: None,
                 }
             }
@@ -63,6 +70,7 @@ pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
                 expression: req.expression,
                 result: None,
                 formatted: None,
+                note: None,
                 error: Some(e),
             },
         },
@@ -71,6 +79,7 @@ pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
             expression: String::new(),
             result: None,
             formatted: None,
+            note: None,
             error: Some("Invalid input JSON payload. Expected {\"expression\": \"...\"}".into()),
         },
     };
@@ -160,12 +169,29 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_power(&mut self) -> Result<f64, String> {
+        self.skip_whitespace();
+        // A power binds tighter than a sign: -2^2 is -4
+        match self.chars.peek() {
+            Some(&'+') => {
+                self.chars.next();
+                return self.parse_power();
+            }
+            Some(&'-') => {
+                self.chars.next();
+                return Ok(-self.parse_power()?);
+            }
+            _ => {}
+        }
         let left = self.parse_factor()?;
         self.skip_whitespace();
         if let Some(&'^') = self.chars.peek() {
             self.chars.next();
             let right = self.parse_power()?; // Right-associative exponentiation
-            return Ok(pow_f64(left, right));
+            let value = left.powf(right);
+            if value.is_nan() {
+                return Err(format!("{left} ^ {right} is not a real number"));
+            }
+            return Ok(value);
         }
         Ok(left)
     }
@@ -173,15 +199,6 @@ impl<'a> Parser<'a> {
     fn parse_factor(&mut self) -> Result<f64, String> {
         self.skip_whitespace();
         match self.chars.peek() {
-            Some(&'+') => {
-                self.chars.next();
-                self.parse_factor()
-            }
-            Some(&'-') => {
-                self.chars.next();
-                let val = self.parse_factor()?;
-                Ok(-val)
-            }
             Some(&'(') => {
                 self.chars.next();
                 let val = self.parse_expression()?;
@@ -210,6 +227,23 @@ impl<'a> Parser<'a> {
                 has_dot = true;
                 s.push(c);
                 self.chars.next();
+            } else if (c == 'e' || c == 'E') && !s.is_empty() && self.starts_an_exponent() {
+                s.push(c);
+                self.chars.next();
+                if let Some(&sign) = self.chars.peek() {
+                    if sign == '+' || sign == '-' {
+                        s.push(sign);
+                        self.chars.next();
+                    }
+                }
+                while let Some(&digit) = self.chars.peek() {
+                    if !digit.is_ascii_digit() {
+                        break;
+                    }
+                    s.push(digit);
+                    self.chars.next();
+                }
+                break;
             } else {
                 break;
             }
@@ -217,6 +251,17 @@ impl<'a> Parser<'a> {
 
         s.parse::<f64>()
             .map_err(|_| format!("Invalid number token '{}'", s))
+    }
+
+    /// Whether the `e` that comes next is `1e5`, not the constant in `2e`
+    fn starts_an_exponent(&self) -> bool {
+        let mut next = self.chars.clone();
+        next.next();
+        match next.next() {
+            Some(c) if c.is_ascii_digit() => true,
+            Some('+') | Some('-') => next.next().is_some_and(|c| c.is_ascii_digit()),
+            _ => false,
+        }
     }
 
     fn parse_identifier_or_function(&mut self) -> Result<f64, String> {
@@ -240,38 +285,30 @@ impl<'a> Parser<'a> {
                 return Err(format!("Expected closing ')' after function argument in {}", name));
             }
 
-            match name.as_str() {
-                "abs" => Ok(if arg < 0.0 { -arg } else { arg }),
-                "sqrt" => {
-                    if arg < 0.0 {
-                        Err("Square root of negative number".into())
-                    } else {
-                        Ok(sqrt_f64(arg))
-                    }
-                }
-                "floor" => Ok(floor_f64(arg)),
-                "ceil" => Ok(ceil_f64(arg)),
-                "round" => Ok(round_f64(arg)),
-                "sin" => Ok(sin_f64(arg)),
-                "cos" => Ok(cos_f64(arg)),
-                "tan" => {
-                    let c = cos_f64(arg);
-                    if c == 0.0 {
-                        Err("Tangent undefined (division by zero)".into())
-                    } else {
-                        Ok(sin_f64(arg) / c)
-                    }
-                }
-                "ln" | "log" => {
-                    if arg <= 0.0 {
-                        Err("Logarithm of non-positive number".into())
-                    } else {
-                        Ok(ln_f64(arg))
-                    }
-                }
-                "exp" => Ok(exp_f64(arg)),
-                _ => Err(format!("Unknown math function '{}'", name)),
+            let value = match name.as_str() {
+                "abs" => arg.abs(),
+                "sqrt" => arg.sqrt(),
+                "cbrt" => arg.cbrt(),
+                "floor" => arg.floor(),
+                "ceil" => arg.ceil(),
+                "round" => arg.round(),
+                "sin" => arg.sin(),
+                "cos" => arg.cos(),
+                "tan" => arg.tan(),
+                "asin" => arg.asin(),
+                "acos" => arg.acos(),
+                "atan" => arg.atan(),
+                "ln" => arg.ln(),
+                "log10" => arg.log10(),
+                "log2" => arg.log2(),
+                "exp" => arg.exp(),
+                "log" => return Err("'log' is ambiguous: use log10 or ln".into()),
+                _ => return Err(format!("Unknown math function '{}'", name)),
+            };
+            if value.is_nan() || (value.is_infinite() && matches!(name.as_str(), "ln" | "log10" | "log2")) {
+                return Err(format!("{name}({arg}) is not a real number"));
             }
+            Ok(value)
         } else {
             // Constants
             match name.as_str() {
@@ -293,120 +330,39 @@ pub fn evaluate_expression(expr: &str) -> Result<f64, String> {
     Ok(result)
 }
 
-// ── no_std Math Approximations (Pure deterministic float arithmetic) ──
+#[cfg(test)]
+mod tests {
+    use super::evaluate_expression as eval;
 
-fn sqrt_f64(x: f64) -> f64 {
-    if x == 0.0 {
-        return 0.0;
+    fn close(expression: &str, expected: f64) {
+        let got = eval(expression).unwrap();
+        assert!((got - expected).abs() <= expected.abs() * 1e-14 + 1e-14, "{expression} gave {got}");
     }
-    let mut guess = x / 2.0;
-    for _ in 0..20 {
-        guess = (guess + x / guess) / 2.0;
-    }
-    guess
-}
 
-fn floor_f64(x: f64) -> f64 {
-    let i = x as i64;
-    if x < (i as f64) {
-        (i - 1) as f64
-    } else {
-        i as f64
+    #[test]
+    fn functions_are_accurate_far_from_zero() {
+        close("ln(1000000)", 13.815510557964274);
+        close("exp(50)", 5184705528587072045056.0);
+        close("sin(1000)", 0.8268795405320025);
+        close("log10(1000)", 3.0);
+        close("2^0.5", 1.4142135623730951);
     }
-}
 
-fn ceil_f64(x: f64) -> f64 {
-    let i = x as i64;
-    if x > (i as f64) {
-        (i + 1) as f64
-    } else {
-        i as f64
+    #[test]
+    fn order_of_operations() {
+        close("2 + 3 * 4", 14.0);
+        close("-2^2", -4.0);
+        close("2^-1", 0.5);
+        close("2^3^2", 512.0);
+        close("(1 + 2) * -3", -9.0);
+        close("1.5e3 + 1", 1501.0);
+        close("2 * e", 2.0 * core::f64::consts::E);
     }
-}
 
-fn round_f64(x: f64) -> f64 {
-    floor_f64(x + 0.5)
-}
-
-fn pow_f64(base: f64, exp: f64) -> f64 {
-    if exp == 0.0 {
-        return 1.0;
-    }
-    if exp == 1.0 {
-        return base;
-    }
-    let exp_int = exp as i64;
-    if exp == exp_int as f64 {
-        if exp_int > 0 {
-            let mut res = 1.0;
-            let mut b = base;
-            let mut e = exp_int;
-            while e > 0 {
-                if e % 2 == 1 {
-                    res *= b;
-                }
-                b *= b;
-                e /= 2;
-            }
-            return res;
-        } else {
-            return 1.0 / pow_f64(base, -exp);
+    #[test]
+    fn what_has_no_answer_is_an_error_not_a_number() {
+        for expression in ["1/0", "sqrt(-1)", "ln(0)", "(-8)^0.5", "log(10)", "2 +", "foo", "1 2"] {
+            assert!(eval(expression).is_err(), "{expression}");
         }
     }
-    // exp(exp * ln(base))
-    if base <= 0.0 {
-        0.0
-    } else {
-        exp_f64(exp * ln_f64(base))
-    }
-}
-
-fn ln_f64(x: f64) -> f64 {
-    if x <= 0.0 {
-        return 0.0;
-    }
-    // Halley's method for ln(x)
-    let mut y = (x - 1.0) / (x + 1.0);
-    let y2 = y * y;
-    let mut term = y;
-    let mut sum = y;
-    for k in 1..25 {
-        term *= y2;
-        sum += term / (2 * k + 1) as f64;
-    }
-    2.0 * sum
-}
-
-fn exp_f64(x: f64) -> f64 {
-    let mut sum = 1.0;
-    let mut term = 1.0;
-    for i in 1..30 {
-        term *= x / (i as f64);
-        sum += term;
-    }
-    sum
-}
-
-fn sin_f64(mut x: f64) -> f64 {
-    // Normalize to [-PI, PI]
-    let two_pi = 2.0 * core::f64::consts::PI;
-    x = x % two_pi;
-    if x > core::f64::consts::PI {
-        x -= two_pi;
-    } else if x < -core::f64::consts::PI {
-        x += two_pi;
-    }
-
-    let mut sum = x;
-    let mut term = x;
-    let x2 = x * x;
-    for i in 1..10 {
-        term *= -x2 / ((2 * i) * (2 * i + 1)) as f64;
-        sum += term;
-    }
-    sum
-}
-
-fn cos_f64(x: f64) -> f64 {
-    sin_f64(x + core::f64::consts::FRAC_PI_2)
 }

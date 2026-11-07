@@ -1,35 +1,20 @@
 ---
 name: text
-description: Deterministic string transformation, regex extraction, hashing, and diffing engine.
-version: 1.0.0
-triggers:
-  - "regex extract"
-  - "sha256 hash"
-  - "base64 encode"
-  - "base64 decode"
-  - "diff text"
-execution_mode: auto
-default_turns: 1
+description: "Hashes, Base64, regular expressions, line diffs and counts, computed exactly."
 ---
 
-# 📝 Text & Cryptographic Transformation Plugin
+# Text
 
-This plugin provides exact string manipulation, pattern matching, cryptographic hashing (SHA256, MD5), base64 encoding/decoding, and structural diffs without LLM transcription errors.
+Call `text_transform` for these, because working them out yourself gives wrong results:
 
-## 📋 Input Payload Schema (JSON)
+| `action` | Also needs | Answer |
+|---|---|---|
+| `sha256` | | `result`: the hash in hex |
+| `base64_encode`, `base64_decode` | | `result` |
+| `stats` | | `stats`: characters, words, lines, bytes |
+| `diff` | `target` | `diff_summary`: counts and a patch |
+| `extract` | `pattern`, a regular expression | `matches`: up to 1000 |
+
 ```json
-{
-  "action": "hash" | "regex" | "base64_encode" | "base64_decode" | "diff",
-  "input": "string to process",
-  "pattern": "optional regex pattern",
-  "target": "optional diff comparison string"
-}
-```
-
-## ⚡ Usage
-Emit standard tool call when deterministic text transformation, regex extraction, or hashing is required:
-```xml
-<tool_call>
-{"name": "text_transform", "arguments": {"action": "hash_sha256", "input": "text to hash"}}
-</tool_call>
+{"action": "extract", "input": "mail a@b.com or c@d.org", "pattern": "[a-z]+@[a-z.]+"}
 ```

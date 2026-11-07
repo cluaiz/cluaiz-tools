@@ -1,16 +1,32 @@
 {
   "id": "text",
-  "name": "Text Transformation Utilities",
+  "name": "Text",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "Deterministic string transformation, regex extraction, hashing, and diffing engine",
+  "description": "Exact text work: SHA-256 hashes, Base64, regular expressions, line diffs and counts.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Text", "Regex", "Hash", "WASM"],
+  "tags": [
+    "Text",
+    "Regex",
+    "Hash",
+    "Diff",
+    "WASM"
+  ],
+  "triggers": [
+    "sha256 hash",
+    "base64 encode",
+    "base64 decode",
+    "regex",
+    "regular expression",
+    "diff text",
+    "compare two texts",
+    "count words"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -19,36 +35,52 @@
   "functions": [
     {
       "name": "text_transform",
-      "description": "Deterministic string manipulation, regex pattern extraction, cryptographic hashing (SHA256), and base64 encoding/decoding",
+      "description": "Exact text work. action is one of: sha256, base64_encode, base64_decode, stats (characters, words, lines, bytes), diff (compares input with target, line by line), extract (every match of a regular expression in pattern).",
       "parameters": {
         "type": "object",
         "properties": {
           "action": {
             "type": "string",
-            "enum": ["sha256", "base64_encode", "base64_decode", "stats", "diff", "extract"],
-            "description": "The exact transformation action to execute"
+            "enum": [
+              "sha256",
+              "base64_encode",
+              "base64_decode",
+              "stats",
+              "diff",
+              "extract"
+            ],
+            "description": "What to do"
           },
           "input": {
             "type": "string",
-            "description": "Source text to transform or hash"
+            "description": "The text"
           },
           "pattern": {
             "type": "string",
-            "description": "Optional regular expression pattern for regex extraction"
+            "description": "For extract: a regular expression"
+          },
+          "target": {
+            "type": "string",
+            "description": "For diff: the text to compare with"
           }
         },
-        "required": ["action", "input"]
+        "required": [
+          "action",
+          "input"
+        ]
       }
     }
   ],
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": ["wasm"],
+    "1.1.0": {
+      "updated_at": "2026-11-07T12:00:00Z",
+      "builds_os": [
+        "wasm"
+      ],
       "files": {
-        "binary": "logic.wasm",
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
   }

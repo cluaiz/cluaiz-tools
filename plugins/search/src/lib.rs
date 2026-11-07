@@ -149,27 +149,57 @@ fn perform_search(req: SearchRequest) -> SearchResponse {
     }
 }
 
+/// The nearest place at or before `index` that does not split a character
+fn on_character(text: &str, mut index: usize) -> usize {
+    index = index.min(text.len());
+    while !text.is_char_boundary(index) {
+        index -= 1;
+    }
+    index
+}
+
 fn extract_snippet(content: &str, first_term: &str) -> String {
-    let content_lower = content.to_ascii_lowercase();
-    if let Some(pos) = content_lower.find(first_term) {
-        let start = if pos > 50 { pos - 50 } else { 0 };
-        let end = if pos + 150 < content.len() { pos + 150 } else { content.len() };
-        let slice = &content[start..end];
-        let mut snippet = String::new();
-        if start > 0 {
-            snippet.push_str("...");
-        }
-        snippet.push_str(slice.trim());
-        if end < content.len() {
-            snippet.push_str("...");
-        }
-        snippet
-    } else {
-        let len = if content.len() > 150 { 150 } else { content.len() };
-        let mut snippet = content[0..len].trim().to_string();
-        if content.len() > 150 {
-            snippet.push_str("...");
-        }
-        snippet
+    const BEFORE: usize = 50;
+    const AFTER: usize = 150;
+    let position = content.to_ascii_lowercase().find(first_term).unwrap_or(0);
+    let start = on_character(content, position.saturating_sub(BEFORE));
+    let end = on_character(content, position + AFTER);
+    let mut snippet = String::new();
+    if start > 0 {
+        snippet.push_str("...");
+    }
+    snippet.push_str(content[start..end].trim());
+    if end < content.len() {
+        snippet.push_str("...");
+    }
+    snippet
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn doc(id: &str, title: &str, content: &str) -> SearchDoc {
+        SearchDoc { id: id.into(), title: title.into(), content: content.into() }
+    }
+
+    #[test]
+    fn the_title_counts_most_and_the_limit_holds() {
+        let found = perform_search(SearchRequest {
+            query: "memory".into(),
+            documents: Some(vec![doc("a", "Other", "memory memory"), doc("b", "Memory", "none"), doc("c", "No", "none")]),
+            limit: Some(1),
+        });
+        assert_eq!(found.results.len(), 1);
+        assert_eq!(found.results[0].id, "b");
+    }
+
+    #[test]
+    fn a_snippet_never_splits_a_character() {
+        let content = format!("{}target{}", "हिंदी".repeat(40), "हिंदी".repeat(80));
+        let snippet = extract_snippet(&content, "target");
+        assert!(snippet.contains("target"));
+        let start_of_text = extract_snippet(&"हिंदी".repeat(100), "absent");
+        assert!(start_of_text.ends_with("..."));
     }
 }

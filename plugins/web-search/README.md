@@ -29,16 +29,14 @@ If every provider fails, the answer says so and lists what was tried. Results ar
 
 ## Settings
 
-Add them to `config/tool_settings.json` in the Engine's data folder, under the plugin's id:
+Set them with one command. Leave out the value to be asked for it without it showing on screen:
 
-```json
-{
-  "web-search": {
-    "TAVILY_API_KEY": "your key",
-    "SEARXNG_URL": "http://localhost:8080"
-  }
-}
+```bash
+cluaiz plugin config web-search TAVILY_API_KEY
+cluaiz plugin config web-search SEARXNG_URL http://localhost:8080
 ```
+
+They are kept in `config/tool_settings.json` in the Engine's data folder, not in the plugin's files.
 
 The plugin never sees a key. It asks for `{{secret:TAVILY_API_KEY}}` in a header, and the Engine fills in the value, only for the host named in `permissions.secrets` in `package.json`.
 

@@ -70,7 +70,7 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 |---|---|---|---|
 | `math` | WebAssembly | Evaluates math expressions | Runs |
 | `text` | WebAssembly | Hashing, Base64, diffs and regular expressions | Runs |
-| `time` | WebAssembly | Current time and date formats | Runs |
+| `time` | WebAssembly | The current date and time on this computer | Needs the next Engine release |
 | `search` | WebAssembly | Ranks documents it is given. It cannot read files | Runs |
 | `web-search` | WebAssembly | Searches the web and reads pages. Needs the next Engine release | Runs on a current Engine build |
 
@@ -79,10 +79,10 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 | Skill | What it does |
 |---|---|
 | `code-reviewer` | Reviews code for bugs, security problems and duplication |
-| `code-interpreter` | Runs code in several languages, through scripts |
+| `code-interpreter` | Runs code in several languages and returns its real output |
 | `tool-creator` | Creates new skills, plugins and MCP servers |
 | `learn-cluaiz` | An introduction to Cluaiz |
-| `git-assistant` | Safety checks before a commit, and Git workflows |
+| `git-assistant` | Commit messages, checks before a commit, and merge conflicts |
 
 ### MCP servers
 

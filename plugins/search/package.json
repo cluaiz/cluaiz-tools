@@ -1,16 +1,26 @@
 {
   "id": "search",
-  "name": "Local Workspace Search Engine",
+  "name": "Document Search",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "High performance local workspace documentation and keyword retrieval engine",
+  "description": "Ranks documents you pass to it by a keyword query. It cannot read files or the web.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Search", "Workspace", "Documentation", "WASM"],
+  "tags": [
+    "Search",
+    "Ranking",
+    "Documents",
+    "WASM"
+  ],
+  "triggers": [
+    "rank these documents",
+    "find the best match in these texts",
+    "search these documents"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -18,32 +28,60 @@
   },
   "functions": [
     {
-      "name": "workspace_search",
-      "description": "High performance local workspace documentation, source code comments, and keyword retrieval engine",
+      "name": "rank_documents",
+      "description": "Rank the documents you pass in by how well they match a query, and return the best with snippets. It cannot read files: use the search tool for those, or web_search for the web.",
       "parameters": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "description": "Keyword or topic to search for in local project workspace"
+            "description": "Words to look for"
+          },
+          "documents": {
+            "type": "array",
+            "description": "The documents to rank",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "content"
+              ]
+            }
           },
           "limit": {
             "type": "integer",
-            "description": "Maximum number of search results to return (default: 5)"
+            "description": "Most results to return. Default 5"
           }
         },
-        "required": ["query"]
+        "required": [
+          "query",
+          "documents"
+        ]
       }
     }
   ],
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": ["wasm"],
+    "1.1.0": {
+      "updated_at": "2026-11-07T12:00:00Z",
+      "builds_os": [
+        "wasm"
+      ],
       "files": {
-        "binary": "logic.wasm",
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
   }

@@ -1,16 +1,30 @@
 {
   "id": "time",
-  "name": "System Clock & Timezone Engine",
+  "name": "Time",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "100% offline OS system clock, UTC timestamp, timezone, and locale metadata engine",
+  "description": "The current date and time on this computer, its UTC offset and day of the week. Needs no network.",
   "author": {
     "name": "Cluaiz Core Team",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Time", "Clock", "Timezone", "WASM"],
+  "tags": [
+    "Time",
+    "Clock",
+    "Date",
+    "WASM"
+  ],
+  "triggers": [
+    "what time is it",
+    "current time",
+    "today's date",
+    "current date",
+    "what day is today",
+    "system clock",
+    "local time"
+  ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -19,27 +33,29 @@
   "functions": [
     {
       "name": "time_now",
-      "description": "Retrieve exact real-time local date, system clock, UTC timestamp, timezone, and OS locale metadata offline",
+      "description": "Get the current date, time, day of the week and UTC offset of this computer. Give utc_offset to see the time at another offset.",
       "parameters": {
         "type": "object",
         "properties": {
-          "timezone": {
+          "utc_offset": {
             "type": "string",
-            "description": "Optional timezone identifier (e.g. 'UTC', 'America/New_York', or local system default)"
+            "description": "Optional offset such as '+05:30' or '-04:00'. Default: this computer's"
           }
         },
         "required": []
       }
     }
   ],
-  "latest_version": "1.0.1",
+  "latest_version": "1.1.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-07-01T12:00:00Z",
-      "builds_os": ["wasm"],
+    "1.1.0": {
+      "updated_at": "2026-11-07T12:00:00Z",
+      "builds_os": [
+        "wasm"
+      ],
       "files": {
-        "binary": "logic.wasm",
-        "skill": "SKILL.md"
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg"
       }
     }
   }
