@@ -1,24 +1,5 @@
 {
   "category": "extensions",
   "name": "Cluaiz Extensions",
-  "items": {
-    "browser-voice": {
-      "type": "local",
-      "path": "browser-voice/package.json"
-    },
-    "chat-widget": {
-      "type": "local",
-      "path": "chat-widget/package.json"
-    },
-    "my-assistant": {
-      "type": "local",
-      "path": "my-assistant/package.json"
-    },
-    "git-commander": {
-      "type": "remote",
-      "repo": "cluaiz-community/cluaiz-git-commander",
-      "branch": "main",
-      "manifest_path": "package.json"
-    }
-  }
+  "items": {}
 }

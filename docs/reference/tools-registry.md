@@ -61,7 +61,7 @@ The Engine uses `plugins`, `skills` and `mcp`. `extensions` is experimental.
     "math": { "type": "local", "path": "math/package.json" },
     "image-optimizer": {
       "type": "remote",
-      "repo": "cluaiz-community/cluaiz-plugin-image-opt",
+      "repo": "your-name/your-plugin",
       "branch": "main",
       "manifest_path": "package.json"
     }

@@ -1,6 +1,6 @@
 # 🌐 Cluaiz Extensions Architecture
 
-> **Experimental.** Extensions may or may not ship. The Engine does not install or run them, and no other tool depends on them. This page describes a design, not a working feature.
+> **Experimental.** Extensions may or may not ship. The Engine does not install or run them, and no other tool depends on them. This page describes a design, not a working feature. The code in `extensions/` is kept, but `family.json` lists none of it until extensions ship.
 
 This document defines the architectural specification, execution boundary, and lifecycle of **Extensions** within the Cluaiz ecosystem.
 

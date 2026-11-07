@@ -21,12 +21,6 @@
     "web-search": {
       "type": "local",
       "path": "web-search/package.json"
-    },
-    "image-optimizer": {
-      "type": "remote",
-      "repo": "cluaiz-community/cluaiz-plugin-image-opt",
-      "branch": "main",
-      "manifest_path": "package.json"
     }
   }
 }

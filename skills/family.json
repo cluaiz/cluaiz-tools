@@ -21,12 +21,6 @@
     "git-assistant": {
       "type": "local",
       "path": "git-assistant/package.json"
-    },
-    "deep-researcher": {
-      "type": "remote",
-      "repo": "cluaiz-community/cluaiz-skill-deep-research",
-      "branch": "main",
-      "manifest_path": "package.json"
     }
   }
 }

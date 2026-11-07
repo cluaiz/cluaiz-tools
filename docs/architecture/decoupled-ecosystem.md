@@ -41,7 +41,7 @@ sequenceDiagram
    ```json
    "image-optimizer": {
      "type": "remote",
-     "repo": "cluaiz-community/cluaiz-plugin-image-opt",
+     "repo": "your-name/your-plugin",
      "branch": "main",
      "manifest_path": "package.json"
    }

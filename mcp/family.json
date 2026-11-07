@@ -25,12 +25,6 @@
     "browser": {
       "type": "local",
       "path": "browser/package.json"
-    },
-    "postgres": {
-      "type": "remote",
-      "repo": "cluaiz-community/cluaiz-mcp-postgres",
-      "branch": "main",
-      "manifest_path": "package.json"
     }
   }
 }
