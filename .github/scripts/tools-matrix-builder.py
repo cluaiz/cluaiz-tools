@@ -9,8 +9,10 @@ def run_cmd(cmd):
 
 def main():
     # Detect modified package.json files
-    # We look at the diff from the previous commit
-    diff_output = run_cmd("git diff --name-only HEAD^ HEAD")
+    # Everything in this push, which can be several commits. A manual run looks at the last commit.
+    before = os.environ.get("BEFORE_SHA", "")
+    known = before and set(before) != {"0"} and run_cmd(f"git cat-file -t {before}") == "commit"
+    diff_output = run_cmd(f"git diff --name-only {before if known else 'HEAD^'} HEAD")
     changed_files = diff_output.split('\n')
     
     packages_to_build = []
@@ -129,7 +131,7 @@ def main():
                 add_job({
                     "id": pkg_id,
                     "target": "macos-arm64",
-                    "os": "macos-14",
+                    "os": "macos-15",
                     "version": version,
                     "tag_name": tag_name,
                     "pkg_dir": pkg_dir,
