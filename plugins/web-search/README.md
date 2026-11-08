@@ -38,6 +38,15 @@ cluaiz plugin config web-search SEARXNG_URL http://localhost:8080
 
 They are kept in `config/tool_settings.json` in the Engine's data folder, not in the plugin's files.
 
+An app sets them through the API, with the CEP method `tools.set_settings`:
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools.set_settings",
+ "params": {"kind": "plugin", "name": "web-search", "patch": {"user_settings": {"TAVILY_API_KEY": "tvly-..."}}}}
+```
+
+An empty string removes a value. `tools.get_settings` lists the settings a tool asks for, with `secret` and `set` for each, and never returns a value.
+
 The plugin never sees a key. It asks for `{{secret:TAVILY_API_KEY}}` in a header, and the Engine fills in the value, only for the host named in `permissions.secrets` in `package.json`.
 
 ## What it can reach

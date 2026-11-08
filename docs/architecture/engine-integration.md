@@ -121,7 +121,7 @@ Programs manage tools with these methods. Each takes a JSON-RPC request at `POST
 | `tools.list` | Installed tools with their functions |
 | `tools.discover` | What the matcher would offer for a message |
 | `tools.install`, `tools.remove` | Install or remove |
-| `tools.get_settings`, `tools.set_settings` | On or off, security mode, execution mode, trust |
+| `tools.get_settings`, `tools.set_settings` | On or off, security mode, execution mode, trust, and the values a tool asks the user for, such as API keys (`user_settings`; values are never returned) |
 | `tools.files`, `tools.read_file`, `tools.write_file`, `tools.open_file` | A tool's own files |
 | `tools.cache`, `tools.clear_cache` | Cached downloads |
 | `tools.call` | Run a tool directly, with `kind`, `name`, `fn`, `input` |
