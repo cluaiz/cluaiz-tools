@@ -114,6 +114,11 @@
             "file_path": "docs/skills/manifest-schema.md"
           },
           {
+            "slug": "skills-package-json",
+            "title": "Reference package.json",
+            "file_path": "docs/skills/package-json.md"
+          },
+          {
             "slug": "skills-authoring",
             "title": "Authoring guide",
             "file_path": "docs/skills/authoring-guide.md"
@@ -175,6 +180,11 @@
             "file_path": "docs/plugins/manifest-schema.md"
           },
           {
+            "slug": "plugins-package-json",
+            "title": "Reference package.json",
+            "file_path": "docs/plugins/package-json.md"
+          },
+          {
             "slug": "plugins-interface",
             "title": "WebAssembly interface",
             "file_path": "docs/plugins/wasm-abi-guide.md"
@@ -231,6 +241,11 @@
             "file_path": "docs/mcp/manifest-schema.md"
           },
           {
+            "slug": "mcp-package-json",
+            "title": "Reference package.json",
+            "file_path": "docs/mcp/package-json.md"
+          },
+          {
             "slug": "mcp-tutorial",
             "title": "Tutorial: connect a server",
             "file_path": "docs/mcp/tutorial-connect-mcp.md"
@@ -259,32 +274,6 @@
             "slug": "mcp-testing",
             "title": "Local testing",
             "file_path": "docs/tutorials/mcp/04-local-testing.md"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "extensions",
-    "title": "Extensions (experimental)",
-    "groups": [
-      {
-        "group": "Extensions",
-        "pages": [
-          {
-            "slug": "extensions-overview",
-            "title": "Overview",
-            "file_path": "docs/extensions/overview.md"
-          },
-          {
-            "slug": "extensions-fields",
-            "title": "Package fields",
-            "file_path": "docs/extensions/manifest-schema.md"
-          },
-          {
-            "slug": "extensions-guide",
-            "title": "Developer guide",
-            "file_path": "docs/extensions/developer-guide.md"
           }
         ]
       }
