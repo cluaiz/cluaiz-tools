@@ -7,7 +7,7 @@
   "icon": "assets/icon.svg",
   "description": "Zero-VRAM interactive canvas desktop companion with lip-sync, expression engine, and drag physics.",
   "author": {
-    "name": "Cluaiz Technologies",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
