@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deep research skill runner: disk-backed notes, UI-noise filtering, BM25 quote extraction, section synthesis enforcement, and citation verification."""
+"""Deep research skill runner: disk-backed notes, UI-noise filtering, BM25 quote extraction, a report that is always written, and citation verification."""
 
 import csv
 import html
@@ -351,6 +351,33 @@ def direct_web_fetch(url, max_chars=50000):
     }
 
 
+SET_UP_HINT = "For dependable results, add a free search key: cluaiz plugin config web-search TAVILY_API_KEY (or set up SearXNG)."
+EMPTY_SECTION = "Not enough sources were found for this question."
+
+
+def browser_hint(query):
+    url = f"https://www.bing.com/search?q={urllib.parse.quote_plus(query)}"
+    return (
+        f"If agent_browser_open is one of your tools, open {url}, read the results, and pass the links you find "
+        f"to research_read (source=<url>). If a captcha appears, stop and tell the user. If you do not have the "
+        f"browser tool, do not install anything: ask the user whether to install it (cluaiz mcp install browser) "
+        f"or to add a search key."
+    )
+
+
+def count_step(pdir, state):
+    """Counts one search or read and returns the budget note once the budget is used up."""
+    state["steps"] = int(state.get("steps") or 0) + 1
+    save_state(pdir, state)
+    return budget_note(state)
+
+
+def budget_note(state):
+    if int(state.get("steps") or 0) >= int(state.get("step_budget") or 10**6):
+        return f"Budget reached: call research_write with id='{state['id']}' and finalize=true now.\n"
+    return ""
+
+
 def tokenize(text):
     tokens = re.findall(r"[\w\u0900-\u097F]{2,}", text.lower(), flags=re.UNICODE)
     return [tok for tok in tokens if tok not in STOPWORDS]
@@ -439,6 +466,10 @@ def handle_start(args):
     if mode not in ("quick", "standard", "deep"):
         mode = "standard"
     ctx_tokens, budget = resolve_budget(args.get("context_tokens"))
+    budget = dict(budget)
+    if mode == "quick":
+        budget["sub_questions"] = min(budget["sub_questions"], 3)
+        budget["pages_per_sq"] = 2
     pid = slugify(question)
     pdir = project_dir(pid)
     (pdir / "sources").mkdir(parents=True, exist_ok=True)
@@ -455,11 +486,15 @@ def handle_start(args):
         "report_path": report_path,
         "sub_questions": [],
         "confirmed": mode != "deep",
+        # One search and the planned reads per sub-question
+        "step_budget": budget["sub_questions"] * (1 + budget["pages_per_sq"]),
+        "steps": 0,
     }
     save_state(pdir, state)
     if not (pdir / "sources.json").exists():
         save_sources(pdir, {})
     emit(
+        f"{SET_UP_HINT}\n"
         f"ID: {pid} | mode: {mode} | context: {ctx_tokens} | target: {report_path}\n"
         f"Budget: up to {budget['sub_questions']} sub-questions, {budget['pages_per_sq']} pages each.\n"
         f"Next: call research_plan with id='{pid}' and 2-{budget['sub_questions']} sub_questions.",
@@ -506,21 +541,33 @@ def handle_search(args):
     if not query:
         fail("Pass a non-empty 'query' to research_search.")
 
+    note = count_step(pdir, state)
+    next_q = f"Q{sq_idx + 1}" if sq_idx < len(state.get("sub_questions") or []) else "finalize"
+    move_on = f"continue with {next_q}" if next_q != "finalize" else "call research_write with finalize=true"
+
     answer = call_engine_web_search("web_search", {"query": query, "max_results": 5})
     if not answer or answer.get("status") != "success":
         answer = direct_web_search(query, max_results=5)
     if answer.get("status") != "success":
-        emit(f"SEARCH FAILED for Q{sq_idx} ('{query}'): {answer.get('message', 'no results')}", budget["max_chars"])
+        emit(
+            f"{note}SEARCH FAILED for Q{sq_idx} ('{query}'). {browser_hint(query)} Otherwise {move_on}.",
+            budget["max_chars"] + 400,
+        )
 
     sources = load_sources(pdir)
     url_to_sid = {info["url"]: sid for sid, info in sources.items()}
+    query_terms = set(tokenize(query))
     lines = []
+    new_useful = 0
     for hit in answer.get("results", [])[:5]:
         url = (hit.get("url") or "").strip()
         if not url:
             continue
         sid = url_to_sid.get(url)
         if not sid:
+            words = set(tokenize(f"{hit.get('title') or ''} {hit.get('snippet') or ''}"))
+            if not query_terms or words & query_terms:
+                new_useful += 1
             sid = f"S{len(sources) + 1}"
             domain = urllib.parse.urlparse(url).hostname or ""
             sources[sid] = {
@@ -536,8 +583,16 @@ def handle_search(args):
         info = sources[sid]
         lines.append(f"{sid} {info['domain']}: {info['title'][:80]}")
     save_sources(pdir, sources)
-    header = f"Q{sq_idx} search '{query}' -> {len(lines)} sources. Next: call research_read on top 2-3 sources."
-    emit(header + "\n" + "\n".join(lines[:5]), budget["max_chars"])
+    wiki_only = str(answer.get("provider") or "").startswith("wikipedia")
+    if new_useful == 0:
+        header = f"No useful sources for Q{sq_idx}; {move_on}."
+        if wiki_only:
+            header += " " + browser_hint(query)
+        emit(note + header + "\n" + "\n".join(lines[:5]), budget["max_chars"] + 400)
+    header = f"Q{sq_idx} search '{query}' -> {len(lines)} sources. Next: call research_read on the best {budget['pages_per_sq']}."
+    if wiki_only:
+        header += " Only Wikipedia answered. " + browser_hint(query)
+    emit(note + header + "\n" + "\n".join(lines[:5]), budget["max_chars"] + (400 if wiki_only else 0))
 
 
 def handle_read(args):
@@ -561,6 +616,7 @@ def handle_read(args):
             domain = (urllib.parse.urlparse(url).hostname or "").removeprefix("www.")
             sources[sid] = {"url": url, "title": url, "domain": domain, "snippet": "", "sub_question": sq_idx, "status": "found", "date_read": ""}
 
+    note = count_step(pdir, state)
     fetched = call_engine_web_search("web_fetch", {"url": url, "max_chars": 50000})
     if not fetched or fetched.get("status") != "success":
         fetched = direct_web_fetch(url, max_chars=50000)
@@ -571,7 +627,7 @@ def handle_read(args):
     if not content:
         sources[sid]["status"] = "failed"
         save_sources(pdir, sources)
-        emit(f"[{sid}] Could not read {url}. Try another source from research_search.", budget["max_chars"])
+        emit(f"{note}[{sid}] Could not read {url}. Try another source from research_search.", budget["max_chars"])
 
     if fetched.get("title"):
         sources[sid]["title"] = fetched["title"].strip()
@@ -586,7 +642,7 @@ def handle_read(args):
     sq_text = sq_list[sq_idx - 1] if 1 <= sq_idx <= len(sq_list) else state["question"]
     extracted = extract_bm25_quotes(content, f"{sq_text} {state['question']}", max_facts=budget["facts_per_page"])
     if not extracted:
-        emit(f"[{sid}] Saved {url}, but found no clean passages for Q{sq_idx}. Read another source.", budget["max_chars"])
+        emit(f"{note}[{sid}] Saved {url}, but found no clean passages for Q{sq_idx}. Read another source.", budget["max_chars"])
 
     new_notes = []
     fact_lines = []
@@ -601,13 +657,16 @@ def handle_read(args):
         for i in range(1, len(sq_list) + 1)
         if not any(int(n.get("sub_question") or 0) == i for n in all_notes)
     ]
-    next_hint = (
-        f"Next: search & read for {missing_qs[0]}."
-        if missing_qs
-        else "All sub-questions have facts! Next: write each section in your own words with research_write(id, section, text, finalize)."
-    )
+    reads_here = len({n["source"] for n in all_notes if int(n.get("sub_question") or 0) == sq_idx})
+    later = [q for q in missing_qs if int(q[1:]) > sq_idx] or missing_qs
+    if not missing_qs:
+        next_hint = "Every sub-question has facts. Next: write each section with research_write(id, section, text), then finalize=true."
+    elif reads_here >= budget["pages_per_sq"]:
+        next_hint = f"Q{sq_idx} has enough. Next: search for {later[0]}."
+    else:
+        next_hint = f"Next: read another source for Q{sq_idx}, or search for {later[0]}."
     header = f"[{sid}] Saved {len(extracted)} facts for Q{sq_idx}. {next_hint}"
-    emit(header + "\n" + "\n".join(fact_lines), budget["max_chars"])
+    emit(note + header + "\n" + "\n".join(fact_lines), budget["max_chars"])
 
 
 def handle_status(args):
@@ -633,13 +692,16 @@ def handle_status(args):
             missing_sections.append(idx)
         lines.append(f"Q{idx}: {len(sq_notes)} facts ({','.join(sids) or 'none'}){' [written]' if sec_done else ' [unwritten]'} - {sq[:50]}")
     read_count = sum(1 for v in sources.values() if v.get("status") == "read")
-    if missing_notes:
+    note = budget_note(state)
+    if note:
+        next_step = "Sections you have not written are written from the notes."
+    elif missing_notes:
         next_step = f"Next: call research_search & research_read for {missing_notes[0]}."
     elif missing_sections:
         next_step = f"Next: write section {missing_sections[0]} in your own words with [Sn] citations via research_write."
     else:
         next_step = f"Next: call research_write(id='{pid}', finalize=true) to save {state['report_path']}."
-    summary = f"Status ({pid}): {len(notes)} facts from {read_count} read pages. {next_step}"
+    summary = f"{note}Status ({pid}): {len(notes)} facts from {read_count} read pages. {next_step}"
     emit(summary + "\n" + "\n".join(lines), budget["max_chars"])
 
 
@@ -689,35 +751,51 @@ def verify_report(pdir, report_text, sources, notes):
     }
 
 
-def format_notes_prompt(pid, idx, sq, sq_notes):
-    note_lines = [f"- [{n['source']}] {n['fact']}" for n in sq_notes[:5]]
-    return (
-        f"SECTION {idx} NEEDS WRITING ('{sq}'):\n"
-        f"Write section {idx} in your own words (2-4 clear sentences, no raw website UI text) "
-        f"citing [Sn] from the notes below. Call research_write(id='{pid}', section={idx}, text='...', finalize=true):\n"
-        + "\n".join(note_lines)
-    )
+GENERIC_TERMS = {
+    "compare", "comparison", "versus", "vs", "key", "main", "features", "feature", "use", "uses", "used",
+    "differences", "difference", "between", "strengths", "weaknesses", "pros", "cons", "best", "better",
+    "do", "does", "can", "their", "they", "this", "these", "those", "about", "overview", "case", "cases",
+}
 
 
-def save_validated_section(pdir, sources, budget, sec_idx, section_text):
+def section_from_notes(sq_notes, sub_question=""):
+    """A short section written from the saved quotes, for sections the model did not write.
+    Only quotes that name a term of the sub-question are used, so unrelated pages do not fill it."""
+    terms = set(tokenize(sub_question)) - GENERIC_TERMS
+    lines = []
+    seen = set()
+    for note in sq_notes:
+        quote = " ".join((note.get("quote") or note.get("fact") or "").split())
+        quote = re.sub(r"\[\s*(?:\d+|[a-z]{1,4}|edit)\s*\]|↑", "", quote)
+        quote = " ".join(quote.split()).strip()
+        if not quote or quote.lower() in seen:
+            continue
+        if terms and not terms & set(tokenize(quote)):
+            continue
+        seen.add(quote.lower())
+        if len(quote) > 220:
+            cut = quote[:220]
+            end = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+            quote = cut[: end + 1] if end > 60 else cut.rsplit(" ", 1)[0]
+        quote = quote.rstrip(" ,;:-") + ("" if quote.endswith((".", "!", "?")) else ".")
+        lines.append(f"{quote} [{note['source']}]")
+        if len(lines) == 3:
+            break
+    return " ".join(lines) or EMPTY_SECTION
+
+
+def save_section(pdir, sources, sec_idx, section_text):
+    """Saves the model's section. Never blocks: returns a note when the text had to be changed or was not used."""
     section_text = str(section_text or "").strip()
     if not section_text:
-        return
-    cited = re.findall(r"\[(S\d+)\]", section_text)
-    if not cited:
-        emit(
-            f"ERROR in section {sec_idx}: Your text has no [Sn] source citations. "
-            f"Rewrite section {sec_idx} with [S1], [S2] tags matching the notes.",
-            budget["max_chars"],
-        )
-    bad_sids = sorted({s for s in cited if s not in sources})
-    if bad_sids:
-        emit(
-            f"ERROR in section {sec_idx}: Unknown source ID(s) {', '.join(bad_sids)}. "
-            f"Only cite valid sources: {', '.join(sorted(sources.keys()))}.",
-            budget["max_chars"],
-        )
-    (pdir / "sections" / f"{sec_idx}.md").write_text(section_text + "\n", encoding="utf-8")
+        return ""
+    bad_sids = sorted({s for s in re.findall(r"\[(S\d+)\]", section_text) if s not in sources})
+    for sid in bad_sids:
+        section_text = section_text.replace(f"[{sid}]", "")
+    if not re.findall(r"\[(S\d+)\]", section_text):
+        return f"section {sec_idx} had no valid [Sn] tags, so it was written from the notes"
+    (pdir / "sections" / f"{sec_idx}.md").write_text(section_text.strip() + "\n", encoding="utf-8")
+    return f"removed unknown {', '.join(bad_sids)} from section {sec_idx}" if bad_sids else ""
 
 
 def handle_write(args):
@@ -733,54 +811,50 @@ def handle_write(args):
     notes = load_notes(pdir)
     sq_list = state.get("sub_questions") or [state["question"]]
 
+    changes = []
     sections_batch = args.get("sections")
     if isinstance(sections_batch, dict):
         for k, v in sections_batch.items():
             idx_digits = re.findall(r"\d+", str(k))
             if idx_digits:
-                save_validated_section(pdir, sources, budget, int(idx_digits[0]), v)
+                changes.append(save_section(pdir, sources, int(idx_digits[0]), v))
     elif isinstance(sections_batch, list):
         for idx, item in enumerate(sections_batch, 1):
             if isinstance(item, dict):
-                s_idx = int(item.get("section") or idx)
-                save_validated_section(pdir, sources, budget, s_idx, item.get("text") or "")
+                changes.append(save_section(pdir, sources, int(item.get("section") or idx), item.get("text") or ""))
             else:
-                save_validated_section(pdir, sources, budget, idx, item)
+                changes.append(save_section(pdir, sources, idx, item))
 
     section_num = args.get("section")
     section_text = (args.get("text") or "").strip()
     if section_num is not None and section_text:
-        save_validated_section(pdir, sources, budget, int(section_num), section_text)
+        try:
+            changes.append(save_section(pdir, sources, int(section_num), section_text))
+        except (TypeError, ValueError):
+            changes.append("the section number was not a number")
+    changes = [c for c in changes if c]
 
-    # 1. Block finalizing if any planned sub-question has 0 facts from read pages
-    for idx, sq in enumerate(sq_list, 1):
-        sq_notes = [n for n in notes if int(n.get("sub_question") or 0) == idx]
-        if not sq_notes and args.get("force") is not True:
-            emit(
-                f"INCOMPLETE RESEARCH: Q{idx} ('{sq}') has 0 facts. "
-                f"Do not skip Q{idx}! Call research_search and research_read for sub_question={idx} first.",
-                budget["max_chars"],
-            )
+    if not args.get("finalize"):
+        unwritten = [i for i in range(1, len(sq_list) + 1) if not (pdir / "sections" / f"{i}.md").is_file()]
+        nxt = f"write section {unwritten[0]}, or " if unwritten else ""
+        emit(
+            f"Saved.{' Note: ' + '; '.join(changes) + '.' if changes else ''} "
+            f"Next: {nxt}call research_write(id='{pid}', finalize=true) to build the report.",
+            budget["max_chars"],
+        )
 
-    # 2. Require every section to be synthesized in the model's own words (never dump raw quotes)
-    for idx, sq in enumerate(sq_list, 1):
-        sec_file = pdir / "sections" / f"{idx}.md"
-        if not sec_file.is_file() and args.get("force") is not True:
-            sq_notes = [n for n in notes if int(n.get("sub_question") or 0) == idx]
-            emit(format_notes_prompt(pid, idx, sq, sq_notes), budget["max_chars"])
-
-    if not args.get("finalize") and section_num is not None:
-        emit(f"All sections saved. Call research_write(id='{pid}', finalize=true) to build the final report.", budget["max_chars"])
-
+    # Finalizing always writes the report: missing sections come from the notes, empty ones say so
     sections_md = [f"# {state['question']}\n"]
     used_sids = set()
+    empty, from_notes = [], []
     for idx, sq in enumerate(sq_list, 1):
         sec_file = pdir / "sections" / f"{idx}.md"
+        sq_notes = [n for n in notes if int(n.get("sub_question") or 0) == idx]
         if sec_file.is_file():
             body = sec_file.read_text(encoding="utf-8").strip()
         else:
-            sq_notes = [n for n in notes if int(n.get("sub_question") or 0) == idx]
-            body = "\n".join(f"- {n['fact']} [{n['source']}]" for n in sq_notes)
+            body = section_from_notes(sq_notes, sq)
+            (empty if body == EMPTY_SECTION else from_notes).append(f"Q{idx}")
         for sid in re.findall(r"\[(S\d+)\]", body):
             used_sids.add(sid)
         sections_md.append(f"## {idx}. {sq}\n\n{body}\n")
@@ -807,6 +881,11 @@ def handle_write(args):
         issues.append(f"unknown citations: {','.join(check['unknown_sources'])}")
     if check["contradictions"]:
         issues.extend(check["contradictions"])
+    if empty:
+        issues.append(f"no sources found for {', '.join(empty)}")
+    if from_notes:
+        issues.append(f"{', '.join(from_notes)} written from the saved quotes")
+    issues.extend(changes)
     check_line = f"Verified: {check['citations_used']} sources cited, {check['quote_match_pct']}% quotes matched saved pages."
     if issues:
         check_line += " Notes: " + "; ".join(issues)

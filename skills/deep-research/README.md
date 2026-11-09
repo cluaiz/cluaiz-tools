@@ -37,19 +37,34 @@ flowchart TD
 
 ```text
 <workspace>/research/<slug>/
-├── project.json       # Sub-questions, source registry (S1..Sn), and completion state
+├── state.json         # Question, mode, sub-questions, budget and progress
+├── sources.json       # Source registry (S1..Sn), also written as sources.csv
+├── notes.jsonl        # Facts and exact quotes taken from read pages
 ├── sources/
 │   ├── S1.md          # Full text of fetched source S1
 │   └── S2.md          # Full text of fetched source S2
-├── sections/          # Drafted report sections
+├── sections/          # Sections written by the model
 └── report.md          # Final verified Markdown report with bibliography
 ```
 
 ## Failure & Recovery Logic
 
-- **Context Truncation Recovery:** Because all state lives in `project.json` and `sources/`, calling `research_status` restores full progress at any point.
-- **Citation Verification:** `research_write` checks every `[Sn]` tag in the draft against the registered `sources/` directory and flags uncited claims or invalid source numbers before finalizing.
+- **Context Truncation Recovery:** Because all state lives on disk, calling `research_status` restores full progress at any point.
+- **The report is always written:** `research_write` with `finalize: true` never refuses. A section the model did not write is made from up to three saved quotes, and a sub-question with no sources says "Not enough sources were found for this question". The result names both.
+- **Citation Verification:** Unknown `[Sn]` tags are removed from a section, and a section with no valid tag is written from the notes instead.
+- **A step budget:** each mode has a budget of searches and reads (quick: 3 sub-questions, one search and two reads each). Once it is used, every result tells the model to finalize.
+- **Bad searches:** a search that finds no new source related to the query says so and tells the model to move on.
 - **Blocked Web Pages:** If a URL blocks automated fetching, `research_read` records the failure on disk so the agent can select an alternate source.
+
+## Search key
+
+Without a search key, searches fall back to DuckDuckGo, which blocks after a few queries, and then Wikipedia. For dependable research, add a free key or a SearXNG server:
+
+```bash
+cluaiz plugin config web-search TAVILY_API_KEY
+```
+
+When search fails, the result tells the model to search with the browser tool (`agent_browser_open`) if it has it, or to ask the user to install it (`cluaiz mcp install browser`). The skill never installs anything itself.
 
 ## Installation & Usage
 
