@@ -60,7 +60,8 @@ def main():
         tag_name = f"{prefix}-{pkg_id}-v{version}"
         pkg_dir = os.path.dirname(pkg_path)
         
-        title = data.get("title", pkg_id)
+        # The release is named after the tool, such as "Deep Research", never a long title
+        title = data.get("name") or pkg_id
         description = data.get("description", "No description provided.")
         
         changelog = "No changelog provided."
@@ -74,8 +75,11 @@ def main():
         mac_link = f"{base_url}/lib{pkg_id}_macos_arm64.dylib"
         lin_link = f"{base_url}/lib{pkg_id}_linux_x64.so"
         
-        release_body = f"## 📦 {title} - v{version}\n\n{description}\n\n### 📝 Changelog\n{changelog}\n\n### ⬇️ Assets (Downloads)\n"
-        release_body += f"- [📦 Package ZIP Bundle (Files & Assets)]({zip_link})\n"
+        # Short: what it does, what changed, and the install command
+        release_body = f"{description}\n\n"
+        if changelog != "No changelog provided.":
+            release_body += f"**Changes:** {changelog}\n\n"
+        release_body += f"Install: `cluaiz {prefix} install {pkg_id}`\n"
         if build_type == "binary":
             release_body += f"- [🪟 Windows Binary]({win_link})\n"
             release_body += f"- [🍎 macOS Binary]({mac_link})\n"

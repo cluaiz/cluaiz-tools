@@ -99,7 +99,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ matrix.tag_name }}
-          name: "${{ matrix.title }} - v${{ matrix.version }}"
+          name: "${{ matrix.title }} v${{ matrix.version }}"
           body: ${{ matrix.release_body }}
           draft: false
           prerelease: false
