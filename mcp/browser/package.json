@@ -133,6 +133,7 @@
         "AGENT_BROWSER_IDLE_TIMEOUT_MS": "300000"
       },
       "files": {
+        "readme": "README.md",
         "icon": "assets/icon.svg",
         "skill": "SKILL.md"
       }

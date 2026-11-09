@@ -6,7 +6,8 @@ The open [Agent Skills](https://agentskills.io/specification) format, with some 
 
 ```
 <name>/
-├── SKILL.md            Required
+├── SKILL.md            Required (loaded by the Engine for the AI model)
+├── README.md           Required to publish here (human & website documentation with Mermaid diagram)
 ├── package.json        Required to publish here
 ├── assets/icon.svg     Required to publish here
 ├── references/         Optional, read on demand

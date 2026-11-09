@@ -88,6 +88,7 @@
         "."
       ],
       "files": {
+        "readme": "README.md",
         "icon": "assets/icon.svg",
         "skill": "SKILL.md"
       }

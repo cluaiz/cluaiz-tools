@@ -20,7 +20,7 @@ Every published tool has a `package.json`. This page is the owner of its fields.
   "versions": {
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
-      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
@@ -55,7 +55,7 @@ Every published tool has a `package.json`. This page is the owner of its fields.
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
       "builds_os": ["wasm"],
-      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
@@ -78,11 +78,20 @@ Every published tool has a `package.json`. This page is the owner of its fields.
   "versions": {
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
-      "files": { "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
 ```
+
+## Documentation (`README.md` vs `SKILL.md`)
+
+Every published tool in `cluaiz-tools` (`skills/`, `plugins/` and `mcp/`) **must** include both files with distinct roles:
+
+| File | Audience | Read by | Purpose |
+|---|---|---|---|
+| `README.md` | **Human users** | Website (`cluaiz.com/tools`), App catalog, GitHub | Explains what the tool does, its system architecture, a Mermaid flow diagram, inputs/outputs, prerequisites and usage examples. **Never loaded into an AI model's prompt.** |
+| `SKILL.md` | **AI models** | Cluaiz Engine (`load_tool`) | Concise, step-by-step operational instructions loaded into the model's context window when the tool is triggered. |
 
 ## Identity
 

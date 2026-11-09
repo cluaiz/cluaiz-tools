@@ -47,7 +47,7 @@ Type `/skills` and check that it is listed. Then ask: `write a commit message fo
 
 ## 4. Prepare to publish
 
-Add `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`, and `package.json`:
+Add `README.md` (human-facing documentation with a Mermaid architecture diagram for the website and catalog), `assets/icon.svg` (a pure SVG with a 24 by 24 `viewBox`), and `package.json`:
 
 ```json
 {
@@ -64,7 +64,7 @@ Add `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`, and `package.json`:
   "versions": {
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
-      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }

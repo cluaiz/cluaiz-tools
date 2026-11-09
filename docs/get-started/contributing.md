@@ -19,6 +19,8 @@ Say what changed and why.
 For every tool:
 
 - [ ] The family key, the folder name and `id` in `package.json` are the same, in lowercase kebab-case.
+- [ ] `README.md` is present for human users and website display (`cluaiz.com/tools`), explaining the tool's purpose, system architecture, a Mermaid flow diagram, inputs/outputs and usage (distinct from `SKILL.md`, which is only for the AI model).
+- [ ] `"readme": "README.md"` is listed under `versions.<v>.files` in `package.json`.
 - [ ] `assets/icon.svg` is a pure SVG with a 24 by 24 `viewBox`.
 - [ ] `description` says what it does and when to use it.
 - [ ] Trigger words are in `package.json`, in the form for its type. See the [package specification](../package-spec.md#what-the-model-sees).

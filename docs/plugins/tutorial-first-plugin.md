@@ -121,15 +121,15 @@ The file is `target/wasm32-unknown-unknown/release/hasher.wasm`.
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
       "builds_os": ["wasm"],
-      "files": { "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
 ```
 
-## 5. Add the icon
+## 5. Add the icon and `README.md`
 
-Create `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`:
+Write `README.md` for human users (explaining the plugin's purpose, WebAssembly execution flow with a Mermaid diagram, function inputs/outputs and usage), write `SKILL.md` with brief operational instructions for the AI model, and create `assets/icon.svg`, a pure SVG with a 24 by 24 `viewBox`:
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

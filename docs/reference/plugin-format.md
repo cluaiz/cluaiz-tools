@@ -7,8 +7,9 @@ A plugin is a folder with `package.json` and a program. For what a plugin is and
 ```
 plugins/<id>/
 ├── package.json        Required
+├── README.md           Required (human & website documentation with Mermaid architecture diagram)
 ├── assets/icon.svg     Required
-├── SKILL.md            Recommended
+├── SKILL.md            Required (AI model instructions)
 ├── references/         Optional, text read on demand
 ├── scripts/            For a script plugin
 ├── Cargo.toml          For a built plugin

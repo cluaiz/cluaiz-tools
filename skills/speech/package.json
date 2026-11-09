@@ -95,6 +95,7 @@
     "1.0.0": {
       "updated_at": "2026-11-07T20:00:00Z",
       "files": {
+        "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
         "scripts": [

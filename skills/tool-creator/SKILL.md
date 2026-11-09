@@ -52,5 +52,6 @@ Call the tool once with good input and once with bad input. Bad input must give 
 ## Rules
 
 - Never put a key or password in a tool's files. A plugin asks for one through `permissions.secrets`.
+- Every tool must include both `SKILL.md` (short, imperative instructions for the AI model) and `README.md` (human-facing documentation displayed on `cluaiz.com/tools`, containing the tool's Purpose, System Architecture, a Mermaid flow diagram with quoted labels, Capabilities/Functions and Usage).
 - Keep `SKILL.md` short: exact steps and limits, with no claims about what the tool cannot do.
 - Keep the family key, the folder name and `id` in `package.json` the same.

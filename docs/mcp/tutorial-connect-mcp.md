@@ -45,7 +45,7 @@ Write this to `package.json` in that folder:
   "execution": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-everything"] },
   "latest_version": "1.0.0",
   "versions": {
-    "1.0.0": { "updated_at": "2026-11-06T12:00:00Z", "files": { "icon": "assets/icon.svg" } }
+    "1.0.0": { "updated_at": "2026-11-06T12:00:00Z", "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" } }
   }
 }
 ```
@@ -73,7 +73,7 @@ The server starts on this first call, and the first call may be slow while `npx`
 
 ## 5. Publish
 
-1. Put the folder at `mcp/everything/` with `assets/icon.svg`.
+1. Put the folder at `mcp/everything/` with `README.md` (human-facing documentation with a Mermaid architecture diagram), `SKILL.md` (AI model instructions) and `assets/icon.svg`.
 2. Add it to `mcp/family.json`:
 
    ```json

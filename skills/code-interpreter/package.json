@@ -163,6 +163,7 @@
     "1.0.1": {
       "updated_at": "2026-11-07T12:00:00Z",
       "files": {
+        "readme": "README.md",
         "skill": "SKILL.md",
         "references": [
           "references/LANGUAGES.md",

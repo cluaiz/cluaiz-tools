@@ -47,6 +47,7 @@
         "@upstash/context7-mcp@4.5.1"
       ],
       "files": {
+        "readme": "README.md",
         "icon": "assets/icon.svg",
         "skill": "SKILL.md"
       }

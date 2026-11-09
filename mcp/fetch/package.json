@@ -46,6 +46,7 @@
         "mcp-server-fetch@2026.11.4"
       ],
       "files": {
+        "readme": "README.md",
         "icon": "assets/icon.svg",
         "skill": "SKILL.md"
       }

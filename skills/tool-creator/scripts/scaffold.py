@@ -120,7 +120,7 @@ def manifest(spec):
         "triggers": {"semantic": triggers} if category == "skills" else triggers,
         "dependencies": {"plugins": {}, "mcp": {}, "skills": {}},
     })
-    files = {"icon": "assets/icon.svg"}
+    files = {"readme": "README.md", "icon": "assets/icon.svg"}
     version = {"updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
     if category != "mcp":
         files["skill"] = "SKILL.md"
@@ -144,6 +144,29 @@ def manifest(spec):
     return data
 
 
+def readme_text(spec):
+    category = spec["category"]
+    kind_label = {"skills": "Skill", "plugins": "WebAssembly Plugin", "mcp": "MCP Server"}[category]
+    install_kind = HUB_TYPE[category]
+    return (
+        f"# {spec['name']}\n\n"
+        f"{spec['description']}\n\n"
+        f"## Purpose\n\n"
+        f"`{spec['tool_id']}` is a Cluaiz {kind_label} designed for human-verifiable workflows and deterministic execution.\n\n"
+        f"## System Architecture\n\n"
+        f"```mermaid\n"
+        f"flowchart LR\n"
+        f"    User[\"User Request\"] --> Engine[\"Cluaiz Engine\"]\n"
+        f"    Engine --> Tool[\"{spec['name']} ({kind_label})\"]\n"
+        f"    Tool --> Output[\"Structured Result\"]\n"
+        f"```\n\n"
+        f"## Installation & Usage\n\n"
+        f"```bash\n"
+        f"cluaiz {install_kind} install {spec['tool_id']}\n"
+        f"```\n"
+    )
+
+
 def skill_text(spec):
     description = spec["description"].replace('"', "'")
     body = spec.get("skill_instructions") or f"# {spec['name']}\n\nDescribe when to use this and exactly what to do, step by step.\n"
@@ -154,6 +177,7 @@ def package_files(spec):
     category = spec["category"]
     files = {
         "package.json": json.dumps(manifest(spec), indent=2) + "\n",
+        "README.md": spec.get("readme_markdown") or readme_text(spec),
         "assets/icon.svg": spec.get("icon_svg") or (
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" '
             f'stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n'

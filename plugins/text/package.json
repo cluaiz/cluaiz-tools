@@ -84,6 +84,7 @@
         "wasm"
       ],
       "files": {
+        "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg"
       }

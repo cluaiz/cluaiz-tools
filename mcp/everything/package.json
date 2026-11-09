@@ -48,6 +48,7 @@
         "@modelcontextprotocol/server-everything@2.2.1"
       ],
       "files": {
+        "readme": "README.md",
         "icon": "assets/icon.svg",
         "skill": "SKILL.md"
       }
