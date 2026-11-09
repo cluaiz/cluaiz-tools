@@ -25,7 +25,7 @@ Providers are tried in this order. One that is not set up costs no request.
 
 Check each provider's terms and current prices on its own site.
 
-If every provider fails, the answer says so and lists what was tried. Results are never made up.
+If every provider fails, the answer says so and lists what was tried. Results are never made up. When only Wikipedia answered, or nothing did, the answer tells the model to search with the browser tool if it has one, and otherwise to ask the user whether to install it. The plugin never installs anything.
 
 ## Settings
 

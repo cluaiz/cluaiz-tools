@@ -12,6 +12,15 @@ const MOST_RESULTS: u64 = 10;
 const SNIPPET_CHARS: usize = 400;
 const SET_UP_HINT: &str = "For dependable results, the user can add a free key: cluaiz plugin config web-search TAVILY_API_KEY";
 
+/// What to do when the search services fail: a real browser can still search, but only if the user
+/// has it. Installing it is the user's decision.
+fn browser_hint(query: &str) -> String {
+    format!(
+        "If agent_browser_open is one of your tools, search with the browser instead: open https://www.bing.com/search?q={} and read the results.          If it is not, do not install anything: ask the user whether to install the browser tool (cluaiz mcp install browser, needs Node.js) and search with it.",
+        encode(query)
+    )
+}
+
 struct Hit {
     title: String,
     url: String,
@@ -66,7 +75,7 @@ pub fn search(http: &mut dyn Http, query: &str, max_results: Option<u64>) -> Val
                     found["tried"] = json!(tried);
                 }
                 if let Some(note) = provider.note {
-                    found["note"] = json!(format!("{note} {SET_UP_HINT}"));
+                    found["note"] = json!(format!("{note} {} {SET_UP_HINT}", browser_hint(query)));
                 }
                 return found;
             }
@@ -74,7 +83,7 @@ pub fn search(http: &mut dyn Http, query: &str, max_results: Option<u64>) -> Val
     }
     json!({
         "status": "error",
-        "message": format!("No search provider returned results for this query. {SET_UP_HINT}"),
+        "message": format!("No search provider returned results for this query. {} {SET_UP_HINT}", browser_hint(query)),
         "tried": tried,
     })
 }
@@ -288,6 +297,8 @@ mod tests {
         let answer = search(&mut http, "rust", None);
         assert_eq!(answer["status"], "error");
         assert!(answer.get("results").is_none());
+        let message = answer["message"].as_str().unwrap();
+        assert!(message.contains("agent_browser_open") && message.contains("q=rust") && message.contains("ask the user"));
         assert_eq!(answer["tried"].as_array().unwrap().len(), 2);
     }
 
