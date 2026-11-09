@@ -1,0 +1,233 @@
+{
+  "id": "deep-research",
+  "name": "Deep Research",
+  "title": "Multi-step web research with disk notes and cited Markdown reports",
+  "category": "research",
+  "hub_type": "skill",
+  "description": "Breaks a research question into sub-questions, searches the web, reads pages onto disk, checks every quote against its source, and writes a cited Markdown (.md) report in the workspace.",
+  "author": {
+    "name": "Cluaiz Technologies",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
+  "tags": [
+    "Research",
+    "Deep Research",
+    "Citations",
+    "Report",
+    "Markdown"
+  ],
+  "triggers": {
+    "semantic": [
+      "deep research",
+      "research report",
+      "write a report",
+      "investigate",
+      "literature review",
+      "compare in detail",
+      "research and cite",
+      "detailed research",
+      "comprehensive report",
+      "research this topic",
+      "save research report"
+    ]
+  },
+  "dependencies": {
+    "plugins": {
+      "web-search": {
+        "version": "^0.2.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+      }
+    },
+    "mcp": {},
+    "skills": {}
+  },
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/research.py\" \"{file}\""
+  },
+  "functions": [
+    {
+      "name": "research_start",
+      "description": "Start a research project in the workspace folder. Creates research/<slug>/ (or uses a custom output .md path) and returns the project id and context budget.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The main question or topic to research"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "quick",
+              "standard",
+              "deep"
+            ],
+            "description": "quick (fast overview), standard (default balanced research), or deep (shows plan first and checks contradictions)"
+          },
+          "output": {
+            "type": "string",
+            "description": "Optional .md file path in the workspace where the final report should be saved"
+          },
+          "context_tokens": {
+            "type": "integer",
+            "description": "Optional context size in tokens (such as 4096, 8192, or 16384)"
+          }
+        },
+        "required": [
+          "question"
+        ]
+      }
+    },
+    {
+      "name": "research_plan",
+      "description": "Save 2 to 7 sub-questions for the research project. In deep mode, show the returned plan to the user before searching.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The research project id from research_start"
+          },
+          "sub_questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of 2 to 7 specific sub-questions to answer"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "description": "In deep mode, set true after the user approves the plan"
+          }
+        },
+        "required": [
+          "id",
+          "sub_questions"
+        ]
+      }
+    },
+    {
+      "name": "research_search",
+      "description": "Search the web for one sub-question, deduplicate URLs, and register sources as S1, S2, and so on.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The research project id"
+          },
+          "sub_question": {
+            "type": "integer",
+            "description": "Sub-question number (1-based)"
+          },
+          "query": {
+            "type": "string",
+            "description": "Focused web search query"
+          }
+        },
+        "required": [
+          "id",
+          "sub_question",
+          "query"
+        ]
+      }
+    },
+    {
+      "name": "research_read",
+      "description": "Fetch a source (such as S1 or a URL), save the full page to disk under sources/Sn.md, and return the top relevant facts with exact quotes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The research project id"
+          },
+          "source": {
+            "type": "string",
+            "description": "Source id from research_search (such as S1) or a direct URL"
+          },
+          "sub_question": {
+            "type": "integer",
+            "description": "Sub-question number (1-based) to rank passages against"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "sub_question"
+        ]
+      }
+    },
+    {
+      "name": "research_status",
+      "description": "Read disk state to recover progress after context truncation: shows facts collected per sub-question, gaps left, and the next recommended step.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The research project id"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "research_write",
+      "description": "Save a section or assemble the final cited Markdown report (.md) on disk, verify every [Sn] citation against saved pages, and return the report file path.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The research project id"
+          },
+          "section": {
+            "type": "integer",
+            "description": "Optional 1-based section number to save before finalizing"
+          },
+          "text": {
+            "type": "string",
+            "description": "Optional Markdown prose for that section with [Sn] citations"
+          },
+          "sections": {
+            "type": "object",
+            "description": "Optional map of section numbers ('1', '2', ...) to Markdown prose with [Sn] citations to save multiple sections in one call"
+          },
+          "output": {
+            "type": "string",
+            "description": "Optional .md path in the workspace for the final report"
+          },
+          "finalize": {
+            "type": "boolean",
+            "description": "Set true to build the complete report.md, verify all [Sn] quotes against saved sources, and return the saved .md file path"
+          }
+        },
+        "required": [
+          "id",
+          "finalize"
+        ]
+      }
+    }
+  ],
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-08T21:00:00Z",
+      "files": {
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
+        "scripts": [
+          "scripts/research.py"
+        ]
+      }
+    }
+  }
+}

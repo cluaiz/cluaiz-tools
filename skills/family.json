@@ -37,6 +37,10 @@
     "frontend-design": {
       "type": "local",
       "path": "frontend-design/package.json"
+    },
+    "deep-research": {
+      "type": "local",
+      "path": "deep-research/package.json"
     }
   }
 }
