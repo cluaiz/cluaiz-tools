@@ -9,8 +9,6 @@ cluaiz plugin list                  # What is installed
 cluaiz plugin remove math
 cluaiz plugin config math           # View or change its settings
 cluaiz plugin cache                 # Cached downloads
-cluaiz mcp start filesystem         # Start an MCP server in the background
-cluaiz plugin link                  # Link a plugin to a skill
 ```
 
 Each exits with a non-zero code on failure.
