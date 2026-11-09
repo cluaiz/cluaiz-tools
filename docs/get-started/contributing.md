@@ -1,4 +1,6 @@
-# Contributing a tool
+# Contributing a tool: checklist
+
+The process, the pre-release policy and best practices are in [CONTRIBUTING.md](../../CONTRIBUTING.md). This page is the checklist for the pull request.
 
 ## Pull requests
 
@@ -24,7 +26,9 @@ For every tool:
 - [ ] `assets/icon.svg` is a pure SVG with a 24 by 24 `viewBox`.
 - [ ] `description` says what it does and when to use it.
 - [ ] Trigger words are in `package.json`, in the form for its type. See the [package specification](../package-spec.md#what-the-model-sees).
-- [ ] `latest_version` is bumped, or CI will not build.
+- [ ] A new tool starts at `1.0.0`. A change to an existing tool raises `latest_version` and the key under `versions`, or CI will not release it.
+- [ ] It was tested with a small model (around 4B, 8K context), and the pull request names the model and the prompt.
+- [ ] It follows the [rules for tool authors](../../SECURITY.md#rules-for-tool-authors).
 - [ ] It works when installed in a clean `CLUAIZ_HOME`, and you called it.
 - [ ] It contains no secrets and no compiled files.
 

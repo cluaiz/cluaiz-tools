@@ -1,0 +1,48 @@
+name: Tool proposal
+description: Propose a new tool for the registry, before you build it
+labels: ["tool proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Agree on the idea here before building it. A pull request for a new tool needs an accepted proposal.
+  - type: input
+    id: name
+    attributes:
+      label: Tool id
+      description: Lowercase kebab-case, the same as its folder name
+      placeholder: word-count
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - Skill
+        - Plugin (WebAssembly)
+        - MCP server
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What it does, and when a user would ask for it
+      description: Two or three example requests a user would type
+    validations:
+      required: true
+  - type: textarea
+    id: needs
+    attributes:
+      label: What it needs
+      description: Network access and which hosts, API keys, programs the user must install (Node.js, uv, Python), files it reads or writes
+  - type: dropdown
+    id: build
+    attributes:
+      label: Will you build it?
+      options:
+        - Yes, I will open the pull request
+        - No, this is a request
+    validations:
+      required: true
