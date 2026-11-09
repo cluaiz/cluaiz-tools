@@ -1,0 +1,42 @@
+name: Tool bug
+description: A plugin, skill or MCP server from Cluaiz Tools does not work as it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing. Remove tokens, API keys and personal paths from anything you paste.
+  - type: input
+    id: tool
+    attributes:
+      label: Tool and version
+      description: The output of `cluaiz plugin list`, `cluaiz skill list` or `cluaiz mcp list` for this tool
+      placeholder: web-search v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: engine
+    attributes:
+      label: Engine version
+      description: The output of `cluaiz --version`
+      placeholder: cluaiz 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model and context size
+      placeholder: Qwen3.8-4B-Q4_K_M, 8192
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you asked, which tool calls the model made, what you expected, and what happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: system
+    attributes:
+      label: System
+      description: OS, and for MCP servers the Node, Python or uv version they need
+      render: text
