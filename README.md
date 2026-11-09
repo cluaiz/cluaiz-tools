@@ -26,19 +26,18 @@ Skills, plugins and MCP servers that give the models in Cluaiz real abilities: s
 
 ## About Cluaiz Tools
 
-[Cluaiz](https://github.com/cluaiz/cluaiz) is one system for working with AI: run models on your own hardware,
-serve them to your apps, and let them do real work, for yourself or for your business. A model on its own can only
-write text. **Tools** let it act: look things up, read and write files, run code, use a browser, call services.
+A model on its own can only write text. **Tools** let the models in the [Cluaiz Engine](https://github.com/cluaiz/cluaiz)
+act: look things up, read and write files, run code, use a browser, call services.
 
 This repository is the official registry of those tools:
 
 - **22 tools** in three types: WebAssembly plugins, skills and MCP servers.
-- **Installed with one command** (`cluaiz plugin install web-search`), with no setup for most of them.
-- **Loaded only when needed.** The model sees one short line per tool until it asks for one, so tools fit even a
-  4K or 8K context of a small model.
-- **Run under the Engine's rules:** plugins in a WebAssembly sandbox, MCP servers and scripts after your approval,
-  your keys never shown to a tool.
-- **Open formats:** [Agent Skills](https://agentskills.io) (`SKILL.md`), the
+- **Installed with one command** (`cluaiz plugin install web-search`). Plugins and most skills need nothing else; MCP servers need Node.js or `uv`.
+- **Loaded only when needed.** The model sees short cards only for the tools that fit the message, and the full
+  instructions only when it asks for one, so tools leave room for the work in a small model's context.
+- **Run under the Engine's rules:** plugins in a WebAssembly sandbox, keys never shown to a plugin, and approval
+  first for MCP calls and for tools that can write files, run commands or use the network.
+- **Open formats:** Agent Skills (`SKILL.md`), the
   [Model Context Protocol](https://modelcontextprotocol.io) and WebAssembly. A tool written for Cluaiz is not
   locked to Cluaiz, and many existing MCP servers and skills work here as they are.
 
@@ -48,7 +47,7 @@ You need the [Cluaiz Engine](https://github.com/cluaiz/cluaiz#quick-start) insta
 
 ```bash
 cluaiz plugin install web-search      # a WebAssembly plugin
-cluaiz skill install deep-research    # a skill (it installs web-search too, as a dependency)
+cluaiz skill install deep-research    # a skill; it searches with web-search when that is installed
 cluaiz mcp install filesystem         # an MCP server (needs Node.js)
 
 cluaiz plugin list                    # what is installed, with versions
@@ -133,7 +132,7 @@ sequenceDiagram
     participant T as Tool
 
     U->>E: Message
-    E->>M: Message + one short card per installed tool
+    E->>M: Message + short cards for the tools that fit it
     M-->>E: load_tool("deep-research")
     E->>M: The tool's instructions and function schemas
     M-->>E: Tool call with arguments
@@ -148,9 +147,9 @@ sequenceDiagram
     E-->>U: Answer
 ```
 
-- **Cards first.** Every installed tool costs the model one short line: its name and when to use it. The full
-  instructions and schemas arrive only after the model asks with `load_tool`, and they leave again when they are
-  no longer used. This keeps small contexts free for the actual work.
+- **Cards first.** A card is one short line: a tool's name and when to use it. The Engine adds cards only for tools
+  that fit the message and leaves the rest out to save context. The full instructions and schemas arrive only after
+  the model asks with `load_tool`, and they leave again when they are no longer used.
 - **Triggers.** Words in a tool's `package.json`, such as "deep research" or "summarize this pdf", let the Engine
   offer the right tool for a message before the model asks.
 - **One loop for everyone.** The terminal agent (`cluaiz agent`) and the API (`/v1/chat/completions`) use the same
@@ -173,7 +172,7 @@ flowchart LR
         W["WebAssembly runtime<br/>memory and step limits,<br/>https to public addresses only"]
         X["Script runner"]
         C["MCP client<br/>pinned npx / uvx command"]
-        K["Settings and keys<br/>filled in by the Engine"]
+        K["Tool settings and keys<br/>cluaiz plugin config"]
     end
 
     P --> I
@@ -192,7 +191,7 @@ flowchart LR
 | **Releases** | When a `package.json` changes on `main`, CI builds that tool and publishes a GitHub release named after it, such as `plugin-web-search-v1.0.0`, with a ZIP of its files and, for a plugin, its `.wasm`. |
 | **Installer** | `cluaiz <type> install <id>` reads the registry, downloads the release, installs dependencies (such as `web-search` for `deep-research`) and places the tool in `~/.cluaiz/tools/<type>/<id>/`. |
 | **WebAssembly runtime** | Runs plugins in a sandbox with a memory limit (256 MB unless the manifest asks for less) and an instruction limit, so a loop that never ends becomes an error. A plugin has no file access, and reaches the network only through one Engine function, only over `https` to public addresses, and only if its manifest asks for it. |
-| **Keys** | A plugin writes `{{secret:NAME}}` in a request header and the Engine fills it in, only for the host the manifest names. The plugin never sees the key. |
+| **Keys** | A plugin writes `{{secret:NAME}}` in a request header and the Engine fills it in, only for the host the manifest names. The plugin never sees the key. An MCP server is a separate program and receives its settings as environment variables. |
 | **Approval gate** | In the default `sandboxed` mode, MCP calls and tools that can write files, run commands or use the network ask before they run, showing the exact call. `strict` asks for everything; `full_access` asks only for what you marked. |
 | **MCP client** | Starts the pinned command, talks MCP to it, and stops it with the Engine. |
 
@@ -243,7 +242,6 @@ with a small model, and open a pull request.
 - **Want to talk or help?** Join the [Discord](https://discord.gg/mab8kBURz).
 - **Found a security problem?** Report it privately, as [SECURITY.md](SECURITY.md) describes.
 
-What Cluaiz is building toward: [VISION.md](VISION.md).
 
 ## License
 

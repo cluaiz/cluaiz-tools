@@ -17,7 +17,7 @@ Cluaiz Tools is in **pre-release**. Security fixes go to `main` and to a new ver
 **Please do not open a public issue for a security problem.** Report it privately:
 
 1. Use GitHub's **Report a vulnerability** button on the
-   [Security tab](https://github.com/cluaiz/cluaiz-tools/security), or email `security@cluaiz.com`.
+   [Security tab](https://github.com/cluaiz/cluaiz-tools/security).
 2. Say which tool and version, and give the steps to reproduce it.
 3. Describe the impact, for example a plugin reaching a private address, a key leaking to a tool, or a tool
    running without approval.
@@ -48,7 +48,7 @@ A skill is instructions for the model. A skill **with scripts** (such as `deep-r
 normal programs on your computer, in your working folder, with your user's rights. They are not sandboxed. That is
 why:
 
-- Official skill scripts are reviewed and kept small, and use only the language's standard library where possible.
+- The scripts of the official skills are small, and use only the language's standard library where possible.
 - Install skills from sources you trust, and read the scripts of a skill from anywhere else.
 
 ### MCP servers
@@ -60,7 +60,7 @@ process with your user's rights:
   what you run without a new release here.
 - In the default `sandboxed` mode, **every MCP call asks for approval**, unless you chose to trust the server's
   own read-only marks, or set the server to always allow.
-- The Engine stops the server's process when it stops.
+- When the Engine stops, it stops the server too (tested on Windows).
 
 ### Approvals
 
