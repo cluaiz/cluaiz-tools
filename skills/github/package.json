@@ -27,7 +27,14 @@
       "workflow run",
       "review this pr",
       "open a pr",
-      "gh"
+      "gh",
+      "github issues",
+      "open issues",
+      "list issues",
+      "pull requests",
+      "github cli",
+      "github repository",
+      "github repo"
     ]
   },
   "dependencies": {

@@ -7,6 +7,10 @@ description: "Rules for web pages and app screens that look finished: layout, ty
 
 Use this when you write or change a web page, a component or an app screen.
 
+## Write files, not chat
+
+Write the page or component to a file with `write_file`, such as `index.html`, and give the user its path. Do not paste the whole page into the chat.
+
 ## Before you write
 
 - Use what the project already has: its framework, component library, CSS approach, colors and fonts. Look at two existing screens first.

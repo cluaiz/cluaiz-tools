@@ -36,7 +36,7 @@ def engine():
     try:
         token = (home / "session.token").read_text(encoding="utf-8").strip()
     except OSError:
-        fail(f"The Cluaiz Engine is not running: no session token in {home}.")
+        fail(f"The Cluaiz Engine is not running (no session token in {home}). Tell the user to start it with: cluaiz serve. Then stop: do not install packages or write your own speech script.")
     return f"http://127.0.0.1:{port or 8000}", token
 
 
@@ -57,7 +57,7 @@ def post(path, body):
             pass
         return {"error": text, "http_status": error.code}
     except urllib.error.URLError as error:
-        fail(f"The Cluaiz Engine did not answer at {address}: {error.reason}")
+        fail(f"The Cluaiz Engine did not answer at {address}: {error.reason}. Tell the user to start it with: cluaiz serve. Then stop: do not install packages or write your own speech script.")
 
 
 def explain(answer, action):

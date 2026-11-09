@@ -33,6 +33,8 @@ The tool is written to the Engine's tools folder. If the open folder is the `clu
 
 Write a description that says what the tool does and when to use it, and triggers that a user would really say. The model picks tools from these.
 
+After `create_tool` succeeds, do only what its `next` says. For a skill, report the folder and stop. Do not add files the user did not ask for, such as extra `.js` or `.py` files.
+
 ## 3. Finish a plugin
 
 The answer's `next` gives the exact steps. Write the logic in `src/lib.rs`, then build:
