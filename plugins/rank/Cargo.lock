@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "cluaiz_plugin_search"
+name = "cluaiz_plugin_rank"
 version = "1.0.0"
 dependencies = [
  "serde",

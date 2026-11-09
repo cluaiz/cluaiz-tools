@@ -1,9 +1,9 @@
 ---
-name: search
+name: rank
 description: "Ranks documents passed to it by a keyword query. It cannot read files or the web."
 ---
 
-# Document Search
+# Rank
 
 Call `rank_documents` when you already hold several texts and want the ones that best match a query. It scores words found in the title and content, and returns snippets.
 

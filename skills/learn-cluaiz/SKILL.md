@@ -30,7 +30,7 @@ Programs talk to the Engine through CEP: JSON-RPC at `POST /v1/cep`, for example
 
 | Kind | Tools |
 |---|---|
-| Plugins | `math`, `text`, `time` (with date arithmetic), `search`, `web-search` |
+| Plugins | `math`, `text`, `time` (with date arithmetic), `rank`, `web-search` |
 | Skills | `code-interpreter`, `code-reviewer`, `git-assistant`, `github`, `build-feature`, `frontend-design`, `speech`, `tool-creator`, `learn-cluaiz` |
 | MCP servers | `browser` (also tests websites), `documents` (PDF and Office files), `filesystem`, `git`, `fetch`, `context7`, `everything` |
 

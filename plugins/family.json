@@ -10,9 +10,9 @@
       "type": "local",
       "path": "text/package.json"
     },
-    "search": {
+    "rank": {
       "type": "local",
-      "path": "search/package.json"
+      "path": "rank/package.json"
     },
     "time": {
       "type": "local",

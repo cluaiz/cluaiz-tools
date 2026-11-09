@@ -1,6 +1,6 @@
 {
-  "id": "search",
-  "name": "Document Search",
+  "id": "rank",
+  "name": "Rank",
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
@@ -11,9 +11,9 @@
   },
   "license": "Apache-2.0",
   "tags": [
-    "Search",
     "Ranking",
     "Documents",
+    "Search",
     "WASM"
   ],
   "triggers": [

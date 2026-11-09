@@ -1,4 +1,4 @@
-# Document Search
+# Rank
 
 Ranks an in-memory collection of text documents against a keyword query using term-frequency and title-weighted scoring inside a sandboxed WebAssembly module, returning the top matches with contextual snippets.
 
@@ -46,13 +46,13 @@ flowchart LR
 
 ## Failure & Recovery Logic
 
-- **No Filesystem or Web Access by Design:** `search` operates strictly on the `documents` array passed in the call. To read local files first, combine with the `filesystem` MCP server; to search the internet, use the `web-search` plugin.
+- **No Filesystem or Web Access by Design:** `rank` operates strictly on the `documents` array passed in the call. To read local files first, combine with the `filesystem` MCP server; to search the internet, use the `web-search` plugin.
 - **Empty Query or Document List:** Returns a structured error message rather than trapping.
 
 ## Build & Installation
 
 ```bash
-cluaiz plugin install search
+cluaiz plugin install rank
 ```
 
 To build and test from source:

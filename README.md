@@ -70,9 +70,9 @@ The Engine reads `registry.json`, then `family.json`, then the tool's `package.j
 |---|---|---|---|
 | `math` | WebAssembly | Evaluates math expressions | Runs |
 | `text` | WebAssembly | Hashing, Base64, diffs and regular expressions | Runs |
-| `time` | WebAssembly | The current date and time on this computer, and date arithmetic | Needs the next Engine release |
-| `search` | WebAssembly | Ranks documents it is given. It cannot read files | Runs |
-| `web-search` | WebAssembly | Searches the web and reads pages | Needs the next Engine release |
+| `time` | WebAssembly | The current date and time on this computer, and date arithmetic | Runs |
+| `rank` | WebAssembly | Ranks documents it is given. It cannot read files | Runs |
+| `web-search` | WebAssembly | Searches the web and reads pages | Runs |
 
 ### Skills
 
