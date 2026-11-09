@@ -29,9 +29,9 @@ All fields are defined in the [package specification](../package-spec.md). This 
     }
   ],
   "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
-  "latest_version": "1.0.1",
+  "latest_version": "1.0.0",
   "versions": {
-    "1.0.1": {
+    "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
       "builds_os": ["wasm"],
       "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }

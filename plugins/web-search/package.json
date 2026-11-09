@@ -6,11 +6,17 @@
   "build_type": "wasm",
   "description": "Searches the web and reads pages. One WebAssembly file, nothing to set up. Add a free key for dependable results.",
   "author": {
-    "name": "Cluaiz Technologies",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
-  "tags": ["Web Search", "Internet", "Live Data", "Research", "WASM"],
+  "tags": [
+    "Web Search",
+    "Internet",
+    "Live Data",
+    "Research",
+    "WASM"
+  ],
   "triggers": [
     "search the web",
     "web search",
@@ -34,7 +40,9 @@
       "BRAVE_API_KEY": "api.search.brave.com",
       "MARGINALIA_API_KEY": "api2.marginalia-search.com"
     },
-    "user_urls": ["SEARXNG_URL"]
+    "user_urls": [
+      "SEARXNG_URL"
+    ]
   },
   "functions": [
     {
@@ -43,10 +51,18 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "query": { "type": "string", "description": "What to search for" },
-          "max_results": { "type": "integer", "description": "How many results, 1 to 10. Default 5" }
+          "query": {
+            "type": "string",
+            "description": "What to search for"
+          },
+          "max_results": {
+            "type": "integer",
+            "description": "How many results, 1 to 10. Default 5"
+          }
         },
-        "required": ["query"]
+        "required": [
+          "query"
+        ]
       }
     },
     {
@@ -55,18 +71,28 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "description": "The page's address" },
-          "max_chars": { "type": "integer", "description": "Most characters to return, up to 50000. Default 12000" }
+          "url": {
+            "type": "string",
+            "description": "The page's address"
+          },
+          "max_chars": {
+            "type": "integer",
+            "description": "Most characters to return, up to 50000. Default 12000"
+          }
         },
-        "required": ["url"]
+        "required": [
+          "url"
+        ]
       }
     }
   ],
-  "latest_version": "0.2.0",
+  "latest_version": "1.0.0",
   "versions": {
-    "0.2.0": {
-      "updated_at": "2026-11-07T12:00:00Z",
-      "builds_os": ["wasm"],
+    "1.0.0": {
+      "updated_at": "2026-11-09T10:15:26Z",
+      "builds_os": [
+        "wasm"
+      ],
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",

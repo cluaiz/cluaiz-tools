@@ -1,8 +1,8 @@
 [package]
 name = "cluaiz_plugin_web_search"
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
-authors = ["Cluaiz Technologies"]
+authors = ["Cluaiz"]
 description = "Web search and page reading for the Cluaiz Engine, as one WebAssembly file"
 
 [lib]

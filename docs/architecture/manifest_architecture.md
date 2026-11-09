@@ -22,7 +22,7 @@ The Engine builds one entry from each folder in `~/.cluaiz/tools/`:
       "id": "math",
       "name": "math",
       "category": "plugin",
-      "version": "1.0.1",
+      "version": "1.0.0",
       "description": "...",
       "local_dir": "C:/Users/me/.cluaiz/tools/plugins/math",
       "binary_path": "C:/Users/me/.cluaiz/tools/plugins/math/math.wasm",

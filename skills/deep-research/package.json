@@ -6,7 +6,7 @@
   "hub_type": "skill",
   "description": "Breaks a research question into sub-questions, searches the web, reads pages onto disk, checks every quote against its source, and writes a cited Markdown (.md) report in the workspace.",
   "author": {
-    "name": "Cluaiz Technologies",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
@@ -36,7 +36,7 @@
   "dependencies": {
     "plugins": {
       "web-search": {
-        "version": "^0.2.0",
+        "version": "^1.0.0",
         "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
       }
     },
@@ -220,7 +220,7 @@
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-08T21:00:00Z",
+      "updated_at": "2026-11-09T10:15:26Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",

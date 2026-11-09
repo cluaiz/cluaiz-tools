@@ -6,7 +6,7 @@
   "build_type": "wasm",
   "description": "The current date and time on this computer, and date arithmetic: days between two dates, or a date some days or months away. Needs no network.",
   "author": {
-    "name": "Cluaiz Core Team",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
@@ -79,10 +79,10 @@
       }
     }
   ],
-  "latest_version": "1.2.0",
+  "latest_version": "1.0.0",
   "versions": {
-    "1.2.0": {
-      "updated_at": "2026-11-07T21:00:00Z",
+    "1.0.0": {
+      "updated_at": "2026-11-09T10:15:26Z",
       "builds_os": [
         "wasm"
       ],

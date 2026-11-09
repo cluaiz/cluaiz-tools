@@ -51,12 +51,12 @@ crate-type = ["cdylib"]
 
 ## Release names
 
-Each package version has one tag: `<type>-<id>-v<version>`, such as `plugin-math-v1.0.1`.
+Each package version has one tag: `<type>-<id>-v<version>`, such as `plugin-math-v1.0.0`.
 
 ```
-plugin-math-v1.0.1/
+plugin-math-v1.0.0/
 ├── math-files.zip
-└── math_v1.0.1.wasm
+└── math_v1.0.0.wasm
 ```
 
 The Engine builds these addresses itself, so the names must match exactly. Pushing again for the same version replaces the files on the tag.

@@ -158,10 +158,10 @@
       }
     }
   ],
-  "latest_version": "1.0.1",
+  "latest_version": "1.0.0",
   "versions": {
-    "1.0.1": {
-      "updated_at": "2026-11-07T12:00:00Z",
+    "1.0.0": {
+      "updated_at": "2026-11-09T10:15:26Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",

@@ -28,7 +28,7 @@ The first three are published. The last is local and written by the Engine. It i
 
 1. Read `registry.json` and find `routing.plugins`. The default address is `https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/registry.json`.
 2. Read `plugins/family.json` and find `items.math`.
-3. Read `plugins/math/package.json`. Use `latest_version`, or the version asked for with `math@1.0.1`, which must be listed under `versions`.
+3. Read `plugins/math/package.json`. Use `latest_version`, or the version asked for with `math@1.0.0`, which must be listed under `versions`.
 4. Download what the type needs. See below.
 5. Put it in a staging folder and check it, then swap it into `~/.cluaiz/tools/plugins/math/`. A failed install leaves the previous version in place.
 6. Scan the tools folders and update `tools_registry.json`.

@@ -6,7 +6,7 @@
   "build_type": "wasm",
   "description": "Ranks documents you pass to it by a keyword query. It cannot read files or the web.",
   "author": {
-    "name": "Cluaiz Core Team",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
@@ -72,10 +72,10 @@
       }
     }
   ],
-  "latest_version": "1.1.0",
+  "latest_version": "1.0.0",
   "versions": {
-    "1.1.0": {
-      "updated_at": "2026-11-07T12:00:00Z",
+    "1.0.0": {
+      "updated_at": "2026-11-09T10:15:26Z",
       "builds_os": [
         "wasm"
       ],

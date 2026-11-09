@@ -4,7 +4,7 @@ The commands are the same for `skill`, `plugin` and `mcp`.
 
 ```bash
 cluaiz plugin install math          # The latest version
-cluaiz plugin install math@1.0.1    # A listed version
+cluaiz plugin install math@1.0.0    # A listed version
 cluaiz plugin list                  # What is installed
 cluaiz plugin remove math
 cluaiz plugin config math           # View or change its settings
