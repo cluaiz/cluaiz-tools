@@ -61,6 +61,8 @@ Set it to an empty value to hide the window again. A change applies when the ser
 
 Switching between hidden and visible restarts the browser, which loses the open page. The window shows what happens on the page, but no mouse pointer is drawn.
 
+The browser belongs to the Cluaiz session: it closes when the session ends, for example when a one-off `cluaiz agent -p "..."` task finishes. To keep looking at a page, use `cluaiz agent` and keep the session open.
+
 ## Watching a Running Browser
 
 To watch the browser at any time, including a hidden one, without restarting it:
