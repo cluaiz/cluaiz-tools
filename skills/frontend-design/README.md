@@ -36,6 +36,7 @@ flowchart LR
 ## Failure & Recovery Logic
 
 - **Design System Mismatch:** Always reads at least two existing screens or the project's theme configuration (`tailwind.config`, `globals.css`) first so new components do not clash with existing styles.
+- **Small models and small contexts:** the page is written to a file with `write_file`, in one call. A whole page is long, so a small model with an 8K context can run out of room before the call is complete, and then nothing is written; with Qwen3 4B and an 8K context this happened in our tests. Use a larger context (`-c 16384` or more) or a larger model, or ask for one section at a time.
 
 ## Installation & Usage
 

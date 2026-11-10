@@ -9,7 +9,9 @@ Use this when you write or change a web page, a component or an app screen.
 
 ## Write files, not chat
 
-Write the page or component to a file with `write_file`, such as `index.html`, and give the user its path. Do not paste the whole page into the chat.
+Write the page or component to a file with `write_file`, such as `index.html`, and give the user its path. Do not paste the whole page into the chat, and do not draft it in your thinking first: write it once, as the `content` of the `write_file` call. Then answer with the path and two or three lines on what the page has.
+
+For a new page, start small: one HTML file with its CSS inside, under 120 lines and 5,000 characters, with a header, a hero, at most three short sections and a footer. A longer file can end before it is written when the model's context is small; the page can grow when the user asks for more.
 
 ## Before you write
 
@@ -50,3 +52,7 @@ Check widths of 360, 768 and 1280 px. Nothing may scroll sideways on a phone. To
 ## Check
 
 If the browser tool is installed, open the page, take a screenshot at a phone and a desktop width, and run `agent_browser_a11y`. Fix what you find before saying it is done.
+
+## Finish
+
+The page goes into a file: call `write_file` with the path and the whole page as `content`. An answer that shows the page's code instead of writing the file is not done.
