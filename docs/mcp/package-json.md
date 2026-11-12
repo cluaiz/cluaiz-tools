@@ -81,5 +81,5 @@ Inside `versions[version]`:
 * **`files`**: Static assets bundled with the package.
 
 ### 3. Cross-Ecosystem Dependencies
-MCP servers can declare peer dependencies on Cluaiz plugins, skills, or other MCP servers in the `dependencies` block. The Cluaiz runtime resolves and links these during session startup.
+MCP servers can record dependencies on Cluaiz plugins, skills or other MCP servers in the `dependencies` block, each as `{"version": "^1.0.0", "url": "<raw package.json URL>"}`. Installing the server installs those that are missing; version ranges are not checked yet. See [Package specification](../package-spec.md#dependencies).
 

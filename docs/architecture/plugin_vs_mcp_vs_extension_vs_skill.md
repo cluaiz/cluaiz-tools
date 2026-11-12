@@ -73,7 +73,7 @@ Tools do not call each other directly. The model connects them:
 2. The model calls the tool.
 3. The Engine runs it, asks for approval if needed, and gives the model the result.
 
-A skill or plugin can record what it needs under `dependencies`. The Engine does not install those yet. See [Dependencies](../plugins/overview.md#dependencies).
+A skill or plugin can record what it needs under `dependencies`. Installing the tool installs those that are missing (version ranges are not checked yet). See [Dependencies](../plugins/overview.md#dependencies).
 
 | Caller | Can use | How |
 |---|---|---|

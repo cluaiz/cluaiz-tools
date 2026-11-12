@@ -118,10 +118,9 @@ The `dependencies` dictionary declares required capabilities from any of the fou
 }
 ```
 
-### Dependency Validation Rules:
-1. **Pre-Flight Inspection:** When the user initiates installation, the Engine inspects the target manifest's `dependencies`.
-2. **Missing Dependency Resolution:** If any required tool is absent, the Engine resolves and installs it from its declared metadata `url`.
-3. **Hard Failure Mode:** If a required dependency fails to download or has version conflicts, the installation process halts immediately with a descriptive error.
+Every entry has this form: the key is the tool id, `version` is a version range and `url` is the raw `package.json` of that tool in `cluaiz-tools`. A bare string such as `"plugins/web-search"` is not valid, and `validate_tool` reports it.
+
+**Status:** installing a tool installs the plugins, MCP servers and skills it lists that are missing; version ranges are not checked yet, and `extensions` entries are not installed. See [Package specification](../package-spec.md#dependencies).
 
 ---
 

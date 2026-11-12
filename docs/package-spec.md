@@ -198,9 +198,11 @@ These set first values. The user can change them later.
 }
 ```
 
-**Status: Planned.** The Engine does not install these or check them. Today this is a record for people and for the catalog. Say in your `SKILL.md` what the user must install. See [Dependencies](plugins/overview.md#dependencies).
+Every entry has this one form: the key is the tool id, `version` is a version range, and `url` is the raw `package.json` of that tool in `cluaiz-tools` (`https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/<kind>/<id>/package.json`). A bare string such as `"plugins/web-search"` is not valid; `validate_tool` reports it. Keep all three keys `plugins`, `mcp` and `skills`, empty when unused.
 
-The planned version ranges are `^1.2.3`, `~1.2.3`, an exact `1.2.3` and `>=1.2.0`. A lockfile is planned too and does not exist.
+**Status:** when a tool is installed, the Engine also installs each listed tool that is not installed yet, by its id, and their dependencies in turn. Tools already installed are kept. Version ranges and `url` are not checked yet; `extensions` are not installed. If a dependency fails, the tool stays installed and the error names what is missing. See [Dependencies](plugins/overview.md#dependencies).
+
+The version ranges planned for checking are `^1.2.3`, `~1.2.3`, an exact `1.2.3` and `>=1.2.0`. A lockfile is planned too and does not exist.
 
 ## Versions
 

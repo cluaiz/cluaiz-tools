@@ -70,21 +70,21 @@ To summarise a meeting:
 
 A package can record what it needs under `dependencies`. See [Package specification](../package-spec.md#dependencies).
 
-**Status: Planned. The Engine does not install or check these today.**
+When a tool is installed, the Engine also installs each tool listed in `dependencies` that is not installed yet (plugins, MCP servers and skills, by id), then their own dependencies.
 
-| Situation | What happens today |
+| Situation | What happens |
 |---|---|
-| A plugin lists a dependency | Nothing. The tool installs alone |
-| A dependency is missing | The model finds the tool is not available when it tries |
-| Two tools need the same dependency | Each user installs it once by hand |
+| A tool lists a dependency that is not installed | It is installed with the tool |
+| The dependency is already installed | It is kept as it is (no upgrade) |
+| A dependency fails to install | The tool stays installed; the error names the dependency and the command to install it |
+| Two tools need the same dependency | It is installed once |
 
-What authors should do today:
+Not yet: version ranges and `url` are not checked, and `extensions` are not installed.
 
-1. Record real dependencies in `dependencies`. Do not list things the tool does not use.
-2. Say in `SKILL.md` and in the catalog description what must be installed.
-3. Have the tool work, with a clear message, if an optional one is missing.
+What authors should do:
 
-The planned behaviour: on install, read `dependencies`, install what is missing from its address, and stop with a clear error if a range cannot be met.
+1. Record only real dependencies, in the one format of the [Package specification](../package-spec.md#dependencies).
+2. Have the tool work, with a clear message, if an optional one is missing.
 
 A separate, working case: when an MCP or tool folder lists npm packages as plain text versions (`"name": "1.2.3"`), or has `requirements.txt`, the Engine prepares a private runtime for it. These are language packages, and have nothing to do with Cluaiz tool dependencies.
 

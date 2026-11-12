@@ -148,7 +148,7 @@ Separately from the above, the Engine can itself be an MCP server for clients su
 
 These appear in manifests but have no effect in the Engine today. [Package specification](../package-spec.md) marks them.
 
-- `dependencies` for tools (only npm-style text versions are used, to prepare a runtime)
+- `dependencies`: the plugins, MCP servers and skills listed there are installed with the tool when missing; npm-style text versions are used to prepare a runtime
 - `permissions.max_cpu_time_ms`
 - `allowed-tools` in `SKILL.md`: parsed, and neither approves nor limits anything
 - `versions.<v>.files.binary`
