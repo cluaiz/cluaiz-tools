@@ -3,7 +3,8 @@
   "name": "Git Assistant",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Helps with git: clear commit messages, checks of staged changes for secrets and build output, and merge conflicts.",
+  "icon": "assets/icon.svg",
+  "description": "Works with git the way the repository does: its commit style and rules, a check of staged changes for secrets and build output, commit messages, branches, sync and push, conflicts, and safe undo. Use when the user wants to commit, branch, pull, push, rebase, fix a conflict or undo in git.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -11,34 +12,69 @@
   "license": "Apache-2.0",
   "tags": [
     "Git",
-    "Version Control"
+    "Workflow",
+    "Security",
+    "Commits"
   ],
-  "triggers": {
-    "semantic": [
-      "git commit",
-      "commit message",
-      "git status",
-      "git diff",
-      "audit diff",
-      "resolve conflict",
-      "merge conflict",
-      "conventional commit"
-    ]
-  },
   "dependencies": {
     "plugins": {},
-    "mcp": {},
+    "mcp": {
+      "git": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json"
+      }
+    },
     "skills": {}
   },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T16:10:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/git-details.md"
+        ],
+        "scripts": [
+          "scripts/git_check.py"
+        ]
       }
     }
+  },
+  "triggers": {
+    "semantic": [
+      "git commit",
+      "conventional commit",
+      "merge conflict",
+      "git status",
+      "git helper",
+      "git assistant",
+      "check staged files",
+      "commit message",
+      "write a commit",
+      "resolve conflict",
+      "rebase",
+      "staged changes",
+      "secret in commit"
+    ]
+  },
+  "functions": [
+    {
+      "name": "git_check_staged",
+      "description": "Check staged git changes before a commit (secrets, .env and key files, build output, large files, conflict markers) and get the repository's commit style, hooks and upstream state.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/git_check.py\" \"{file}\""
   }
 }

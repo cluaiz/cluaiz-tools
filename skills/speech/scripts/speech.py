@@ -109,7 +109,25 @@ def main():
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(base64.b64decode(audio))
         finish({"status": "success", "file": str(target.resolve()), "bytes": target.stat().st_size, "model": answer.get("model")})
-    fail("action must be transcribe or speak.")
+    if action == "voices":
+        # The voices of the installed speech model, read without loading it (CEP audio.voices)
+        answer = post("/v1/cep", {"jsonrpc": "2.0", "id": 1, "method": "audio.voices", "params": {}})
+        if "error" in answer:
+            error = answer["error"]
+            message = error.get("message", str(error)) if isinstance(error, dict) else str(error)
+            if "model" in message.lower() and ("no " in message.lower() or "not" in message.lower()):
+                fail(f"No speech model is installed for this. Install one with: {PULL['speak']}")
+            fail(message)
+        result = answer.get("result") or {}
+        voices = [
+            {"id": v.get("id"), "language": v.get("language"), "default": v.get("default", False)}
+            for v in (result.get("data") or [])[:80]
+        ]
+        wanted = (language or "").lower()
+        if wanted:
+            voices = [v for v in voices if not v["language"] or str(v["language"]).lower().startswith(wanted)] or voices
+        finish({"status": "success", "languages": (result.get("capabilities") or {}).get("languages"), "voices": voices})
+    fail("action must be transcribe, speak or voices.")
 
 
 if __name__ == "__main__":

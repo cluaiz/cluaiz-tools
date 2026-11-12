@@ -1,52 +1,52 @@
 # Frontend Design
 
-Engineering guidelines for building and refining web pages, dashboards, and application screens with consistent visual hierarchy, typography, spacing, interactive states, responsiveness, and accessibility.
+Rules and a checker for user interfaces that fit the project, look finished and work for everyone: layout, type, colour tokens, spacing, every interaction state, themes, responsiveness and accessibility, for web pages, mobile apps (React Native, Flutter, SwiftUI, Compose) and desktop apps (Tauri, Electron, native). It reads the project's design system, rules and plans first, reuses its tokens and components, keeps one source for each value, runs the project's checks, and keeps confirmed design decisions as project memory.
 
-## Technical Specification
-
-- **Purpose:** Ensures generated UI components and pages integrate cleanly into an existing project's design system and handle all real-world interface states (loading, empty, error, keyboard focus, and mobile viewports).
-- **Package Type:** Skill (`SKILL.md` UI engineering specification loaded on demand)
-- **Platform Support:** Cross-platform (applies to React, Next.js, Vue, Svelte, Tailwind CSS, and plain HTML/CSS)
-- **Runtime Dependencies:** None
-
-## System Architecture & Workflow
+## How it works
 
 ```mermaid
-flowchart LR
-    Inspect["1. Inspect Existing Project Tokens & Screens"] --> Hierarchy["2. Define Primary Screen Action & Layout"]
-    Hierarchy --> Tokens["3. Apply Typography, Color & Spacing Scale"]
-    Tokens --> States["4. Implement Empty, Loading, Error & Focus States"]
-    States --> Audit["5. Verify Mobile Responsiveness & Contrast"]
+flowchart TD
+    Ask["You ask for a page, screen or component"] --> Discover["ui_audit project: platform, framework, tokens, components; AGENTS.md, rules, plan"]
+    Discover --> Tokens["Reuse or create tokens; plan every state"]
+    Tokens --> Platform{"Web, mobile or desktop?"}
+    Platform --> Build["Reuse components; write into the project's files"]
+    Build --> Audit["ui_audit: accessibility, focus, IME, hardcoded colours, repeated styles"]
+    Audit --> Checks["The project's lint, type check, tests, build"]
+    Checks --> Look["Screenshot and console errors when the browser server is installed"]
 ```
 
-## Core Engineering Rules
+## Function
 
-| Dimension | Standard Enforced by the Skill |
+| Function | What it does |
 |---|---|
-| **Project Consistency** | Inspects existing components, CSS variables, fonts, and framework conventions before introducing new styles. |
-| **Visual Hierarchy** | Establishes one primary action per screen with clear typographic contrast between headings, body copy, and metadata. |
-| **Interactive States** | Requires explicit handling for `empty`, `loading`, `error`, `disabled`, `hover`, and `:focus-visible` keyboard navigation states. |
-| **Responsiveness** | Layouts adapt cleanly from 320px mobile viewports to desktop monitors without horizontal overflow. |
-| **Accessibility (a11y)** | Enforces semantic HTML elements (`<button>`, `<nav>`, `<main>`), form `<label>` associations, and readable color contrast. |
+| `ui_audit` | Reads HTML, JSX/TSX, Vue, Svelte, CSS, Dart (Flutter), Swift and Kotlin files in a file or folder. Reports what the project has (platform, framework, token or theme files, component folders) and, with file and line: images without a text alternative, icon buttons without a name, inputs without a label, clickable elements that are not buttons, Enter handlers that submit while an IME is composing, `outline: none` without another focus style, viewports that block zoom, autoplaying video with sound, positive `tabIndex`, spacing off the 4px grid, colours written outside the token files, and the same CSS declarations repeated under different selectors. It changes nothing. |
 
-## Trigger Keywords
+The findings are pattern checks; the model confirms each one in the code. Contrast, layout and real keyboard and screen reader use need the running app.
 
-`design a page`, `landing page`, `ui`, `frontend`, `make it look better`, `css`, `tailwind`, `react component`, `dashboard design`, `web page design`
+## Files
 
-## Failure & Recovery Logic
+| File | Read when |
+|---|---|
+| [references/universal-foundation.md](references/universal-foundation.md) | Where the project keeps its design, choosing a direction, spacing, type, colour, states, accessibility, one source per value, motion, languages, avoiding the generated look |
+| [references/web-platform.md](references/web-platform.md) | Web: Modern Web Guidance, native dialogs and popovers, input, Core Web Vitals, structure, checks |
+| [references/mobile-app.md](references/mobile-app.md) | Mobile: safe areas, touch targets, iOS and Android conventions, text scaling, lists, checks |
+| [references/desktop-software.md](references/desktop-software.md) | Desktop: windows, density, keyboard, menus, Electron and Tauri security, checks |
 
-- **Design System Mismatch:** Always reads at least two existing screens or the project's theme configuration (`tailwind.config`, `globals.css`) first so new components do not clash with existing styles.
-- **Small models and small contexts:** the page is written to a file with `write_file`, in one call. A whole page is long, so a small model with an 8K context can run out of room before the call is complete, and then nothing is written; with Qwen3 4B and an 8K context this happened in our tests. Use a larger context (`-c 16384` or more) or a larger model, or ask for one section at a time.
-
-## Installation & Usage
+## Install
 
 ```bash
 cluaiz skill install frontend-design
 ```
 
-Example prompt:
+`ui_audit` needs Python 3. With the `browser` MCP server (`cluaiz mcp install browser`) the model can open the page, take a screenshot and read console errors (it cannot change the window size); with the `web-search` plugin it can look at similar products. With Node.js it can use Modern Web Guidance (`npx modern-web-guidance`), and a Playwright, Chrome DevTools or Figma MCP server is used when one is connected. It works with `workflow-management` for the project's `.agents/` folder and memory.
 
-```text
-Redesign the settings page in src/app/settings/page.tsx to include loading, empty, and error states while matching our existing theme.
-```
+## Example prompts
 
+- "Build a pricing page for this app, using our Tailwind setup."
+- "Check src/components for accessibility problems and repeated styles."
+- "Make the settings screen of this Flutter app work with large text."
+
+## Limits
+
+- `ui_audit` reads source files; it does not render them.
+- The rules are defaults. When the project's design system says otherwise, the project wins.

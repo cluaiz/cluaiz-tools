@@ -3,7 +3,8 @@
   "name": "Learn Cluaiz Guide",
   "category": "utility",
   "hub_type": "skill",
-  "description": "Explains what Cluaiz is and how its Engine and tools work. Use when the user asks about Cluaiz itself.",
+  "icon": "assets/icon.svg",
+  "description": "Explains what Cluaiz is and how to use it: installing, running models, the coding agent, tools, the APIs and CEP, and contributing. Use when the user asks about Cluaiz itself or how to do something with it.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
@@ -11,21 +12,37 @@
   "license": "Apache-2.0",
   "tags": [
     "Tutorial",
-    "Documentation"
+    "Documentation",
+    "Architecture",
+    "API",
+    "Workflows"
   ],
   "dependencies": {
-    "plugins": {},
+    "plugins": {
+      "web-search": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+      }
+    },
     "mcp": {},
     "skills": {}
   },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T09:05:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/cep-api-reference.md",
+          "references/cli-and-agent.md",
+          "references/contributing-guide.md",
+          "references/dynamic-retrieval.md",
+          "references/engine-architecture.md",
+          "references/getting-started.md"
+        ]
       }
     }
   },
@@ -37,7 +54,17 @@
       "cluaiz architecture",
       "explain tools in cluaiz",
       "cluaiz plugin",
-      "cluaiz skill"
+      "cluaiz skill",
+      "how to contribute to cluaiz",
+      "cluaiz cep api",
+      "cluaiz flow automation",
+      "cluaiz agents folder",
+      "cluaiz commands",
+      "cluaiz api",
+      "how to use cluaiz",
+      "cluaiz agent",
+      "install cluaiz",
+      "cep methods"
     ]
   }
 }

@@ -3,7 +3,8 @@
   "name": "Code Interpreter",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Runs code in Python, JavaScript, Bash, PowerShell, Rust, Go, C, C++ and more, using what is installed on this computer, and returns its real output.",
+  "icon": "assets/icon.svg",
+  "description": "Runs code on this computer and returns its real output: calculations, data files, statistics, charts, and checking that code works. Use whenever an answer should come from running code rather than guessing.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
@@ -20,7 +21,10 @@
       "run node",
       "run script",
       "code interpreter",
-      "code runner"
+      "code runner",
+      "analyze this csv",
+      "make a chart",
+      "analyze data file"
     ]
   },
   "dependencies": {
@@ -161,19 +165,16 @@
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T18:25:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
         "references": [
-          "references/LANGUAGES.md",
-          "references/runtime_matrix.md",
-          "references/safety_sandbox.md"
-        ],
-        "assets": [
-          "assets/execution_report.md"
-        ],
-        "icon": "assets/icon.svg"
+          "references/data-analysis-and-charts.md",
+          "references/runtimes.md",
+          "references/safe-runs.md"
+        ]
       }
     }
   },

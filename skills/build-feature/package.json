@@ -3,7 +3,8 @@
   "name": "Build Feature",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "A way of working for a new feature or a bug fix: understand, plan, write a failing test, make it pass, and verify before saying it is done.",
+  "icon": "assets/icon.svg",
+  "description": "A way of working for a new feature or a bug fix: understand, plan, write a failing test, make it pass, and verify before saying it is done. Use when the user asks to add a feature or fix a bug in code.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -11,38 +12,50 @@
   "license": "Apache-2.0",
   "tags": [
     "Workflow",
-    "Planning",
     "TDD",
-    "Testing"
+    "Quality",
+    "Engineering"
   ],
-  "triggers": {
-    "semantic": [
-      "add a feature",
-      "build a feature",
-      "implement",
-      "new feature",
-      "fix this bug",
-      "bug fix",
-      "write tests",
-      "tdd",
-      "plan this",
-      "refactor"
-    ]
-  },
   "dependencies": {
-    "plugins": {},
-    "mcp": {},
+    "plugins": {
+      "web-search": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+      }
+    },
+    "mcp": {
+      "filesystem": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json"
+      }
+    },
     "skills": {}
   },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T16:00:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/working-details.md"
+        ]
       }
     }
+  },
+  "triggers": {
+    "semantic": [
+      "build feature",
+      "fix bug",
+      "implement feature",
+      "add feature",
+      "write tests first",
+      "tdd",
+      "add a feature",
+      "fix this bug",
+      "build a feature"
+    ]
   }
 }

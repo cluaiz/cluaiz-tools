@@ -1,0 +1,116 @@
+{
+  "id": "workflow-management",
+  "name": "Workflow Management",
+  "category": "workflow",
+  "hub_type": "skill",
+  "icon": "assets/icon.svg",
+  "description": "Sets up and runs a project's agent workspace: the .agents/ folder, /command workflows, flows, project memory, sizing work, browser checks and verified reports. Use when organizing a project for agents, making a /command, planning a multi-step task, or saving a decision.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "Workflow",
+    "Agent",
+    "Memory",
+    "Automation",
+    "Orchestration",
+    "Estimation",
+    "Audit"
+  ],
+  "triggers": {
+    "semantic": [
+      "manage workflow",
+      "project setup",
+      "initialize workspace",
+      "save to memory",
+      "remember this decision",
+      "estimate project timeline",
+      "visual verification",
+      "automation flow",
+      "audit my work",
+      "agents folder",
+      "set up agents folder",
+      "create a workflow",
+      "plan this task",
+      "slash command",
+      "/check workflow",
+      "make a command"
+    ]
+  },
+  "dependencies": {
+    "plugins": {
+      "web-search": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+      }
+    },
+    "mcp": {
+      "browser": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json"
+      }
+    },
+    "skills": {}
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-11T03:15:00Z",
+      "files": {
+        "readme": "README.md",
+        "skill": "SKILL.md",
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/memory-journaling.md",
+          "references/workspace-anatomy.md"
+        ],
+        "scripts": [
+          "scripts/workflow.py"
+        ]
+      }
+    }
+  },
+  "functions": [
+    {
+      "name": "create_workflow",
+      "description": "Create a /command workflow for this project: writes .agents/workflows/<name>.md and lists the project's test and build commands.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Command name without the slash, such as check"
+          },
+          "description": {
+            "type": "string",
+            "description": "One line: what it does"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Steps, each with the project's real command, such as \"Run python -m pytest\""
+          },
+          "replace": {
+            "type": "boolean",
+            "description": "true to change an existing workflow, only after the user agrees"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "steps"
+        ]
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/workflow.py\" \"{file}\""
+  }
+}

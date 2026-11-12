@@ -3,7 +3,8 @@
   "name": "Autonomous Tool Creator",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Creates new skills, WebAssembly plugins and MCP packages for Cluaiz, with correct manifests and registry entries.",
+  "icon": "assets/icon.svg",
+  "description": "Creates new skills, WebAssembly plugins and MCP packages for Cluaiz with correct manifests and registry entries, and checks a tool package for problems. Use when the user wants a new tool or asks whether a tool package is correct.",
   "author": {
     "name": "Aryan",
     "url": "https://github.com/cluaiz"
@@ -11,7 +12,8 @@
   "license": "Apache-2.0",
   "tags": [
     "Scaffold",
-    "Developer Tools"
+    "Developer Tools",
+    "Validation"
   ],
   "triggers": {
     "semantic": [
@@ -29,7 +31,10 @@
       "create a tool",
       "new plugin",
       "new skill",
-      "make a plugin"
+      "make a plugin",
+      "validate tool",
+      "check my tool",
+      "validate skill"
     ]
   },
   "dependencies": {
@@ -46,7 +51,7 @@
   "functions": [
     {
       "name": "create_tool",
-      "description": "Create a new skill, WebAssembly plugin or MCP package, installed on this computer and added to the cluaiz-tools repository if that is the open folder.",
+      "description": "Create a new skill, WebAssembly plugin or MCP package with its manifest and registry entry.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -105,18 +110,44 @@
           "description"
         ]
       }
+    },
+    {
+      "name": "validate_tool",
+      "description": "Check a Cluaiz tool package (skill, plugin, MCP) is valid and ready to publish; returns errors and warnings.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "tool_id": {
+            "type": "string",
+            "description": "The tool's id"
+          },
+          "path": {
+            "type": "string",
+            "description": "Or the tool's folder"
+          }
+        },
+        "required": []
+      }
     }
   ],
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T09:12:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
+        "references": [
+          "references/mcp-server-authoring.md",
+          "references/skill-authoring.md",
+          "references/validation-rubric.md",
+          "references/wasm-plugin-authoring.md",
+          "references/workflow-and-flow-authoring.md"
+        ],
         "scripts": [
-          "scripts/scaffold.py"
+          "scripts/scaffold.py",
+          "scripts/validate.py"
         ]
       }
     }

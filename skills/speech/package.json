@@ -3,7 +3,8 @@
   "name": "Speech",
   "category": "audio",
   "hub_type": "skill",
-  "description": "Turns an audio file into text and text into a spoken WAV file, with speech models running on this computer. Nothing is sent online.",
+  "icon": "assets/icon.svg",
+  "description": "Turns an audio file into text and text into a spoken WAV file, with speech models running on this computer. Nothing is sent online. Use to transcribe recordings or read text aloud.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -45,7 +46,7 @@
   "functions": [
     {
       "name": "speech",
-      "description": "Transcribe an audio file to text, or speak text into a WAV file, with the local speech models.",
+      "description": "Transcribe an audio file, speak text into a WAV file, or list voices, with local speech models.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -53,29 +54,30 @@
             "type": "string",
             "enum": [
               "transcribe",
-              "speak"
+              "speak",
+              "voices"
             ],
-            "description": "transcribe: audio file to text. speak: text to a WAV file"
+            "description": "transcribe, speak or voices"
           },
           "file": {
             "type": "string",
-            "description": "transcribe: the audio file to read (wav, mp3, flac, ogg, m4a)"
+            "description": "transcribe: the audio file"
           },
           "text": {
             "type": "string",
-            "description": "speak: the text to say"
+            "description": "speak: the text"
           },
           "output": {
             "type": "string",
-            "description": "speak: where to save the WAV file (default: speech.wav in the open folder)"
+            "description": "speak: WAV path (default speech.wav)"
           },
           "voice": {
             "type": "string",
-            "description": "speak: a voice id, such as af_heart or hf_alpha; leave out for the default"
+            "description": "speak: voice id such as af_heart or hf_alpha"
           },
           "language": {
             "type": "string",
-            "description": "Language code such as en or hi, if known"
+            "description": "Language code such as en or hi"
           }
         },
         "required": [
@@ -93,11 +95,15 @@
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T18:30:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
+        "references": [
+          "references/engine-speech-api.md",
+          "references/tts-voice-engineering.md"
+        ],
         "scripts": [
           "scripts/speech.py"
         ]

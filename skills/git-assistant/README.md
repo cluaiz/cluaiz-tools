@@ -1,51 +1,49 @@
 # Git Assistant
 
-Guides safe local Git workflows: auditing staged changes for secrets or build artifacts, drafting Conventional Commit messages, and resolving merge conflicts cleanly.
+Works with git the way your repository does. It reads the repository's commit style, `CONTRIBUTING.md`, commitlint config, hooks and `.agents/` rules first, checks staged changes for secrets and build output before a commit, writes commit messages in the repository's style, helps split work into clean commits, starts branches, syncs and pushes, resolves merge conflicts, and undoes mistakes the safe way. The model commits, rebases or pushes only when you ask for that step. Pull requests, issues and CI are handled by the `github` skill.
 
-## Technical Specification
-
-- **Purpose:** Prevents accidental credential leaks, compiled binary commits, and tangled multi-feature commits while assisting with merge conflict resolution.
-- **Package Type:** Skill (`SKILL.md` workflow specification loaded on demand)
-- **Platform Support:** Cross-platform (Windows, macOS, Linux)
-- **Integrations:** Uses `git` via terminal commands or the `git` MCP server if installed.
-
-## System Architecture & Workflow
+## How it works
 
 ```mermaid
 flowchart TD
-    Req["User Git Request"] --> Check["1. Inspect State (git status --short & git diff --staged)"]
-    Check --> Audit{"Secrets or Build Junk Found?"}
-    Audit -->|"Yes (.env, keys, target/, node_modules/)"| Halt["Halt & Warn User Before Commit"]
-    Audit -->|"Clean"| Msg["2. Draft Conventional Commit (type(scope): summary)"]
-    Msg --> Confirm["3. Execute Commit / Merge Only on User Confirmation"]
+    Ask["You ask to commit"] --> Check["git_check_staged: staged changes and the repository's conventions"]
+    Check --> Found{"Secrets, .env, build output, large files or conflict markers?"}
+    Found -- "Yes" --> Stop["The model stops and shows each problem"]
+    Found -- "No" --> Message["A message in the repository's style; a split if it is two changes"]
+    Message --> Confirm["You confirm, then it commits"]
+    Confirm --> Push["On request: sync, push, then a pull request with the github skill"]
 ```
 
-## Core Capabilities
+## Function
 
-| Workflow | Steps Executed |
+| Function | What it does |
 |---|---|
-| **Pre-Commit Safety Audit** | Inspects staged files and blocks the commit if API keys, `.env` files, private certificates, `node_modules/`, or `target/` build outputs are staged. |
-| **Conventional Commit Drafting** | Summarizes the actual staged diff into `type(scope): description` (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`) under 72 characters. |
-| **Merge Conflict Resolution** | Lists conflicted files with `git diff --name-only --diff-filter=U`, reads both sides (`<<<<<<<`, `=======`, `>>>>>>>`), explains the conflict, and resolves it without leaving conflict markers behind. |
+| `git_check_staged` | Reads the staged diff and reports secrets (redacted: only the first 4 characters are shown), `.env` and key files, `node_modules/`, `target/` and other build output, files over 5 MB, leftover conflict markers, lines changed per file, and a hint when the files touch several areas. It also returns the repository's conventions: the style of recent commit subjects, files such as `CONTRIBUTING.md`, commitlint config and pull request template, active hooks, commit signing, and how far the branch is ahead of or behind its upstream. It changes nothing. |
 
-## Trigger Keywords
+It runs `git` and Python 3 in the open folder. The model runs other `git` commands through the terminal agent's `run_command` or the `git` MCP server.
 
-`git commit`, `commit message`, `git status`, `git diff`, `audit diff`, `resolve conflict`, `merge conflict`, `conventional commit`
+## Files
 
-## Failure & Recovery Logic
+| File | Read when |
+|---|---|
+| [references/git-details.md](references/git-details.md) | Secrets that were staged or committed, one change per commit, branch names and tidying history, resolving conflicts |
 
-- **Accidental Destructive Operations:** Never runs `git commit`, `git merge`, `git reset`, or branch mutations unless explicitly requested by the user.
-- **Unrelated Changes Mixed in Diff:** Advises staging related files separately so each commit has a single clear purpose.
-
-## Installation & Usage
+## Install
 
 ```bash
 cluaiz skill install git-assistant
 ```
 
-Example prompt:
+Needs `git` and Python 3 on the computer.
 
-```text
-Check my staged changes for any accidentally included secrets and write a conventional commit message.
-```
+## Example prompts
 
+- "Check what I staged and write a commit message."
+- "Start a branch for this fix, commit it and push it."
+- "Help me resolve the conflicts from merging main."
+- "I committed to the wrong branch; fix it."
+
+## Limits
+
+- The secret check uses patterns. It finds common key formats and `password = "..."` style values, not every secret.
+- Interactive commands such as `git rebase -i` open an editor the model cannot drive; the model suggests them for you to run.

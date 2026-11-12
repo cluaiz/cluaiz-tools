@@ -4,52 +4,97 @@
   "category": "engineering",
   "hub_type": "skill",
   "icon": "assets/icon.svg",
-  "description": "Reviews code for bugs, security problems and duplicated logic, in local changes, pasted code, files and pull requests.",
+  "description": "Reviews code in any language for bugs, security holes, data loss, leaks, missing tests and breaks of the project's rules and plans; small or large changes, branches, files or pull requests. Use when the user asks for a code review or whether code is correct or safe.",
   "author": {
-    "name": "Aryan",
+    "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
   "tags": [
     "Code Review",
-    "Security"
+    "Security",
+    "Quality",
+    "Testing"
   ],
   "dependencies": {
     "plugins": {},
-    "mcp": {},
+    "mcp": {
+      "filesystem": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json"
+      }
+    },
     "skills": {}
   },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T16:05:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
         "references": [
-          "references/security_checklist.md",
-          "references/review_rubric.md"
+          "references/architecture-and-dry.md",
+          "references/languages.md",
+          "references/security.md"
         ],
-        "assets": [
-          "assets/icon.svg",
-          "assets/report_template.md"
+        "scripts": [
+          "scripts/review_changes.py"
         ]
       }
     }
   },
   "triggers": {
     "semantic": [
-      "review this code",
-      "review my changes",
-      "audit security",
-      "check for bugs",
-      "code quality audit",
-      "review pr",
       "code review",
-      "security",
-      "bugs",
-      "review"
+      "review code",
+      "review diff",
+      "check security",
+      "audit code",
+      "find bugs",
+      "review pr",
+      "review my changes",
+      "review this code",
+      "is this code safe",
+      "review pull request",
+      "check my diff",
+      "security review",
+      "check this pull request"
     ]
+  },
+  "functions": [
+    {
+      "name": "review_changes",
+      "description": "Get code changes to review from git: the diff riskiest file first, size, languages, the project's context files (AGENTS.md, rules, PRD, plans) and test commands, and hints.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "description": "Branch or commit to compare with, such as main; leave out for uncommitted changes"
+          },
+          "file": {
+            "type": "string",
+            "description": "Only this file's changes"
+          },
+          "context_lines": {
+            "type": "integer",
+            "description": "Context lines per change (default 10)"
+          },
+          "max_chars": {
+            "type": "integer",
+            "description": "Most diff characters (default 6000)"
+          }
+        },
+        "required": []
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/review_changes.py\" \"{file}\""
   }
 }

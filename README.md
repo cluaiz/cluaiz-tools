@@ -97,15 +97,16 @@ differences in detail.
 | Skill | What it does |
 | :--- | :--- |
 | `deep-research` | Plans a research question, searches and reads pages onto disk, and writes a cited Markdown report |
-| `code-reviewer` | Reviews code for bugs, security problems and duplicated logic |
+| `code-reviewer` | Reviews code for bugs, security problems and duplicated logic; collects the diff to review |
 | `code-interpreter` | Runs code in Python, JavaScript, Rust, Go and more, and returns its real output |
 | `build-feature` | Understand, plan, write a failing test, build and verify a feature or a fix |
-| `frontend-design` | Rules for pages and screens that look finished and work for everyone |
-| `git-assistant` | Commit messages, checks of staged changes, and merge conflicts |
+| `frontend-design` | Rules for pages and screens that look finished and work for everyone, and a UI accessibility check |
+| `git-assistant` | Commit messages, a check of staged changes for secrets and build output, and merge conflicts |
 | `github` | Issues, pull requests, CI runs and search through the GitHub CLI |
 | `speech` | Speech to text and text to speech with the Engine's own speech models |
-| `tool-creator` | Creates new skills, plugins and MCP servers for Cluaiz |
+| `tool-creator` | Creates new skills, plugins and MCP servers for Cluaiz, and checks a tool package |
 | `learn-cluaiz` | Explains Cluaiz, its Engine and its tools |
+| `workflow-management` | Works with a project's `.agents/` folder: sizing tasks, project memory, workflows and flows, verified reports |
 
 ### MCP servers
 

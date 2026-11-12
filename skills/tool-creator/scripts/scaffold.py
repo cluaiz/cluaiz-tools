@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Creates a new skill, WebAssembly plugin or MCP package. The Engine calls it with a JSON file of arguments."""
+"""Creates a new skill, WebAssembly plugin or MCP package (create_tool), or checks one (validate_tool).
+The Engine calls it with a JSON file of arguments."""
 
 import json
 import os
@@ -108,6 +109,7 @@ def manifest(spec):
         "name": spec["name"],
         "category": "utility",
         "hub_type": HUB_TYPE[category],
+        "icon": "assets/icon.svg",
     }
     if category == "plugins":
         data["build_type"] = "wasm"
@@ -120,10 +122,9 @@ def manifest(spec):
         "triggers": {"semantic": triggers} if category == "skills" else triggers,
         "dependencies": {"plugins": {}, "mcp": {}, "skills": {}},
     })
-    files = {"readme": "README.md", "icon": "assets/icon.svg"}
+    # Every tool has README.md for people and SKILL.md for the model, MCP servers too
+    files = {"readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg"}
     version = {"updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
-    if category != "mcp":
-        files["skill"] = "SKILL.md"
     if category == "plugins":
         version["builds_os"] = ["wasm"]
         data["functions"] = [{
@@ -184,8 +185,7 @@ def package_files(spec):
             f'  <circle cx="12" cy="12" r="9"/>\n  <path d="M12 8v8M8 12h8"/>\n</svg>\n'
         ),
     }
-    if category != "mcp":
-        files["SKILL.md"] = skill_text(spec)
+    files["SKILL.md"] = skill_text(spec)
     if category == "plugins":
         files["Cargo.toml"] = CARGO_TOML.format(crate=spec["tool_id"].replace("-", "_"))
         files["src/lib.rs"] = LIB_RS.format(name=spec["name"])
@@ -203,6 +203,12 @@ def write_package(folder, files, overwrite):
 
 def main():
     args = read_arguments()
+    if args.get("_fn") == "validate_tool" or ("path" in args and "category" not in args):
+        sys.dont_write_bytecode = True  # no __pycache__ inside the installed tool
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from validate import validate_command
+        validate_command(args)
+        return
     category = str(args.get("category", "")).lower()
     if category in ("skill", "plugin"):
         category += "s"
@@ -247,10 +253,12 @@ def main():
         report["next"] = (
             f"Write the logic in src/lib.rs, then run: cargo build --release --target wasm32-unknown-unknown. "
             f"Copy the .wasm from target/wasm32-unknown-unknown/release/ to {installed / (tool_id + '.wasm')}. "
-            "The plugin cannot run until then."
+            "The plugin cannot run until then. Then call validate_tool with this tool_id."
         )
     elif category == "skills":
-        report["next"] = "Write the real instructions in SKILL.md."
+        report["next"] = "Write the real instructions in SKILL.md, then call validate_tool with this tool_id."
+    else:
+        report["next"] = "Write in SKILL.md when the model should use this server and how, then call validate_tool with this tool_id."
     print(json.dumps(report, indent=2))
 
 

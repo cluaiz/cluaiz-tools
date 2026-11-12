@@ -1,57 +1,50 @@
 # Speech
 
-Transcribes local audio files into text (Speech-to-Text) and synthesizes text into spoken `.wav` audio files (Text-to-Speech) using speech models installed on the host computer. All audio processing happens locally offline.
+Turns an audio file into text, and text into a spoken WAV file, with speech models running on this computer through the Cluaiz Engine. The audio is not sent online.
 
-## Technical Specification
-
-- **Purpose:** Enables offline voice transcription (`transcribe`) and speech synthesis (`speak`) without uploading audio files or text to external cloud APIs.
-- **Package Type:** Executable Skill (`script_runner` backed by `scripts/speech.py`)
-- **Platform Support:** Cross-platform (Windows, macOS, Linux)
-- **Runtime Dependencies:** Python 3 (`{python}`) and locally installed Cluaiz speech models (`~/.cluaiz/models/`).
-
-## System Architecture & Execution Flow
+## How it works
 
 ```mermaid
 flowchart LR
-    User["User Audio or Text Request"] --> Engine["Cluaiz Engine"]
-    Engine -->|"speech(action, ...)"| Script["scripts/speech.py"]
-    Script -->|"action = 'transcribe'"| STT["Local STT Model (Audio -> Text)"]
-    Script -->|"action = 'speak'"| TTS["Local TTS Model (Text -> WAV)"]
-    STT --> Out1["Transcript JSON"]
-    TTS --> Out2["Saved .wav File Path"]
+    Ask["Transcribe, speak, or list voices"] --> Fn["speech function"]
+    Fn --> Engine["Local Cluaiz Engine"]
+    Engine --> STT["/v1/audio/transcriptions: text"]
+    Engine --> TTS["/v1/audio/speech: WAV file"]
+    Engine --> Voices["CEP audio.voices: voice list"]
 ```
 
-## API Contract
+## Function
 
-### Function: `speech`
+| Function | What it does |
+|---|---|
+| `speech` | `transcribe`: an audio file (WAV, MP3, FLAC, OGG, Opus, M4A) to text; the Engine decodes and splits long recordings itself. `speak`: text to a WAV file at `output`. `voices`: the voices of the installed speech model, optionally for one `language`. |
 
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `action` | `string` | Yes | `"transcribe"` (audio file to text) or `"speak"` (text to `.wav` file). |
-| `file` | `string` | For `transcribe` | Path to the input audio file (`.wav`, `.mp3`, `.m4a`, `.flac`, `.ogg`), relative to the workspace or absolute. |
-| `text` | `string` | For `speak` | Text content to synthesize into spoken audio. |
-| `output` | `string` | No | Output `.wav` file path for `"speak"` (defaults to `speech_output.wav` in the workspace). |
-| `voice` | `string` | No | Optional local voice identifier for synthesis. |
-| `language` | `string` | No | Optional language code (e.g., `"en"`, `"hi"`). |
+## Files
 
-## Failure & Recovery Logic
+| File | Read when |
+|---|---|
+| [references/engine-speech-api.md](references/engine-speech-api.md) | Formats, languages, models, errors |
+| [references/tts-voice-engineering.md](references/tts-voice-engineering.md) | Choosing a voice and preparing text to be spoken |
 
-- **Missing Local Speech Model:** If no STT or TTS model is found in the local Cluaiz models directory, `scripts/speech.py` returns an explicit error message instructing the user which speech model to download first.
-- **Unsupported or Missing Audio File:** Validates that the target audio file exists on disk before invoking the model and returns a structured JSON error if the path is invalid.
-
-## Installation & Usage
+## Install
 
 ```bash
 cluaiz skill install speech
+cluaiz pull onnx-community/moonshine-tiny-ONNX     # speech to text, English
+cluaiz pull onnx-community/Kokoro-82M-v1.0-ONNX    # text to speech
+cluaiz serve
 ```
 
-Example prompts:
+For languages other than English, a Whisper model such as `onnx-community/whisper-large-v3-turbo` transcribes many languages. Needs Python 3.
 
-```text
-Transcribe recordings/standup.wav and list the action items mentioned.
-```
+## Example prompts
 
-```text
-Read this summary aloud into summary.wav using the speech tool.
-```
+- "Transcribe meeting.mp3 and list the decisions."
+- "Read this paragraph aloud into welcome.wav."
+- "Which Hindi voices are there?"
 
+## Limits
+
+- The Engine must be running (`cluaiz serve`).
+- Timestamps per segment are not returned yet.
+- The model never downloads a speech model on its own; it tells you the `cluaiz pull` command.

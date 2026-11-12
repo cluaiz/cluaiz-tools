@@ -1,74 +1,49 @@
 # Code Interpreter
 
-Executes source code locally in Python, JavaScript/Node.js, TypeScript, Rust, Go, C, C++, Bash, PowerShell, PHP, Ruby, Lua, and R using the runtimes installed on the host machine, returning real `stdout`, `stderr`, and exit codes.
+Runs code on this computer and gives the model the real output, so answers come from running code instead of guessing: calculations, data files (CSV, JSON), summary statistics, charts, and checking that a piece of code works. Python is the default; JavaScript, TypeScript, Bash, PowerShell, Rust, Go, C, C++ and others work when their runtime is installed.
 
-## Technical Specification
-
-- **Purpose:** Eliminates mental execution guesswork by writing code to a temporary workspace scratch file, running it against the local compiler or interpreter, and returning actual process output.
-- **Package Type:** Executable Skill (`script_runner`)
-- **Platform Support:** Cross-platform (Windows, macOS, Linux)
-- **Scratch Directory:** `<workspace>/scratch/`
-- **Default Language:** `python`
-
-## System Architecture & Execution Flow
+## How it works
 
 ```mermaid
-sequenceDiagram
-    actor User as "User"
-    participant Engine as "Cluaiz Engine"
-    participant Runner as "Script Runner (scratch/)"
-    participant Runtime as "Local Compiler / Interpreter"
-
-    User->>Engine: "Prompt requiring calculation or code execution"
-    Engine->>Engine: "load_tool('code-interpreter')"
-    Engine->>Runner: "execute_code(language, code, timeout)"
-    Runner->>Runner: "Write source file to scratch/temp.<ext>"
-    Runner->>Runtime: "Spawn process (python / node / rustc / go)"
-    Runtime-->>Runner: "exit_code, stdout, stderr"
-    Runner-->>Engine: "Structured JSON execution report"
-    Engine-->>User: "Verified output from real execution"
+flowchart TD
+    Ask["A question that needs a computed answer"] --> Write["The model writes a short program"]
+    Write --> Run["execute_code runs it in the open folder"]
+    Run --> Check{"exit_code 0?"}
+    Check -- "No" --> Fix["Read stderr, fix, run again (3 tries)"]
+    Fix --> Run
+    Check -- "Yes" --> Report["Report the code, its output and what it means"]
 ```
 
-## API Contract & Supported Languages
+## Function
 
-### Function: `execute_code`
+| Function | What it does |
+|---|---|
+| `execute_code` | Writes the code to a temporary file in `scratch/`, runs it with the language's runtime, and returns `exit_code`, `stdout` and `stderr`. A run is stopped after 30 seconds, or after `timeout` seconds. |
 
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `language` | `string` | Yes | Target language identifier (`python`, `javascript`, `typescript`, `rust`, `go`, `c`, `cpp`, `powershell`, `bash`, `php`, `ruby`, `lua`, `r`). |
-| `code` | `string` | Yes | Complete source code to execute. Must print final results to standard output. |
-| `timeout` | `integer` | No | Maximum execution time in seconds before the process is terminated (default `30`). |
+## Files
 
-### Language Dispatch Matrix
+| File | Read when |
+|---|---|
+| [references/runtimes.md](references/runtimes.md) | Languages and their runners, choosing one, installing a runtime |
+| [references/data-analysis-and-charts.md](references/data-analysis-and-charts.md) | Reading data files, summary numbers, charts |
+| [references/safe-runs.md](references/safe-runs.md) | What the Engine limits, and keeping long runs, big files, child processes and files safe |
 
-| Language Key | File Extension | Execution Command Template |
-|---|---|---|
-| `python` / `py` | `.py` | `{python} "{file}"` |
-| `javascript` / `js` / `node` | `.js` | `node "{file}"` |
-| `typescript` / `ts` | `.ts` | `npx ts-node "{file}"` |
-| `rust` / `rs` | `.rs` | `rustc "{file}" -o "{bin}" && "{bin}"` |
-| `go` / `golang` | `.go` | `go run "{file}"` |
-| `c` | `.c` | `gcc "{file}" -o "{bin}" && "{bin}"` |
-| `cpp` / `c++` | `.cpp` | `g++ "{file}" -o "{bin}" && "{bin}"` |
-| `powershell` / `ps1` / `pwsh` | `.ps1` | `powershell -File "{file}"` / `pwsh -File "{file}"` |
-| `bash` / `sh` | `.sh` | `bash "{file}"` |
-| `php` / `ruby` / `lua` / `r` | `.php` / `.rb` / `.lua` / `.r` | `php` / `ruby` / `lua` / `Rscript "{file}"` |
-
-## Failure & Recovery Logic
-
-- **Missing Local Runtime:** If the requested language compiler or interpreter is not installed on the host `PATH`, `execute_code` returns a non-zero `exit_code` and `stderr` message so the model can report the missing dependency or switch to an installed language.
-- **Infinite Loops / Hangs:** Bounded by the `timeout` parameter; runaway processes are terminated when the deadline expires.
-- **Permission Boundary:** Runs with the user's account permissions in the open workspace folder (`security_mode: require_approval`).
-
-## Installation & Usage
+## Install
 
 ```bash
 cluaiz skill install code-interpreter
 ```
 
-Example prompt:
+Needs the runtime of each language you use; Python 3 covers most tasks.
 
-```text
-Run a Python script to benchmark SHA-256 hashing of a 10 MB buffer and print the elapsed milliseconds.
-```
+## Example prompts
 
+- "How much is 10,000 at 7% a year after 30 years? Show a table by decade."
+- "Summarize sales.csv: rows, mean and median price, and a bar chart by month."
+- "Check this sort function against 1,000 random lists."
+
+## Limits
+
+- The code is not sandboxed: it runs with your rights in the open folder. The model is told not to delete or overwrite files you did not name.
+- There is no memory limit; the model reads large files in chunks.
+- Servers and programs that wait for input do not fit; a run stops at its timeout.

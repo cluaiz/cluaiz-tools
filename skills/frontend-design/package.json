@@ -3,7 +3,8 @@
   "name": "Frontend Design",
   "category": "design",
   "hub_type": "skill",
-  "description": "Rules for web pages and app screens that look finished: layout, type, color, spacing, states, responsiveness and accessibility.",
+  "icon": "assets/icon.svg",
+  "description": "Designs and builds web, mobile and desktop UIs that fit the project: its design system, tokens and plans first, every state, themes and accessibility, no duplicated styles, checked with the project's tools. Use when the user asks to design, build, restyle or review a UI.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -13,7 +14,11 @@
     "Frontend",
     "UI",
     "Design",
-    "CSS"
+    "CSS",
+    "Web-Standards",
+    "Mobile-Design",
+    "Desktop-Design",
+    "Accessibility"
   ],
   "triggers": {
     "semantic": [
@@ -26,23 +31,66 @@
       "tailwind",
       "react component",
       "dashboard design",
-      "web page design"
+      "web page design",
+      "mobile app design",
+      "desktop software design"
     ]
   },
   "dependencies": {
-    "plugins": {},
-    "mcp": {},
+    "plugins": {
+      "web-search": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+      }
+    },
+    "mcp": {
+      "browser": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json"
+      }
+    },
     "skills": {}
   },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-10T04:30:48Z",
+      "updated_at": "2026-11-11T03:00:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/desktop-software.md",
+          "references/mobile-app.md",
+          "references/universal-foundation.md",
+          "references/web-platform.md"
+        ],
+        "scripts": [
+          "scripts/ui_audit.py"
+        ]
       }
     }
+  },
+  "functions": [
+    {
+      "name": "ui_audit",
+      "description": "Check UI code (HTML, JSX, Vue, Svelte, CSS, Flutter, SwiftUI, Compose) for accessibility problems, hardcoded colours and repeated styles, and list the project's framework, tokens and components.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "File or folder (default: the open folder)"
+          }
+        },
+        "required": []
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/ui_audit.py\" \"{file}\""
   }
 }

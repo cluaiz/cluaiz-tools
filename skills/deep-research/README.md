@@ -1,80 +1,52 @@
 # Deep Research
 
-Decomposes complex research questions into sub-questions, searches the web, saves full source pages to disk, verifies every inline quote against stored sources, and compiles a cited Markdown (`.md`) report in the user's workspace.
+Researches a question on the web and writes a cited Markdown report into your workspace. It splits the question into sub-questions, searches, saves every page it reads to disk, writes one section per sub-question with a source tag on each claim, and checks the tags against the saved pages. Only short facts reach the model, so it works with small contexts (4K, 8K, 16K).
 
-## Technical Specification
-
-- **Purpose:** Enables multi-source technical and literature research without overflowing small model context windows (4K–16K tokens) by persisting all raw web pages, extracted facts, and progress state on disk under `<workspace>/research/<slug>/`.
-- **Package Type:** Executable Skill (`script_runner` backed by `scripts/research.py`)
-- **Platform Support:** Cross-platform (Windows, macOS, Linux)
-- **Runtime Dependencies:** Python 3 (`{python}`)
-
-## System Architecture & Execution Flow
+## How it works
 
 ```mermaid
 flowchart TD
-    Q["User Research Question"] --> Start["1. research_start (Create research/<slug>/)"]
-    Start --> Plan["2. research_plan (2-7 Sub-Questions)"]
-    Plan --> Search["3. research_search (Deduplicate URLs -> S1..Sn)"]
-    Search --> Read["4. research_read (Save sources/Sn.md + Extract Quotes)"]
-    Read --> Status["5. research_status (Check Coverage & Context Recovery)"]
-    Status -->|"More sources needed"| Search
-    Status -->|"Ready to synthesize"| Write["6. research_write (Verify [Sn] Citations -> report.md)"]
+    Q["Your question"] --> Start["research_start: budget from mode and context size"]
+    Start --> Plan["research_plan: sub-questions (deep mode: you confirm)"]
+    Plan --> Search["research_search per sub-question"]
+    Search --> Read["research_read: full page to sources/Sn.md, top facts back"]
+    Read --> Write["research_write: one section each, [Sn] on every claim"]
+    Write --> Final["research_write finalize: report.md with a Sources list"]
 ```
 
-## API Contract (6 Stateful Functions)
+## Functions
 
-| Function | Required Parameters | Optional Parameters | Role |
-|---|---|---|---|
-| `research_start` | `question` | `mode` (`quick`/`standard`/`deep`), `output`, `context_tokens` | Initializes the workspace folder `research/<slug>/` and calculates per-call token budgets. |
-| `research_plan` | `id`, `sub_questions` | `confirmed` | Stores 2 to 7 sub-questions on disk; in `deep` mode, pauses for user confirmation before searching. |
-| `research_search` | `id`, `sub_question`, `query` | — | Queries web search providers, deduplicates URLs across the project, and assigns stable citation IDs (`S1`, `S2`, ...). |
-| `research_read` | `id`, `source` | `sub_question` | Downloads the full web page to `sources/Sn.md` and returns only the highest-scoring passages with verbatim quotes. |
-| `research_status` | `id` | — | Reads disk state (`project.json`) so the model can resume seamlessly even if the conversation context was truncated. |
-| `research_write` | `id` | `section`, `text`, `sections`, `output`, `finalize` | Writes individual sections or finalizes the report, verifying that every `[Sn]` citation points to a real downloaded source. |
+| Function | What it does |
+|---|---|
+| `research_start` | Creates `research/<id>/` and sets the budget from `mode` and `context_tokens` |
+| `research_plan` | Saves the sub-questions; in `deep` mode it waits for `confirmed: true` |
+| `research_search` | Searches through the `web-search` plugin and lists sources `S1`, `S2`, ... |
+| `research_read` | Saves a page to `sources/Sn.md` and returns its most relevant facts |
+| `research_status` | Rebuilds where the research is from disk |
+| `research_write` | Saves a section, or with `finalize: true` writes and checks the report |
 
-## Disk Layout
+## Files
 
-```text
-<workspace>/research/<slug>/
-├── state.json         # Question, mode, sub-questions, budget and progress
-├── sources.json       # Source registry (S1..Sn), also written as sources.csv
-├── notes.jsonl        # Facts and exact quotes taken from read pages
-├── sources/
-│   ├── S1.md          # Full text of fetched source S1
-│   └── S2.md          # Full text of fetched source S2
-├── sections/          # Sections written by the model
-└── report.md          # Final verified Markdown report with bibliography
-```
+| File | Read when |
+|---|---|
+| [references/research-method.md](references/research-method.md) | Budgets and modes, splitting the question, choosing sources, writing sections |
 
-## Failure & Recovery Logic
-
-- **Context Truncation Recovery:** Because all state lives on disk, calling `research_status` restores full progress at any point.
-- **The report is always written:** `research_write` with `finalize: true` never refuses. A section the model did not write is made from up to three saved quotes, and a sub-question with no sources says "Not enough sources were found for this question". The result names both.
-- **Citation Verification:** Unknown `[Sn]` tags are removed from a section, and a section with no valid tag is written from the notes instead.
-- **A step budget:** each mode has a budget of searches and reads (quick: 3 sub-questions, one search and two reads each). Once it is used, every result tells the model to finalize.
-- **Bad searches:** a search that finds no new source related to the query says so and tells the model to move on.
-- **Blocked Web Pages:** If a URL blocks automated fetching, `research_read` records the failure on disk so the agent can select an alternate source.
-
-## Search key
-
-Without a search key, searches fall back to DuckDuckGo, which blocks after a few queries, and then Wikipedia. For dependable research, add a free key or a SearXNG server:
-
-```bash
-cluaiz plugin config web-search TAVILY_API_KEY
-```
-
-When search fails, the result tells the model to search with the browser tool (`agent_browser_open`) if it has it, or to ask the user to install it (`cluaiz mcp install browser`). The skill never installs anything itself.
-
-## Installation & Usage
+## Install
 
 ```bash
 cluaiz skill install deep-research
+cluaiz plugin install web-search
+cluaiz plugin config web-search TAVILY_API_KEY    # optional, gives better search results
 ```
 
-Example prompt:
+Needs Python 3. Without a search key, search falls back to fewer sources. With the `browser` MCP server installed, the model can read search result pages itself.
 
-```text
-Do deep research comparing SQLite WAL mode and LMDB memory-mapped B+trees for embedded Rust storage, and save the cited report to storage-comparison.md.
-```
+## Example prompts
 
+- "Research how SQLite and DuckDB handle concurrent writes and save a report."
+- "Deep research: open-source speech-to-text models that run on a laptop, with sources."
+
+## Limits
+
+- The report covers only what the sources it read say; the model is told not to add facts from memory.
+- Search quality depends on the search provider and key.

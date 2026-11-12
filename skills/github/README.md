@@ -1,58 +1,49 @@
 # GitHub
 
-Interacts with GitHub repositories, issues, pull requests, code reviews, workflow runs, and search using the official GitHub CLI (`gh`).
+Works with GitHub through the GitHub CLI (`gh`), or the GitHub REST API for public repositories when `gh` is not installed: reads issues, pull requests, CI runs, releases and search results, finds why CI failed, and drafts pull request descriptions and release notes. Anything other people would see (an issue, a comment, a review, a merge) is done only when you ask, and the text is shown to you first.
 
-## Technical Specification
-
-- **Purpose:** Enables direct inspection and management of GitHub pull requests, issues, and CI workflow logs using the user's existing `gh` authentication without handling raw personal access tokens in prompts.
-- **Package Type:** Skill (`SKILL.md` CLI orchestration workflow)
-- **Platform Support:** Cross-platform (Windows, macOS, Linux)
-- **Runtime Dependencies:** [GitHub CLI (`gh`)](https://cli.github.com) installed and authenticated via `gh auth login`.
-
-## System Architecture & Execution Flow
+## How it works
 
 ```mermaid
-sequenceDiagram
-    actor User as "User"
-    participant Engine as "Cluaiz Engine"
-    participant GH as "GitHub CLI (gh)"
-    participant API as "GitHub REST / GraphQL API"
-
-    User->>Engine: "Inspect failing CI run or PR"
-    Engine->>Engine: "load_tool('github')"
-    Engine->>GH: "1. Verify session (gh auth status)"
-    GH-->>Engine: "Authenticated session verified"
-    Engine->>GH: "2. Run read/write subcommand (gh pr / gh issue / gh run)"
-    GH->>API: "Authenticated HTTPS request"
-    API-->>GH: "Structured response / logs"
-    GH-->>Engine: "CLI output"
-    Engine-->>User: "Summarized status or action report"
+flowchart TD
+    Ask["You ask about GitHub"] --> Read["github_read: one read-only gh command, or the GitHub API without gh"]
+    Read --> Answer["The model explains: the failing step, the diff, the issues"]
+    Answer --> Write{"You ask it to post or merge?"}
+    Write -- "Yes" --> Run["run_command with your approval"]
+    Write -- "No" --> Done["Nothing changes on GitHub"]
 ```
 
-## Supported Operations
+## Function
 
-| Domain | Commands Used |
+| Function | What it does |
 |---|---|
-| **Authentication Check** | `gh auth status` (prompts user to run `gh auth login` if unauthenticated; never asks for raw tokens). |
-| **Pull Requests** | `gh pr list`, `gh pr view <num>`, `gh pr diff <num>`, `gh pr checks <num>`, `gh pr create`. |
-| **Issues** | `gh issue list`, `gh issue view <num> --comments`, `gh issue create`. |
-| **CI & GitHub Actions** | `gh run list`, `gh run view <id>`, `gh run view <id> --log-failed` to pinpoint exact failing steps. |
-| **Search** | `gh search repos`, `gh search issues`, `gh search prs`, `gh search code`. |
+| `github_read` | Runs one `gh` command that only reads: `issue list/view`, `pr list/view/diff/checks`, `run list/view` (with `--log-failed`), `search`, `repo view`, `release list/view`, and `gh api` GET requests. Commands that create, edit, comment, merge or delete are refused. Long output is cut. |
 
-## Failure & Recovery Logic
+This works in chat and in the terminal agent. Writing to GitHub needs the terminal agent's `run_command`, which asks you first.
 
-- **Missing or Unauthenticated `gh` CLI:** Checks `gh auth status` first; if `gh` is missing or logged out, provides the exact install or login command instead of failing mid-workflow.
-- **Outside a Cloned Repository:** Automatically appends `-R owner/repo` when running commands outside a local Git working tree.
+## Files
 
-## Installation & Usage
+| File | Read when |
+|---|---|
+| [references/github-tasks.md](references/github-tasks.md) | CI failure causes, issue triage and splitting, pull request descriptions and review follow-up, versions, changelogs and releases |
+
+## Install
 
 ```bash
 cluaiz skill install github
 ```
 
-Example prompt:
+Needs Python 3. With the GitHub CLI from https://cli.github.com, signed in with `gh auth login`, it reads everything your login can see. Without `gh`, it reads public repositories through the GitHub REST API (no CI logs or code search, and GitHub allows about 60 requests an hour without sign-in). The model never asks for a token. When a GitHub MCP server is connected, the model uses it first.
 
-```text
-Check the latest failed GitHub Actions workflow run on this repo and show me why the build step failed.
-```
+## Example prompts
 
+- "Why did the last CI run fail?"
+- "What does pull request 45 change, and are its checks green?"
+- "Group the open issues by label."
+- "Open a pull request for this branch with our template."
+- "Draft release notes since the last tag."
+
+## Limits
+
+- It sees only what your `gh` login can see; without `gh`, only public repositories.
+- Very long logs and diffs are cut; the model narrows them with `--limit`, `--json` or a single job.

@@ -41,6 +41,10 @@
     "deep-research": {
       "type": "local",
       "path": "deep-research/package.json"
+    },
+    "workflow-management": {
+      "type": "local",
+      "path": "workflow-management/package.json"
     }
   }
 }

@@ -3,7 +3,8 @@
   "name": "GitHub",
   "category": "engineering",
   "hub_type": "skill",
-  "description": "Works with GitHub through the GitHub CLI: issues, pull requests, CI runs, reviews and search. Needs gh, signed in.",
+  "icon": "assets/icon.svg",
+  "description": "Works with GitHub: issues, pull requests, CI runs, reviews, releases and search, through gh or, for public repositories, the GitHub REST API. Use for anything on github.com, such as why CI failed or what a pull request changes.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -11,32 +12,11 @@
   "license": "Apache-2.0",
   "tags": [
     "GitHub",
-    "Pull Requests",
-    "Issues",
-    "CI"
+    "PR",
+    "CI",
+    "Release",
+    "Issues"
   ],
-  "triggers": {
-    "semantic": [
-      "github",
-      "pull request",
-      "pr",
-      "issue",
-      "issues",
-      "ci failed",
-      "github actions",
-      "workflow run",
-      "review this pr",
-      "open a pr",
-      "gh",
-      "github issues",
-      "open issues",
-      "list issues",
-      "pull requests",
-      "github cli",
-      "github repository",
-      "github repo"
-    ]
-  },
   "dependencies": {
     "plugins": {},
     "mcp": {},
@@ -45,12 +25,71 @@
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
-      "updated_at": "2026-11-09T10:15:26Z",
+      "updated_at": "2026-11-11T17:20:00Z",
       "files": {
         "readme": "README.md",
         "skill": "SKILL.md",
-        "icon": "assets/icon.svg"
+        "icon": "assets/icon.svg",
+        "references": [
+          "references/github-tasks.md"
+        ],
+        "scripts": [
+          "scripts/gh_read.py"
+        ]
       }
     }
+  },
+  "triggers": {
+    "semantic": [
+      "github",
+      "pull request",
+      "github issue",
+      "github pr",
+      "ci failure",
+      "github actions",
+      "gh pr view",
+      "gh run",
+      "create release",
+      "why did ci fail",
+      "list issues",
+      "review pull request",
+      "release notes",
+      "github release"
+    ]
+  },
+  "functions": [
+    {
+      "name": "github_read",
+      "description": "List or read GitHub issues, pull requests, CI runs, releases and repositories (read-only; uses gh, or the GitHub API for public repositories).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "gh arguments without gh, such as [\"issue\", \"list\", \"--limit\", \"5\"]"
+          },
+          "repo": {
+            "type": "string",
+            "description": "owner/name, when not inside a clone"
+          },
+          "max_chars": {
+            "type": "integer",
+            "description": "Most output characters (default 8000)"
+          }
+        },
+        "required": [
+          "args"
+        ]
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "scratch_dir": "scratch",
+    "default_language": "python",
+    "command": "{python} \"{tool_dir}/scripts/gh_read.py\" \"{file}\""
   }
 }
