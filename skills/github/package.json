@@ -40,6 +40,16 @@
       ]
     }
   },
+  "env": {
+    "GH_TOKEN": {
+      "info": "A GitHub token, for private repositories and a higher rate limit without gh",
+      "need": "optional"
+    },
+    "GITHUB_TOKEN": {
+      "info": "The same as GH_TOKEN, under the other common name",
+      "need": "optional"
+    }
+  },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

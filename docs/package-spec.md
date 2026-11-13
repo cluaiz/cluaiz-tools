@@ -253,7 +253,7 @@ One rule for every tool type:
 
 - **Where the value comes from:** the system environment variable of that name first, then the value the user saved in Cluaiz with `cluaiz <kind> config <id> <name>`, the App, or `tools.set_settings` (`user_settings`). Values are typed hidden and never written into the tool's folder.
 - **What the tool gets:**
-  - An MCP server or a skill's script gets the value as an environment variable.
+  - An MCP server or a skill's script gets the value as an environment variable. It gets no other value of the Engine's environment: only the system variables a program needs to run (where programs, the user's folders and temporary files are, the language and time zone, a proxy, language toolchains, and `CLUAIZ_HOME`, `CLUAIZ_PORT`, `CLUAIZ_API_URL`), plus an MCP server's fixed `execution.env`. A key the tool reads must be named here, or the tool does not see it.
   - A WebAssembly plugin never sees the value. It writes `{{secret:NAME}}` in a request header, or `{{url:NAME}}` at the start of a URL, and the Engine fills it in. This needs the `network` permission.
 - **Where a value may go:** with `strict` access, only to the listed hosts. With `full` access, to any public host the tool reaches; the install plan tells the user this.
 - **Local addresses:** the Engine refuses local and private addresses, except an address the user typed into one of these settings, such as their own server on `localhost`.

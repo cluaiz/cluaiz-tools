@@ -38,6 +38,13 @@ While a permission is refused, the Engine asks before each call. The tool runs a
 
 Allow or refuse them with `cluaiz skill permission github [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
 
+| Setting (`env`) | Need | Info |
+|---|---|---|
+| `GH_TOKEN` | optional | A GitHub token, for private repositories and a higher rate limit without gh |
+| `GITHUB_TOKEN` | optional | The same as GH_TOKEN, under the other common name |
+
+The Engine reads each from the system environment variable of that name first; otherwise set it with `cluaiz skill config github <NAME>`. Values are hidden and never stored in the tool's folder.
+
 No dependencies.
 
 ## Install
