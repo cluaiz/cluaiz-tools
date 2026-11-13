@@ -6,40 +6,39 @@ category: "Tutorials"
 
 # 2. Settings in MCP servers
 
-An MCP server reads its settings from its environment, as any program does.
+An MCP server reads its settings from its environment, as any program does. A `package.json` has two places for them.
 
-## What works
-
-| Source | Reaches the server | Status |
+| Place | For | Reaches the server |
 |---|---|---|
-| `execution.env` in `package.json` | Yes, used as written | **Works** |
-| The environment of the Engine's process | Yes, it is inherited | **Works** |
-| Command-line values in `execution.args` | Yes | **Works** |
-| `cluaiz mcp config` | Edits the installed `package.json` | **Works** |
+| `execution.env` | Fixed values that are the same for every user, such as `MODE=fast` | As written. `${NAME}` is not expanded |
+| Top-level `env` | Values each user gives, such as a key or a connection string | As an environment variable, from the system environment or `cluaiz mcp config` |
+| `execution.args` | Fixed command-line values | As written |
 
 ```json
 "execution": {
   "command": "npx",
-  "args": ["-y", "some-server"],
-  "env": { "MODE": "fast" }
+  "args": ["-y", "@upstash/context7-mcp@4.5.1"]
+},
+"env": {
+  "CONTEXT7_API_KEY": { "info": "A free Context7 key, for a higher rate limit", "need": "optional" }
 }
 ```
+
+## Where a value comes from
+
+1. The system environment variable of that name, if it is set.
+2. Otherwise the value the user saved: `cluaiz mcp config context7 CONTEXT7_API_KEY` (asked for hidden when the value is left out), the App, or CEP `tools.set_settings` with `user_settings`.
+
+The value is kept in the Engine's `config/tool_settings.json`, not in the server's folder. A change applies the next time the server starts. A missing `required` value is asked for at install.
+
+## Secrets
+
+Never put a real key in a published `package.json`, and never in `execution.env`. Name it in `env`, and say in `SKILL.md` what the model should tell the user when it is missing.
 
 ## What does not exist
 
 | Described in older pages | Today |
 |---|---|
-| `${GITHUB_TOKEN}` expansion in `env` | **Planned.** It is passed as the literal text |
-| `system_bindings` | Not available |
-| `SYSTEM_BOOSTER__*` and `SETTINGS__*` variables | Not available |
-
-## Secrets
-
-Never put a real key in a published `package.json`. Until expansion exists, a server that needs a key can read it from the environment, and the user sets that variable before starting the Engine:
-
-```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="..."
-cluaiz serve
-```
-
-Say which variable is needed in the description and in `SKILL.md`.
+| `${GITHUB_TOKEN}` expansion in `execution.env` | Not supported. Use the top-level `env` |
+| `user_env` | Replaced by the top-level `env` |
+| `system_bindings`, `SYSTEM_BOOSTER__*`, `SETTINGS__*` | Not available |

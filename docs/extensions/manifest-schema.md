@@ -34,13 +34,17 @@ This document defines the formal schema and configuration fields for **Extension
     "skills": {
       "learn-cluaiz": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/skills/learn-cluaiz/package.json",
+        "need": "optional",
+        "info": "Answers questions about Cluaiz"
       }
     },
     "extensions": {
       "browser-voice": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/extensions/browser-voice/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/extensions/browser-voice/package.json",
+        "need": "required",
+        "info": "Its voice and lip sync use the browser speech of browser-voice"
       }
     }
   },
@@ -104,21 +108,21 @@ The `dependencies` dictionary declares required capabilities from any of the fou
 ```json
 "dependencies": {
   "plugins": {
-    "<plugin-id>": { "version": "^1.0.0", "url": "https://..." }
+    "<plugin-id>": { "version": "^1.0.0", "url": "https://...", "need": "optional", "info": "..." }
   },
   "mcp": {
-    "<mcp-id>": { "version": "^1.0.0", "url": "https://..." }
+    "<mcp-id>": { "version": "^1.0.0", "url": "https://...", "need": "optional", "info": "..." }
   },
   "skills": {
-    "<skill-id>": { "version": "^1.0.0", "url": "https://..." }
+    "<skill-id>": { "version": "^1.0.0", "url": "https://...", "need": "optional", "info": "..." }
   },
   "extensions": {
-    "<extension-id>": { "version": "^1.0.0", "url": "https://..." }
+    "<extension-id>": { "version": "^1.0.0", "url": "https://...", "need": "optional", "info": "..." }
   }
 }
 ```
 
-Every entry has this form: the key is the tool id, `version` is a version range and `url` is the raw `package.json` of that tool in `cluaiz-tools`. A bare string such as `"plugins/web-search"` is not valid, and `validate_tool` reports it.
+Every entry has this form: the key is the tool id, `version` is a version range, `url` is the raw `package.json` of that tool in `cluaiz-tools`, and `need` (`required`, `recommended` or `optional`) with `info` says how much the extension depends on it. See [Package specification](../package-spec.md#dependencies). A bare string such as `"plugins/web-search"` is not valid, and `validate_tool` reports it.
 
 **Status:** installing a tool installs the plugins, MCP servers and skills it lists that are missing; version ranges are not checked yet, and `extensions` entries are not installed. See [Package specification](../package-spec.md#dependencies).
 

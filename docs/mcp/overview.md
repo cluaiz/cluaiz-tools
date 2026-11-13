@@ -38,18 +38,22 @@ sequenceDiagram
 - Its tool list is cached after the first start, and the matcher then uses it.
 - The user needs whatever the command needs, usually Node for `npx` or `uv` for `uvx`. Say so in the description.
 - A call asks for approval under the security mode. A user can trust a server's read-only marks, with `trust_annotations`.
+- A server is a normal program, so the Engine cannot block what it reaches. It declares its permissions in `permissions`, and while the user refuses one, the Engine asks before each call.
+- Settings and keys the user gives are named in `env`. The server gets each as an environment variable, from the system environment or from `cluaiz mcp config <id> <NAME>`.
 
 ## What is in a package
 
 ```
 mcp/git/
-├── package.json        Required: how to start it
-├── assets/icon.svg     Required
-└── SKILL.md            Optional: guidance for the model
+├── package.json        Required: how to start it, permissions, settings, dependencies
+├── README.md           Required: for people, with a Mermaid diagram
+├── SKILL.md            Required: short guidance for the model
+└── assets/icon.svg     Required
 ```
 
 ## Where to go next
 
+- [MCP server package.json](package-json.md): a complete, real manifest, field by field
 - [Package fields](manifest-schema.md)
 - [Tutorial: connect a server](tutorial-connect-mcp.md)
 - [Engine integration](../architecture/engine-integration.md#mcp-servers)

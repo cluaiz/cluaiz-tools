@@ -82,7 +82,7 @@ Other agents' repositories already use the open formats, so they need a small ma
 | What the repository has | How it maps |
 |---|---|
 | `skills/<name>/SKILL.md` (Agent Skills) | Each folder is a Cluaiz skill. Add `package.json` and an icon |
-| `.mcp.json` or `mcp.json` (`mcpServers`) | Each server's `command`, `args` and `env` become `execution` in `package.json` |
+| `.mcp.json` or `mcp.json` (`mcpServers`) | Each server's `command` and `args` become `execution`. Fixed `env` values go in `execution.env`; values each user gives, such as keys, go in the top-level `env` |
 | Hooks and slash commands from another agent | No equivalent in Cluaiz |
 
 The Engine stays simple this way: it reads one package format and the open formats inside it. A person or an AI writes the small manifest, using the [package specification](../package-spec.md).
@@ -91,7 +91,7 @@ The Engine stays simple this way: it reads one package format and the open forma
 
 | Way | Status |
 |---|---|
-| Write a `package.json` for an outside MCP server and add a local entry here. All five official MCP entries work this way | **Works** |
+| Write a `package.json` for an outside MCP server and add a local entry here. All seven official MCP entries work this way | **Works** |
 | Copy a `SKILL.md` folder into `.agents/skills/`, `~/.agents/skills/` or `~/.cluaiz/tools/skills/` | **Works** |
 | Copy a tool folder into `~/.cluaiz/tools/<type>/<id>/` by hand | **Works** |
 | `cluaiz <type> install <url>` | Not supported: install takes an id from the registry |

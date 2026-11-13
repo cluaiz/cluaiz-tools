@@ -86,13 +86,15 @@ extern "C" {
 }
 ```
 
+`now_utc_ms`, `utc_offset_minutes` and `os_platform` are always available: the time and the operating system's name are not permissions. `http_fetch` needs `network`, below. See [Permissions](../reference/permissions.md#not-permissions).
+
 An import from any other module, including WASI, makes the plugin fail to start. That is why the build target is `wasm32-unknown-unknown`.
 
 A host function for CEP requests is **Planned**. See [CEP and plugins](../tutorials/plugins/03-cep-architecture.md).
 
 ## Network access
 
-A plugin calls `http_fetch` with a JSON request. Without `permissions.network_access` in `package.json`, every call is refused.
+A plugin calls `http_fetch` with a JSON request. Without network permission in `package.json`, every call is refused. Declare the `network` kind with `info`, `allow` and `access` (see [Permissions](../package-spec.md#permissions)): `full` for any public host, or `strict` with `hosts` when the plugin reaches only a few services. With `strict`, every other host answers `no_permission`. When the user refuses the permission, every call answers `permission_off` with the command that allows it; tell the user that.
 
 ```json
 {
@@ -113,25 +115,28 @@ Only `url` is required, and `method` is `GET` or `POST`. The answer is one of th
 
 | `code` | Meaning |
 |---|---|
-| `no_permission` | The manifest does not allow this |
+| `no_permission` | The manifest does not allow this, or the host is not in `hosts` |
+| `permission_off` | The user refused the permission; `error` holds the command that allows it |
 | `missing_setting` | The user has not set this value. No request was made |
 | `blocked` | Not https, a local or private address, or a URL with a password |
 | `limit` | Too many requests, or out of time |
 | `network`, `bad_request` | The request failed, or was not valid |
 
-**Keys.** A plugin never sees a key. It writes `{{secret:NAME}}` in a header, and the Engine fills in the value, only for the host the manifest names. A redirect to another host drops the plugin's headers.
+**Keys.** A plugin never sees a key. The key's name is in the top-level `env` (see [Env](../package-spec.md#env)). The plugin writes `{{secret:NAME}}` in a header, and the Engine fills in the value: with `strict` access only for the listed hosts, with `full` access for any public host. A redirect to another host drops the plugin's headers.
 
-**The user's own address.** A URL starting with `{{url:NAME}}` uses an address from the user's settings. It alone may be local or plain http. Never build one from a model's input.
+**The user's own address.** A URL starting with `{{url:NAME}}` uses an address the user set in an `env` setting. It alone may be local or plain http. Never build one from a model's input.
 
 ```json
 "permissions": {
-  "network_access": true,
-  "secrets": { "EXAMPLE_API_KEY": "api.example.com" },
-  "user_urls": ["OWN_SERVER_URL"]
+  "network": { "info": "Searches the example service", "allow": true, "access": "strict", "hosts": ["api.example.com"] }
+},
+"env": {
+  "EXAMPLE_API_KEY": { "info": "Your key for the example service", "need": "required" },
+  "OWN_SERVER_URL": { "info": "The address of your own server", "need": "optional" }
 }
 ```
 
-The user sets the values with a command. Without a value, a key is asked for and does not show on screen:
+The Engine takes a value from the system environment variable of that name first. Otherwise the user sets it with a command; without a value on the command line, it is asked for and does not show on screen:
 
 ```bash
 cluaiz plugin config my-plugin EXAMPLE_API_KEY
@@ -154,7 +159,7 @@ An empty string removes a value. `tools.get_settings` lists the settings a tool 
 | Limit | Value | When reached |
 |---|---|---|
 | Instructions per call | 2,000,000,000 | The call ends with an error |
-| Memory per call | 256 MB, or less with `permissions.max_memory_mb` | Allocation fails |
+| Memory per call | 256 MB, or less with `limits.memory_mb` | Allocation fails |
 | Requests per call | 16 | `http_fetch` answers `limit` |
 | Time for requests in a call | 60 seconds to start the last one, and up to 20 seconds each | `http_fetch` answers `limit` or `network` |
 | Answer per request | 5 MB, or less with `max_bytes` | The body is cut and `truncated` is true |

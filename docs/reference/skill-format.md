@@ -43,7 +43,7 @@ The Engine reads these, but they are outside the standard, and strict validators
 
 ### Fields that do nothing
 
-`id`, `title`, `author`, `keywords`, `permissions`, `links` and `hard_trigger_tokens` appear in older skills and pages. The Engine ignores them for skills. `metadata.author` is the standard place for an author.
+`id`, `title`, `author`, `keywords`, `permissions`, `links` and `hard_trigger_tokens` appear in older skills and pages. The Engine ignores them in `SKILL.md`; a skill's permissions go in its `package.json` (see [Permissions](../package-spec.md#permissions)). `metadata.author` is the standard place for an author.
 
 ## Body
 

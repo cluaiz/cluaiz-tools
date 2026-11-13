@@ -82,4 +82,4 @@ The Engine builds these addresses itself, so the names must match exactly. Pushi
 
 ## Rules for manifests outside tool folders
 
-The script matches any changed `package.json` whose path contains `skills/`, `plugins/` or `mcp/`. That includes the sample files `docs/skills/package.json`, `docs/plugins/package.json` and `docs/mcp/package.json`, which describe real ids. If one is changed in a commit that also triggers the workflow, the script can start a release for that id, so avoid editing them together with tools.
+The script matches any changed `package.json` whose path contains `skills/`, `plugins/` or `mcp/`. That includes the sample files `docs/skills/package.json`, `docs/plugins/package.json` and `docs/mcp/package.json`, which are copies of the real `deep-research`, `web-search` and `browser` manifests. If one is changed in a commit that also triggers the workflow, the script can start a release for that id from the docs folder, so commit them separately from tools.

@@ -36,11 +36,13 @@ Plugins have the strongest isolation. The Engine runs each call in a WebAssembly
 - **No file access** and no access to programs or environment variables.
 - **Memory limit:** 256 MB per call, or less if the manifest asks for less.
 - **Instruction limit:** a call that runs forever is stopped with an error.
-- **Network only through the Engine,** only if the manifest asks for `network_access`, only over `https`, only to
+- **Network only through the Engine,** only if the manifest asks for the `network` permission (only its `hosts` with
+  `strict` access), only while the user allows it, only over `https`, only to
   public addresses. Local and private addresses are refused, and every redirect is checked again. The one
   exception is an address you set yourself, such as your own SearXNG server.
-- **Keys stay hidden:** a plugin writes `{{secret:NAME}}` in a request header, and the Engine fills in the value,
-  only for the host the manifest binds it to. The plugin never sees it.
+- **Keys stay hidden:** a key is named in the manifest's `env`. A plugin writes `{{secret:NAME}}` in a request header,
+  and the Engine fills in the value: only for the listed hosts with `strict` access, for any public host with `full`
+  access. The plugin never sees it.
 
 ### Skills
 
@@ -86,10 +88,10 @@ that matter.
 
 Every tool in this registry must follow these rules. A pull request that breaks one is not merged.
 
-- **No secrets in any file.** A plugin asks for a key through `permissions.secrets`; the user sets it with
-  `cluaiz plugin config`.
-- **Ask for the least access.** No `network_access` if the plugin does not use the network, and only the hosts it
-  needs for each secret.
+- **No secrets in any file.** A tool names the keys it reads in `env`; the value comes from the system environment
+  or from `cluaiz <kind> config`.
+- **Ask for the least access.** No `network` permission if the tool does not use the network, and `strict` access
+  with `hosts` when it reaches only a few services, above all when it sends a key.
 - **Pin every outside package** to an exact version (`agent-browser@0.41.2`, not `agent-browser@latest`).
 - **No downloads or installs at run time** without telling the user and asking. A tool that needs a program says
   which one and how to install it.

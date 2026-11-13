@@ -49,7 +49,10 @@ They are easy to mix up, so they have separate pages.
 
 ```
 ~/.cluaiz/
-├── config/tools_registry.json   What is installed and how it is set
+├── config/
+│   ├── tools_registry.json      What is installed and how it is set
+│   ├── tool_permissions.json    Permissions the user allowed or refused
+│   └── tool_settings.json       Values for the names in a tool's env
 └── tools/
     ├── skills/<id>/
     ├── plugins/<id>/
@@ -65,8 +68,8 @@ A project can also have its own skills in `.agents/skills/`. The terminal agent 
 | Type | Boundary today |
 |---|---|
 | Skill | Text only. It runs nothing by itself. A skill with `execution` runs scripts as a plugin does |
-| WebAssembly plugin | No files, network or other programs. Instruction and memory limits. **Works** |
-| Script plugin | Runs as a command with the user's rights, under the Engine's security mode and timeout |
-| MCP server | A process with the user's rights. Calls ask for approval under the security mode |
+| WebAssembly plugin | No files or other programs. The time always; the internet only through the Engine, as the user's permissions allow. Instruction and memory limits. **Works** |
+| Script plugin | Runs as a command with the user's rights, under the Engine's security mode and timeout. A refused permission means asking before each call |
+| MCP server | A process with the user's rights. Calls ask for approval under the security mode, and before each call while a permission is refused |
 
 The Engine enforces approval, so the result is the same from the CLI, the App and the API.

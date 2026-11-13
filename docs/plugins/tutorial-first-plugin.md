@@ -116,6 +116,7 @@ The file is `target/wasm32-unknown-unknown/release/hasher.wasm`.
     }
   ],
   "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
@@ -126,6 +127,8 @@ The file is `target/wasm32-unknown-unknown/release/hasher.wasm`.
   }
 }
 ```
+
+`permissions` is `{}` because the plugin uses only its input. A plugin that reaches the internet declares `network` there; see [Plugin package.json](package-json.md#permissions).
 
 ## 5. Add the icon and `README.md`
 

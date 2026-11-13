@@ -26,6 +26,10 @@ For every tool:
 - [ ] `assets/icon.svg` is a pure SVG with a 24 by 24 `viewBox`.
 - [ ] `description` says what it does and when to use it.
 - [ ] Trigger words are in `package.json`, in the form for its type. See the [package specification](../package-spec.md#what-the-model-sees).
+- [ ] `permissions` lists every kind the tool uses, each with `info` and `allow`; `network` has `access` (`full`, or `strict` with `hosts`). `{}` when it uses none. See [Permissions](../package-spec.md#permissions).
+- [ ] Every key or setting the tool reads is named in `env`, with `info` and `need`. See [Env](../package-spec.md#env).
+- [ ] `dependencies` has `plugins`, `mcp` and `skills`, and each entry has `need` and `info`. See [Dependencies](../package-spec.md#dependencies).
+- [ ] `validate_tool` from the `tool-creator` skill reports no errors.
 - [ ] A new tool starts at `1.0.0`. A change to an existing tool raises `latest_version` and the key under `versions`, or CI will not release it.
 - [ ] It was tested with a small model (around 4B, 8K context), and the pull request names the model and the prompt.
 - [ ] It follows the [rules for tool authors](../../SECURITY.md#rules-for-tool-authors).

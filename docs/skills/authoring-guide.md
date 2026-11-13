@@ -55,7 +55,7 @@ Cluaiz often runs small models with little context.
 - **Use numbered steps** rather than prose.
 - **Say what to do**, not what to avoid.
 - **Move detail to `references/`** and say when to read it.
-- **Show one example** of a good result.
+- **Write judgement rules, not examples or templates.** An example is copied word for word by a small model; a rule is applied.
 
 ## Naming other tools
 
@@ -73,12 +73,22 @@ If the skill needs another tool, say so and say what to do without it:
 This skill uses the `git` MCP server. If it is not available, tell the user to run `cluaiz mcp install git`.
 ```
 
+## Permissions, settings and dependencies
+
+These go in `package.json`, not in `SKILL.md`:
+
+- **Permissions:** a skill with a script lists every kind the script uses, with `info` and `allow`. A skill with instructions only has `{}`.
+- **Settings and keys:** every one the script reads is named in `env`, with `info` and `need`. The script gets each as an environment variable.
+- **Dependencies:** other tools with `need` (`required`, `recommended` or `optional`) and `info`. In `SKILL.md`, say what to do when a `recommended` or `optional` one is missing.
+
+See [Skill package.json](package-json.md).
+
 ## Mistakes to avoid
 
 | Mistake | Why it fails | Instead |
 |---|---|---|
 | One large skill for everything | It costs context on each load and matches poorly | One skill per job |
-| "Write good code" | The model cannot act on it | Exact rules with an example |
+| "Write good code" | The model cannot act on it | Exact rules it can check |
 | `allowed-tools` to grant access | The Engine does not use it. Approval still applies | Leave approval to the user |
 | Long lists of trigger words | A word common to many tools weighs little | A few distinctive phrases |
 

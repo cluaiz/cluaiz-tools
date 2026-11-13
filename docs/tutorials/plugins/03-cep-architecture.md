@@ -51,7 +51,9 @@ extern "C" {
 The plugin declares what it needs:
 
 ```json
-"permissions": { "cep": ["audio.run", "fs.read"] }
+"permissions": {
+  "cep": { "info": "Transcribes audio and reads the files it is given", "allow": true, "methods": ["audio.run", "fs.read"] }
+}
 ```
 
 | Rule | Reason |
@@ -61,6 +63,6 @@ The plugin declares what it needs:
 | `system.exec` is refused by default | It would undo the sandbox |
 | One function only | A new Engine feature becomes a CEP method, and the plugin interface stays the same |
 
-CEP has methods for files, audio and memory. It has none for network access, so a method with a list of allowed hosts would be added for that.
+CEP has methods for files, audio and memory. Network access does not need it: a plugin already reaches the internet through `http_fetch` with the `network` permission.
 
-With this, a plugin could offer web search or a voice note tool while still needing nothing on the machine.
+With this, a plugin could offer a voice note tool while still needing nothing on the machine. `cep` is not a permission kind today, and `validate_tool` reports it.

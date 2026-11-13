@@ -61,14 +61,16 @@ The function every WebAssembly plugin exports is still called `execute_cel`. The
 | Tool | Uses CEP today? | Status |
 |---|---|---|
 | Skill | No. It instructs the model | Stays this way |
-| WebAssembly plugin | No. It has two host functions | Planned |
+| WebAssembly plugin | No. It has host functions for the clock, the system name and `http_fetch` | Planned |
 | MCP server | No built-in route | Planned |
 | Script plugin | No built-in route | Planned |
 
-The planned design adds one host function that passes a CEP request to the Engine, and each tool declares in `package.json` which CEP methods it needs:
+The planned design adds one host function that passes a CEP request to the Engine, and each tool declares in `package.json` which CEP methods it needs, as a planned `cep` permission kind with `info` and `allow` like the others ([Permissions](../package-spec.md#permissions)):
 
 ```json
-"permissions": { "cep": ["audio.run", "fs.read"] }
+"permissions": {
+  "cep": { "info": "Transcribes audio and reads the files it is given", "allow": true, "methods": ["audio.run", "fs.read"] }
+}
 ```
 
 The Engine would refuse any method that is not listed, and `system.exec` would stay refused by default. A new Engine feature would then reach plugins as a new CEP method, without changing the plugin interface.

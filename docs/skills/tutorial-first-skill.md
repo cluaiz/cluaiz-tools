@@ -25,9 +25,7 @@ license: Apache-2.0
 3. Write one line of at most 72 characters: `type(scope): what changed`.
 4. Show the message and ask before committing.
 
-Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
-
-Example: `fix(auth): refresh the token before it expires`
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Use the repository's own style when its history shows one.
 ```
 
 This one file is already a working skill.
@@ -59,7 +57,19 @@ Add `README.md` (human-facing documentation with a Mermaid architecture diagram 
   "description": "Writes clear Git commit messages from the current changes. Use when the user asks for a commit message or wants to commit.",
   "license": "Apache-2.0",
   "triggers": { "semantic": ["commit message"] },
-  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "dependencies": {
+    "plugins": {},
+    "mcp": {
+      "git": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json",
+        "need": "optional",
+        "info": "Git tools, when the agent cannot run git itself"
+      }
+    },
+    "skills": {}
+  },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
@@ -69,6 +79,8 @@ Add `README.md` (human-facing documentation with a Mermaid architecture diagram 
   }
 }
 ```
+
+`permissions` is `{}` because this skill has no script: the model runs git with its own tools, which ask for approval as usual. `git` is `optional`, so it is only suggested at install. A skill with a script lists what the script uses; see [Skill package.json](package-json.md#permissions).
 
 ## 5. Publish
 

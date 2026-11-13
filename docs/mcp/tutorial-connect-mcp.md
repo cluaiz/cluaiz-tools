@@ -5,7 +5,7 @@ Connect the official `everything` test server. Its tools exercise the protocol, 
 ## 1. Check the server by itself
 
 ```bash
-npx -y @modelcontextprotocol/server-everything
+npx -y @modelcontextprotocol/server-everything@2.2.1
 ```
 
 It waits for input, which is expected. Press Ctrl+C.
@@ -42,13 +42,17 @@ Write this to `package.json` in that folder:
   "description": "The official MCP test server. Use it to check MCP tools. Needs Node.js.",
   "license": "MIT",
   "triggers": ["mcp test"],
-  "execution": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-everything"] },
+  "execution": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-everything@2.2.1"] },
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": { "updated_at": "2026-11-06T12:00:00Z", "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" } }
   }
 }
 ```
+
+Pin the version in `args`, as here, so every user runs the same server. `permissions` is `{}` because this test server reaches nothing; a real server lists what it uses, see [MCP server package.json](package-json.md#permissions).
 
 ## 3. Check that Cluaiz sees it
 

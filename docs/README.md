@@ -33,6 +33,9 @@ Each topic has one owner page. Other pages link to it instead of repeating it.
 | `registry.json` and `family.json` | [registry-and-discovery.md](architecture/registry-and-discovery.md), [tools-registry.md](reference/tools-registry.md) |
 | Tools that live in another GitHub repository | [decoupled-ecosystem.md](architecture/decoupled-ecosystem.md) |
 | `package.json` fields | [package-spec.md](package-spec.md) |
+| Permission types, their options and values | [reference/permissions.md](reference/permissions.md) |
+| Settings (`env`) and dependencies | [package-spec.md](package-spec.md#env) |
+| A complete, real `package.json` for each type | [plugin](plugins/package-json.md), [MCP server](mcp/package-json.md), [skill](skills/package-json.md) |
 | `package.json` and `tools_registry.json` | [manifest_architecture.md](architecture/manifest_architecture.md) |
 | WebAssembly, binary, or no build | [plugins/build-types.md](plugins/build-types.md), [build-pipeline.md](architecture/build-pipeline.md) |
 | What a plugin may contain, and dependencies | [plugins/overview.md](plugins/overview.md) |
@@ -59,6 +62,7 @@ Each topic has one owner page. Other pages link to it instead of repeating it.
 ### Skills
 
 - [Overview](skills/overview.md)
+- [Complete package.json](skills/package-json.md)
 - [Package fields](skills/manifest-schema.md)
 - [Authoring guide](skills/authoring-guide.md)
 - [Tutorial: first skill](skills/tutorial-first-skill.md)
@@ -68,6 +72,7 @@ Each topic has one owner page. Other pages link to it instead of repeating it.
 
 - [Overview](plugins/overview.md)
 - [Build types](plugins/build-types.md)
+- [Complete package.json](plugins/package-json.md)
 - [Package fields](plugins/manifest-schema.md)
 - [WebAssembly interface](plugins/wasm-abi-guide.md)
 - [Tutorial: first plugin](plugins/tutorial-first-plugin.md)
@@ -76,6 +81,7 @@ Each topic has one owner page. Other pages link to it instead of repeating it.
 ### MCP
 
 - [Overview](mcp/overview.md)
+- [Complete package.json](mcp/package-json.md)
 - [Package fields](mcp/manifest-schema.md)
 - [Tutorial: connect a server](mcp/tutorial-connect-mcp.md)
 - Guides: [connecting](tutorials/mcp/01-connecting-mcp-servers.md), [settings](tutorials/mcp/02-fetching-settings.md), [CEP and MCP](tutorials/mcp/03-cep-architecture.md), [local testing](tutorials/mcp/04-local-testing.md)
@@ -89,6 +95,7 @@ Each topic has one owner page. Other pages link to it instead of repeating it.
 ### Reference
 
 - [Package specification](package-spec.md)
+- [Permissions](reference/permissions.md)
 - [Registry files](reference/tools-registry.md)
 - [Skill format](reference/skill-format.md)
 - [Plugin format](reference/plugin-format.md)

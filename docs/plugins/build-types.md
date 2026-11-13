@@ -16,9 +16,9 @@ Skills and MCP servers never have a compile step. CI makes only their zip, or no
 
 ```mermaid
 flowchart TD
-    A{"Can it compute using only the input it gets?"}
+    A{"Can it work from its input, the clock and web requests alone?"}
     A -->|Yes| W["build_type: wasm"]
-    A -->|No| B{"Does it need files, network or another program?"}
+    A -->|No| B{"Does it need files or another program?"}
     B -->|"An MCP server exists or fits"| M["MCP server"]
     B -->|"A short script is enough"| S["build_type: none, with execution"]
     B -->|"Heavy native work"| N["Wait for binary support.<br/>Use an MCP server today"]
@@ -34,7 +34,7 @@ flowchart TD
 | Built by | CI, with `--target wasm32-unknown-unknown` |
 | Runs on | Every system, from one file |
 | Needs on the machine | Nothing |
-| Can reach | Time, time zone offset, system name, and public https addresses if it asks for `permissions.network_access` |
+| Can reach | The date, time, time zone offset and system name, always; public https addresses with the `network` permission ([Permissions](../reference/permissions.md)) |
 | Commit | Source only. Do not commit a compiled file |
 
 The program name after install is always `<id>.wasm`. Older pages mention `logic.wasm`, which is not used.
@@ -63,6 +63,10 @@ The program name after install is always `<id>.wasm`. Older pages mention `logic
     "type": "script_runner",
     "command": "{python} \"{tool_dir}/scripts/summary.py\" \"{file}\""
   },
+  "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "permissions": {
+    "files": { "info": "Reads the CSV file it is given", "allow": true, "can": ["read"], "where": "workspace" }
+  },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
@@ -73,7 +77,7 @@ The program name after install is always `<id>.wasm`. Older pages mention `logic
 }
 ```
 
-The script reads its arguments as JSON from the file named by `{file}`, and prints its output. `{python}` becomes `python3` or `python`, whichever this system has.
+The script reads its arguments as JSON from the file named by `{file}`, with the function's name in `_fn`, and prints its output. A setting it needs is named in `env` and reaches it as an environment variable. `{python}` becomes `python3` or `python`, whichever this system has.
 
 | Behaviour | Value |
 |---|---|
@@ -82,7 +86,7 @@ The script reads its arguments as JSON from the file named by `{file}`, and prin
 | Temporary files | `<workspace>/<scratch_dir>/`, removed afterwards |
 | Time limit | 30 seconds, or a `timeout` field in the input. It also ends what the script started |
 | Answer | JSON: exit code, standard output, standard error |
-| Rights | The user's. Not sandboxed |
+| Rights | The user's. Not sandboxed: a refused permission makes the Engine ask before each call |
 
 The runtime must be on the user's machine, so name it in the description and in `SKILL.md`.
 
@@ -118,6 +122,7 @@ A plugin with `execution` always runs the script, even if a `.wasm` is also pres
 
 | Plugin | Type | Status |
 |---|---|---|
-| `math`, `text`, `time`, `search` | `wasm` | Runs |
-| `web-search` | `wasm`, with network access | Runs on an Engine with `http_fetch` |
+| `math`, `text`, `rank` | `wasm`, no permissions | Runs |
+| `time` | `wasm`, with `strict` network access | Runs |
+| `web-search` | `wasm`, with `full` network access and keys in `env` | Runs |
 | `code-interpreter`, `tool-creator` | Skill with `execution` | Runs |

@@ -1,6 +1,6 @@
 # Plugin package fields
 
-All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a plugin.
+All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a plugin. A complete, real manifest with permissions, settings and dependencies is explained in [Plugin package.json](package-json.md).
 
 ## Example
 
@@ -29,12 +29,13 @@ All fields are defined in the [package specification](../package-spec.md). This 
     }
   ],
   "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
       "builds_os": ["wasm"],
-      "files": { "skill": "SKILL.md", "icon": "assets/icon.svg" }
+      "files": { "readme": "README.md", "skill": "SKILL.md", "icon": "assets/icon.svg" }
     }
   }
 }
@@ -49,6 +50,9 @@ All fields are defined in the [package specification](../package-spec.md). This 
 | `functions` | Without it the model has nothing to call |
 | `description` | What the matcher and the model read first |
 | `triggers` | A plain list. This is the only way to add trigger words to a plugin |
+| `permissions` | Every type the plugin uses, from the [fixed list](../reference/permissions.md), with `info`, `allow` and the type's options; `{}` when it uses none. Without `network` every `http_fetch` is refused |
+| `env` | Every key or setting the plugin reads. A name not listed is never filled in |
+| `dependencies` | Other tools with `need` and `info`. Keep `plugins`, `mcp` and `skills`, empty when unused |
 | `latest_version` | Bump it in the commit that changes the code, or CI will not build |
 
 ## Common mistakes
@@ -60,4 +64,6 @@ All fields are defined in the [package specification](../package-spec.md). This 
 | `id` differs from the folder name | The install looks for a release that does not exist |
 | Changing code without changing `package.json` | CI builds nothing |
 | Listing `execution` with `args` | `args` is ignored for a plugin. Put the whole line in `command` |
-| Expecting the function name in the input | It is not passed. Use a field such as `action` |
+| Expecting the function name in the input | It is not passed. Tell functions apart by their arguments |
+| `network` without `access` | `validate_tool` reports it. Use `full`, or `strict` with `hosts` |
+| A key in `permissions.secrets`, or `why`/`default` in a permission | No longer read. Use `env`, `info` and `allow` |

@@ -115,7 +115,7 @@
           },
           {
             "slug": "skills-package-json",
-            "title": "Reference package.json",
+            "title": "Complete package.json",
             "file_path": "docs/skills/package-json.md"
           },
           {
@@ -181,7 +181,7 @@
           },
           {
             "slug": "plugins-package-json",
-            "title": "Reference package.json",
+            "title": "Complete package.json",
             "file_path": "docs/plugins/package-json.md"
           },
           {
@@ -242,7 +242,7 @@
           },
           {
             "slug": "mcp-package-json",
-            "title": "Reference package.json",
+            "title": "Complete package.json",
             "file_path": "docs/mcp/package-json.md"
           },
           {
@@ -316,6 +316,11 @@
       {
         "group": "Tools",
         "pages": [
+          {
+            "slug": "permissions",
+            "title": "Permissions",
+            "file_path": "docs/reference/permissions.md"
+          },
           {
             "slug": "cli",
             "title": "CLI",

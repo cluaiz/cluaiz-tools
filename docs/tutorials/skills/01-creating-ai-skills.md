@@ -40,7 +40,7 @@ license: Apache-2.0
 4. If sources disagree, say so. Do not pick one silently.
 ```
 
-A skill that depends on a tool should say what to do if it is missing. The Engine does not install dependencies. See [Dependencies](../../plugins/overview.md#dependencies).
+A skill that depends on a tool lists it in `dependencies` in `package.json`, with `need` and `info`. The Engine installs or offers it by the user's mode, so the skill must still say what to do when a `recommended` or `optional` one is missing. See [Dependencies](../../package-spec.md#dependencies).
 
 ## Next
 

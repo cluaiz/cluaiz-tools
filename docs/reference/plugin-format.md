@@ -21,6 +21,7 @@ plugins/<id>/
 ```
 ~/.cluaiz/tools/plugins/<id>/
 ├── package.json
+├── README.md
 ├── assets/icon.svg
 ├── SKILL.md
 ├── references/
@@ -32,7 +33,7 @@ Source files are not installed. Only `package.json`, `README.md`, `SKILL.md`, `s
 
 ## Fields
 
-See [Plugin package fields](../plugins/manifest-schema.md) and the [package specification](../package-spec.md).
+See [Plugin package.json](../plugins/package-json.md) for a complete manifest with permissions, settings and dependencies, [Plugin package fields](../plugins/manifest-schema.md) for common mistakes, and the [package specification](../package-spec.md).
 
 ## How the Engine finds the program
 

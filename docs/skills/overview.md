@@ -9,8 +9,9 @@ Skills use the open [Agent Skills](https://agentskills.io/specification) format,
 ```
 my-skill/
 ├── SKILL.md            Required: frontmatter and instructions
-├── package.json        Required to publish in this registry
-├── assets/icon.svg     Required to publish in this registry
+├── package.json        Required to publish: triggers, permissions, settings, dependencies
+├── README.md           Required to publish: for people, with a Mermaid diagram
+├── assets/icon.svg     Required to publish
 ├── references/         Optional: read on demand
 └── scripts/            Optional: run by the model
 ```
@@ -31,12 +32,14 @@ An unmatched skill costs nothing or only a title, however long it is. See [Skill
 |---|---|
 | Tell the model which tools to use | Call a tool by itself |
 | Include reference files | Keep memory by itself |
-| Include scripts for the model to run | Grant itself approval |
-| Offer functions through `execution` | Install its dependencies. See [Dependencies](../plugins/overview.md#dependencies) |
+| Include scripts for the model to run | Grant itself approval or a permission |
+| Offer functions through `execution` | Reach what the user refused: while a permission is refused, each call is asked about |
+| List other tools in `dependencies`; they are installed or offered with it by the user's mode | Read a key not named in `env` |
 
 ## Where to go next
 
 - [Authoring guide](authoring-guide.md)
+- [Skill package.json](package-json.md): a complete, real manifest, field by field
 - [Package fields](manifest-schema.md)
 - [Tutorial: first skill](tutorial-first-skill.md)
 - [Skill format](../reference/skill-format.md)

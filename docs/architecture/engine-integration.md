@@ -76,12 +76,12 @@ The function's arguments go in as JSON text, and the plugin's output goes back. 
 | Instructions per call | 2,000,000,000 |
 | Memory per call | 256 MB |
 | Host functions | `cluaiz.now_utc_ms`, `cluaiz.utc_offset_minutes`, `cluaiz.os_platform`, `cluaiz.http_fetch` |
-| Network | Public https addresses, with `permissions.network_access`. See [Network access](../plugins/wasm-abi-guide.md#network-access) |
+| Network | Public https addresses, with the `network` permission: any public host with `full` access, only its `hosts` with `strict` access, and nothing when the user refuses it (see [Permissions](../package-spec.md#permissions)). See [Network access](../plugins/wasm-abi-guide.md#network-access) |
 | Files, other programs | None |
 
 ### Script plugins
 
-The arguments are written to a temporary file in `<workspace>/<scratch_dir>/`. The command runs in the workspace with `{file}`, `{tool_dir}` and `{bin}` replaced. `{python}` becomes the command that runs Python on this system. The default timeout is 30 seconds, and a timeout also ends what the command started. The answer is a JSON object with the exit code, output and errors. See [Build types](../plugins/build-types.md#script-plugins).
+The arguments are written to a temporary file in `<workspace>/<scratch_dir>/`, with the function's name in `_fn`. The command runs in the workspace with `{file}`, `{tool_dir}` and `{bin}` replaced, and with the tool's `env` settings as environment variables. `{python}` becomes the command that runs Python on this system. The default timeout is 30 seconds, and a timeout also ends what the command started. The answer is a JSON object with the exit code, output and errors. See [Build types](../plugins/build-types.md#script-plugins).
 
 ### MCP servers
 
@@ -93,6 +93,7 @@ The arguments are written to a temporary file in `<workspace>/<scratch_dir>/`. T
 | Used | `tools/list`, `tools/call`, `roots/list`, tool list changes, tool annotations |
 | Not used | Resources, prompts, sampling |
 | Transport | Standard input and output |
+| Settings | The names in `env` reach the server as environment variables |
 | Idle | Stopped after a period without use |
 | Crash | Restarted with increasing delays, then marked unavailable |
 
@@ -106,7 +107,9 @@ Security settings belong to each tool and to the Engine:
 | Tool `security_mode` | `inherit`, `require_approval`, `always_allow` |
 | Tool `execution_mode` | `auto`, `manual`, `confirm_destructive` |
 
-In `sandboxed` mode with `inherit`, approval is needed for an MCP server, for `manual` or `confirm_destructive` tools, for tools declaring no permissions, and for tools with a sensitive permission such as network, write or execute.
+In `sandboxed` mode with `inherit`, approval is needed for an MCP server, for `manual` or `confirm_destructive` tools, for tools declaring no permissions, and for tools that declare `network`, `files` beyond reading the workspace, or `programs`.
+
+A permission the user refused comes first, in every mode: a WebAssembly plugin is refused that access by the Engine itself, and any other tool is asked about before each call, because it runs as a normal program. See [Permissions](../package-spec.md#permissions).
 
 A manifest cannot grant itself trust: `always_allow` in a manifest is reduced to `require_approval`. Only the user can give it.
 
@@ -121,7 +124,7 @@ Programs manage tools with these methods. Each takes a JSON-RPC request at `POST
 | `tools.list` | Installed tools with their functions |
 | `tools.discover` | What the matcher would offer for a message |
 | `tools.install`, `tools.remove` | Install or remove |
-| `tools.get_settings`, `tools.set_settings` | On or off, security mode, execution mode, trust, and the values a tool asks the user for, such as API keys (`user_settings`; values are never returned) |
+| `tools.get_settings`, `tools.set_settings` | On or off, security mode, execution mode, trust, permissions allowed or refused (`permissions`), and values for the names in the tool's `env`, such as API keys (`user_settings`; values are never returned) |
 | `tools.files`, `tools.read_file`, `tools.write_file`, `tools.open_file` | A tool's own files |
 | `tools.cache`, `tools.clear_cache` | Cached downloads |
 | `tools.call` | Run a tool directly, with `kind`, `name`, `fn`, `input` |
@@ -148,7 +151,5 @@ Separately from the above, the Engine can itself be an MCP server for clients su
 
 These appear in manifests but have no effect in the Engine today. [Package specification](../package-spec.md) marks them.
 
-- `dependencies`: the plugins, MCP servers and skills listed there are installed with the tool when missing; npm-style text versions are used to prepare a runtime
-- `permissions.max_cpu_time_ms`
 - `allowed-tools` in `SKILL.md`: parsed, and neither approves nor limits anything
 - `versions.<v>.files.binary`

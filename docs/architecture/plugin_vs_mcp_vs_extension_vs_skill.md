@@ -18,11 +18,11 @@ A plugin is a program that the Engine runs when the model calls one of its funct
 
 | Kind | Needs on the user's machine | Boundary | Status |
 |---|---|---|---|
-| **WebAssembly** (`build_type: "wasm"`) | Nothing | Closed in: no files, network or other programs | **Works** |
+| **WebAssembly** (`build_type: "wasm"`) | Nothing | Closed in: no files or other programs; the time always, and the internet only through the Engine with the user's permission | **Works** |
 | **Script** (`execution` in `package.json`, no build) | The language the command names, such as Python | The user's rights, Engine timeout | **Works** |
 | **Native binary** (`build_type: "binary"`) | Nothing | None | **Planned**: the Engine cannot run these yet |
 
-A WebAssembly file is one file for every operating system and starts inside the Engine, so it needs no Node, Python or separate process. Its limit today is that it can only compute on what it is given. [CEP and plugins](../tutorials/plugins/03-cep-architecture.md) describes the planned way to give it more.
+A WebAssembly file is one file for every operating system and starts inside the Engine, so it needs no Node, Python or separate process. Its limit today is that it cannot read files or start programs. [CEP and plugins](../tutorials/plugins/03-cep-architecture.md) describes the planned way to give it more.
 
 [Build types](../plugins/build-types.md) explains when each kind is right.
 
@@ -49,7 +49,8 @@ An MCP server is a separate program that speaks the open [Model Context Protocol
 | Build step | None | Yes, by CI | None in this repository |
 | Needed by the user | Nothing | Nothing | Usually Node or Python |
 | Works in other agents | Yes | No | Yes |
-| Reaches files or network | Only through other tools | No | Yes |
+| Reaches files or network | Only through other tools | The internet with the `network` permission; no files | Yes, as a normal program |
+| Permissions enforced by | Not needed | The Engine | Asking before each call while one is refused |
 | Published with | `package.json` | `package.json` | `package.json` |
 
 ## Which one to build
@@ -58,9 +59,9 @@ An MCP server is a separate program that speaks the open [Model Context Protocol
 flowchart TD
     Q1{"Is it instructions, with no new program?"}
     Q1 -->|Yes| SK["Skill"]
-    Q1 -->|No| Q2{"Does an MCP server for it already exist, or does it need files, network or services?"}
+    Q1 -->|No| Q2{"Does an MCP server for it already exist, or does it need files or other programs?"}
     Q2 -->|Yes| MC["MCP server"]
-    Q2 -->|No| Q3{"Can it compute using only its input?"}
+    Q2 -->|No| Q3{"Can it work from its input, the clock and web requests alone?"}
     Q3 -->|Yes| WA["WebAssembly plugin"]
     Q3 -->|No| SC["Script plugin"]
 ```
@@ -73,12 +74,12 @@ Tools do not call each other directly. The model connects them:
 2. The model calls the tool.
 3. The Engine runs it, asks for approval if needed, and gives the model the result.
 
-A skill or plugin can record what it needs under `dependencies`. Installing the tool installs those that are missing (version ranges are not checked yet). See [Dependencies](../plugins/overview.md#dependencies).
+A tool records what it needs under `dependencies`, each with `need` (`required`, `recommended` or `optional`) and `info`. Installing the tool installs or offers them by the user's mode (version ranges are not checked yet). See [Dependencies](../package-spec.md#dependencies).
 
 | Caller | Can use | How |
 |---|---|---|
 | Model | Skills, plugins, MCP servers | Standard tool calls |
 | App, CLI, scripts | The Engine and its tools | CEP, such as `tools.call` |
 | Skill | Other tools | By instructing the model |
-| WebAssembly plugin | Time and operating system name | Host functions |
+| WebAssembly plugin | The time, the operating system name, and the internet | Host functions; the internet with the user's permission |
 | MCP server | Nothing in the Engine yet | **Planned** |

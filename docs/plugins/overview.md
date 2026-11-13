@@ -8,7 +8,7 @@ The usual case is a WebAssembly plugin. It is one file for every operating syste
 
 | Item | Required | Purpose |
 |---|---|---|
-| `package.json` | Yes | Identity, how to get it, and the functions it offers. See [Package fields](manifest-schema.md) |
+| `package.json` | Yes | Identity, functions, permissions, settings (`env`) and dependencies. See [Plugin package.json](package-json.md) and [Package fields](manifest-schema.md) |
 | `assets/icon.svg` | Yes | The icon. See [Package specification](../package-spec.md#icon-required) |
 | A program | Yes | `<id>.wasm` from CI, or scripts run through `execution` |
 | `SKILL.md` | Recommended | Instructions the model gets when it loads the plugin |
@@ -40,12 +40,16 @@ plugins/math/                    ~/.cluaiz/tools/plugins/math/
 
 1. The model calls a function listed in `functions`.
 2. The Engine finds the plugin that owns the function and asks for approval if needed.
-3. It runs the program, passing the function's arguments as JSON text.
+3. It runs the program, passing the function's arguments as JSON text, with the permissions the user allowed.
 4. The result goes back to the model.
 
-**The program is not told which function was called.** To offer several actions, either give one function an `action` field or publish several plugins. The `text` plugin uses `action`.
+**A WebAssembly program is not told which function was called.** It tells them apart by their arguments, as `time` does, or by a field such as `action`, as `text` does. A script gets the function's name in `_fn`.
 
-The WebAssembly sandbox has no access to files, network or other programs. It has two host functions: the time and the operating system. See [WebAssembly interface](wasm-abi-guide.md).
+The WebAssembly sandbox has no access to files or other programs. It can call the Engine's host functions: the date, time, time zone and operating system's name, which are always available, and `http_fetch` for the internet, with the `network` permission. See [WebAssembly interface](wasm-abi-guide.md).
+
+## Permissions and settings
+
+A plugin declares every permission it uses in `permissions`, each with `info` and `allow`, and every key or setting it reads in `env`. The user sees both at install and can refuse a permission later. For a WebAssembly plugin the Engine enforces a refused permission itself; for a script it asks before each call. See [Plugin package.json](package-json.md#permissions) and [Package specification](../package-spec.md#permissions).
 
 ## What can be inside one plugin
 
@@ -68,23 +72,13 @@ To summarise a meeting:
 
 ## Dependencies
 
-A package can record what it needs under `dependencies`. See [Package specification](../package-spec.md#dependencies).
-
-When a tool is installed, the Engine also installs each tool listed in `dependencies` that is not installed yet (plugins, MCP servers and skills, by id), then their own dependencies.
-
-| Situation | What happens |
-|---|---|
-| A tool lists a dependency that is not installed | It is installed with the tool |
-| The dependency is already installed | It is kept as it is (no upgrade) |
-| A dependency fails to install | The tool stays installed; the error names the dependency and the command to install it |
-| Two tools need the same dependency | It is installed once |
-
-Not yet: version ranges and `url` are not checked, and `extensions` are not installed.
+A package lists the tools it needs under `dependencies`, each marked `required`, `recommended` or `optional`, with an `info` the user reads. What is installed without asking depends on the user's mode (`full_access`, `sandboxed`, `strict`); the rest is asked for at install. The rules are in [Package specification](../package-spec.md#dependencies).
 
 What authors should do:
 
-1. Record only real dependencies, in the one format of the [Package specification](../package-spec.md#dependencies).
-2. Have the tool work, with a clear message, if an optional one is missing.
+1. List only real dependencies, with the right `need`: `required` only when the tool cannot work without it.
+2. Write an `info` the user understands.
+3. Have the tool work, with a clear message, when a `recommended` or `optional` one is missing.
 
 A separate, working case: when an MCP or tool folder lists npm packages as plain text versions (`"name": "1.2.3"`), or has `requirements.txt`, the Engine prepares a private runtime for it. These are language packages, and have nothing to do with Cluaiz tool dependencies.
 

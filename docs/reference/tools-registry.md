@@ -11,12 +11,14 @@ cluaiz-tools/
 │   ├── family.json
 │   └── code-reviewer/
 │       ├── package.json
+│       ├── README.md
 │       ├── SKILL.md
 │       └── assets/icon.svg
 ├── plugins/
 │   ├── family.json
 │   └── math/
 │       ├── package.json
+│       ├── README.md
 │       ├── SKILL.md
 │       ├── assets/icon.svg
 │       ├── Cargo.toml
@@ -25,6 +27,8 @@ cluaiz-tools/
 │   ├── family.json
 │   └── filesystem/
 │       ├── package.json
+│       ├── README.md
+│       ├── SKILL.md
 │       └── assets/icon.svg
 └── extensions/
     └── family.json

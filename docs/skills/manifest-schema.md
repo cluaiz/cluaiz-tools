@@ -1,6 +1,6 @@
 # Skill package fields
 
-All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a skill.
+All fields are defined in the [package specification](../package-spec.md). This page lists what matters for a skill. A complete, real manifest with a script, permissions and dependencies is explained in [Skill package.json](package-json.md).
 
 ## Example
 
@@ -17,14 +17,16 @@ All fields are defined in the [package specification](../package-spec.md). This 
   "tags": ["Code Review", "Security"],
   "triggers": { "semantic": ["review this code", "check for bugs"] },
   "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {
       "updated_at": "2026-11-06T12:00:00Z",
       "files": {
+        "readme": "README.md",
         "skill": "SKILL.md",
         "icon": "assets/icon.svg",
-        "assets": ["references/checklist.md"]
+        "references": ["references/checklist.md"]
       }
     }
   }
@@ -40,6 +42,9 @@ All fields are defined in the [package specification](../package-spec.md). This 
 | `triggers.semantic`, `tags` | Extra words for matching. Both work for skills |
 | `versions.<v>.files` | **List every file.** A skill without a release is installed from this list, and a file not listed is not installed |
 | `build_type` | Leave it out, or `none`. Skills do not compile |
+| `permissions` | `{}` for instructions only. A skill with a script lists every kind the script uses, with `info` and `allow` |
+| `env` | Every key or setting the script reads. The script gets each as an environment variable |
+| `dependencies` | Other tools with `need` and `info`. Keep `plugins`, `mcp` and `skills`, empty when unused |
 
 ## With functions
 
