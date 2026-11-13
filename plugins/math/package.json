@@ -4,12 +4,13 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "Evaluates math expressions with arithmetic, powers, roots, trigonometry and logarithms.",
+  "description": "Evaluates math expressions and converts units exactly: arithmetic, powers, roots, trigonometry, logarithms in any base, factorials, combinations, minimum and maximum, and units of length, mass, temperature, data, speed and more. Use when an answer needs a calculation or a unit conversion.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
   "tags": [
     "Math",
     "Calculator",
@@ -28,10 +29,11 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {},
   "functions": [
     {
       "name": "math_evaluate",
-      "description": "Evaluate a math expression. Supports + - * / % ^, parentheses, pi, e, sqrt, cbrt, abs, floor, ceil, round, sin, cos, tan, asin, acos, atan (radians), ln, log10, log2 and exp. Numbers are 64-bit floats, about 15 significant digits.",
+      "description": "Evaluate a math expression. Supports + - * / % ^, parentheses, n! (factorial), pi, e, sqrt, cbrt, abs, floor, ceil, round, sin, cos, tan, asin, acos, atan (radians), ln, log10, log2, log(x, base), exp, min(a, b, ...), max(a, b, ...), factorial(n), nCr(n, r) and nPr(n, r). Numbers are 64-bit floats, about 15 significant digits.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -46,6 +48,36 @@
         },
         "required": [
           "expression"
+        ]
+      }
+    },
+    {
+      "name": "math_convert",
+      "description": "Convert a value between units of the same quantity: length, mass, time, area, volume, speed, data (kB is 1000 bytes, KiB is 1024), energy, power, pressure, angle and temperature. Accepts symbols and names, such as km, mi, kg, lb, C, F, GiB, mph, kWh. US gallons, pints and cups unless imp_gal or imp_pt is given. A year is 365.25 days.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "The amount to convert"
+          },
+          "from": {
+            "type": "string",
+            "description": "The unit the value is in"
+          },
+          "to": {
+            "type": "string",
+            "description": "The unit to convert to"
+          },
+          "precision": {
+            "type": "integer",
+            "description": "Digits after the decimal point in 'formatted'"
+          }
+        },
+        "required": [
+          "value",
+          "from",
+          "to"
         ]
       }
     }

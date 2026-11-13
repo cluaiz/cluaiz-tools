@@ -1,10 +1,32 @@
 use serde::{Deserialize, Serialize};
 
+mod units;
+
+/// `math_evaluate` sends `expression`; `math_convert` sends `value`, `from` and `to`.
+/// The Engine passes only the arguments, so they tell the two apart.
 #[derive(Deserialize)]
 struct MathRequest {
-    expression: String,
+    #[serde(default)]
+    expression: Option<String>,
     #[serde(default)]
     precision: Option<usize>,
+    #[serde(default)]
+    value: Option<f64>,
+    #[serde(default)]
+    from: Option<String>,
+    #[serde(default)]
+    to: Option<String>,
+}
+
+#[derive(Serialize)]
+struct ConvertResponse {
+    status: &'static str,
+    value: f64,
+    from: &'static str,
+    to: &'static str,
+    quantity: &'static str,
+    result: f64,
+    formatted: String,
 }
 
 #[derive(Serialize)]
@@ -46,52 +68,56 @@ pub unsafe extern "C" fn execute_cel(ptr: *const u8, len: u32) -> u64 {
         &[]
     };
 
-    let response = match serde_json::from_slice::<MathRequest>(input_bytes) {
-        Ok(req) => match evaluate_expression(&req.expression) {
-            Ok(val) => {
-                let formatted = if let Some(p) = req.precision {
-                    Some(format!("{:.prec$}", val, prec = p))
-                } else {
-                    Some(format!("{}", val))
-                };
-
-                MathResponse {
-                    status: "success".into(),
-                    expression: req.expression,
-                    result: Some(val),
-                    formatted,
-                    note: (val.abs() > LARGEST_EXACT)
-                        .then(|| "This result is too large for a 64-bit float to hold exactly".to_string()),
-                    error: None,
-                }
+    let output = match serde_json::from_slice::<MathRequest>(input_bytes) {
+        Ok(MathRequest { value: Some(value), from: Some(from), to: Some(to), precision, .. }) => {
+            match units::convert(value, &from, &to) {
+                Ok((result, from, to)) => serde_json::to_vec(&ConvertResponse {
+                    status: "success",
+                    value,
+                    from: from.name,
+                    to: to.name,
+                    quantity: from.quantity,
+                    result,
+                    formatted: format_number(result, precision),
+                }),
+                Err(error) => serde_json::to_vec(&serde_json::json!({"status": "error", "error": error})),
             }
-            Err(e) => MathResponse {
-                status: "error".into(),
-                expression: req.expression,
-                result: None,
-                formatted: None,
-                note: None,
-                error: Some(e),
+        }
+        Ok(MathRequest { expression: Some(expression), precision, .. }) => serde_json::to_vec(&match evaluate_expression(&expression) {
+            Ok(val) => MathResponse {
+                status: "success".into(),
+                expression,
+                result: Some(val),
+                formatted: Some(format_number(val, precision)),
+                note: (val.abs() > LARGEST_EXACT)
+                    .then(|| "This result is too large for a 64-bit float to hold exactly".to_string()),
+                error: None,
             },
-        },
-        Err(_) => MathResponse {
-            status: "error".into(),
-            expression: String::new(),
-            result: None,
-            formatted: None,
-            note: None,
-            error: Some("Invalid input JSON payload. Expected {\"expression\": \"...\"}".into()),
-        },
-    };
-
-    let output = serde_json::to_vec(&response)
-        .unwrap_or_else(|_| Vec::from(b"{\"status\":\"error\",\"error\":\"Serialization failure\"}".as_slice()));
+            Err(e) => failure(expression, e),
+        }),
+        _ => serde_json::to_vec(&failure(
+            String::new(),
+            "Expected {\"expression\": \"...\"} or {\"value\": 1, \"from\": \"km\", \"to\": \"mi\"}".into(),
+        )),
+    }
+    .unwrap_or_else(|_| Vec::from(b"{\"status\":\"error\",\"error\":\"Serialization failure\"}".as_slice()));
 
     let out_len = output.len() as u64;
     let out_ptr = output.as_ptr() as u64;
     core::mem::forget(output);
 
     (out_ptr << 32) | (out_len & 0xFFFFFFFF)
+}
+
+fn failure(expression: String, error: String) -> MathResponse {
+    MathResponse { status: "error".into(), expression, result: None, formatted: None, note: None, error: Some(error) }
+}
+
+fn format_number(value: f64, precision: Option<usize>) -> String {
+    match precision {
+        Some(p) => format!("{:.prec$}", value, prec = p),
+        None => format!("{}", value),
+    }
 }
 
 // ── Recursive Descent Math Evaluator ──
@@ -182,8 +208,13 @@ impl<'a> Parser<'a> {
             }
             _ => {}
         }
-        let left = self.parse_factor()?;
+        let mut left = self.parse_factor()?;
         self.skip_whitespace();
+        while self.chars.peek() == Some(&'!') {
+            self.chars.next();
+            left = factorial(left)?;
+            self.skip_whitespace();
+        }
         let mut ahead = self.chars.clone();
         let first = ahead.next();
         let python_power = first == Some('*') && ahead.next() == Some('*');
@@ -283,46 +314,115 @@ impl<'a> Parser<'a> {
 
         self.skip_whitespace();
         if let Some(&'(') = self.chars.peek() {
-            // Function call
             self.chars.next();
-            let arg = self.parse_expression()?;
-            self.skip_whitespace();
-            if self.chars.next() != Some(')') {
-                return Err(format!("Expected closing ')' after function argument in {}", name));
-            }
-
-            let value = match name.as_str() {
-                "abs" => arg.abs(),
-                "sqrt" => arg.sqrt(),
-                "cbrt" => arg.cbrt(),
-                "floor" => arg.floor(),
-                "ceil" => arg.ceil(),
-                "round" => arg.round(),
-                "sin" => arg.sin(),
-                "cos" => arg.cos(),
-                "tan" => arg.tan(),
-                "asin" => arg.asin(),
-                "acos" => arg.acos(),
-                "atan" => arg.atan(),
-                "ln" => arg.ln(),
-                "log10" => arg.log10(),
-                "log2" => arg.log2(),
-                "exp" => arg.exp(),
-                "log" => return Err("'log' is ambiguous: use log10 or ln".into()),
-                _ => return Err(format!("Unknown math function '{}'", name)),
-            };
-            if value.is_nan() || (value.is_infinite() && matches!(name.as_str(), "ln" | "log10" | "log2")) {
-                return Err(format!("{name}({arg}) is not a real number"));
-            }
-            Ok(value)
+            let args = self.parse_arguments(&name)?;
+            call_function(&name, &args)
         } else {
-            // Constants
             match name.as_str() {
                 "pi" | "PI" => Ok(core::f64::consts::PI),
                 "e" | "E" => Ok(core::f64::consts::E),
                 _ => Err(format!("Unknown constant or variable '{}'", name)),
             }
         }
+    }
+
+    /// The comma-separated arguments of a function, after its `(`, up to and including the `)`
+    fn parse_arguments(&mut self, name: &str) -> Result<Vec<f64>, String> {
+        let mut args = vec![self.parse_expression()?];
+        loop {
+            self.skip_whitespace();
+            match self.chars.next() {
+                Some(')') => return Ok(args),
+                Some(',') => args.push(self.parse_expression()?),
+                _ => return Err(format!("Expected ',' or ')' in {name}(...)")),
+            }
+        }
+    }
+}
+
+fn call_function(name: &str, args: &[f64]) -> Result<f64, String> {
+    let one = |f: fn(f64) -> f64| -> Result<f64, String> {
+        match args {
+            [x] => Ok(f(*x)),
+            _ => Err(format!("{name} takes one argument, not {}", args.len())),
+        }
+    };
+    let value = match name {
+        "abs" => one(f64::abs)?,
+        "sqrt" => one(f64::sqrt)?,
+        "cbrt" => one(f64::cbrt)?,
+        "floor" => one(f64::floor)?,
+        "ceil" => one(f64::ceil)?,
+        "round" => one(f64::round)?,
+        "sin" => one(f64::sin)?,
+        "cos" => one(f64::cos)?,
+        "tan" => one(f64::tan)?,
+        "asin" => one(f64::asin)?,
+        "acos" => one(f64::acos)?,
+        "atan" => one(f64::atan)?,
+        "ln" => one(f64::ln)?,
+        "log10" => one(f64::log10)?,
+        "log2" => one(f64::log2)?,
+        "exp" => one(f64::exp)?,
+        "log" => match args {
+            [x, base] if *base > 0.0 && *base != 1.0 => x.ln() / base.ln(),
+            [_, base] => return Err(format!("log base {base} is not valid: it must be above 0 and not 1")),
+            _ => return Err("'log' needs a base: log(x, base). Use log10(x) or ln(x) otherwise".into()),
+        },
+        "min" => args.iter().copied().fold(f64::INFINITY, f64::min),
+        "max" => args.iter().copied().fold(f64::NEG_INFINITY, f64::max),
+        "factorial" | "fact" => match args {
+            [n] => factorial(*n)?,
+            _ => return Err(format!("{name} takes one argument")),
+        },
+        "nCr" | "ncr" | "comb" => match args {
+            [n, r] => choose(*n, *r, true)?,
+            _ => return Err(format!("{name} takes two arguments: {name}(n, r)")),
+        },
+        "nPr" | "npr" | "perm" => match args {
+            [n, r] => choose(*n, *r, false)?,
+            _ => return Err(format!("{name} takes two arguments: {name}(n, r)")),
+        },
+        _ => return Err(format!("Unknown math function '{}'", name)),
+    };
+    let shown = args.iter().map(|a| a.to_string()).collect::<Vec<_>>().join(", ");
+    if value.is_nan() || (value.is_infinite() && matches!(name, "ln" | "log10" | "log2" | "log")) {
+        return Err(format!("{name}({shown}) is not a real number"));
+    }
+    if value.is_infinite() && args.iter().all(|a| a.is_finite()) {
+        return Err(format!("{name}({shown}) is too large for a 64-bit float"));
+    }
+    Ok(value)
+}
+
+/// A whole number that is not negative, or an error naming what it is for
+fn whole(value: f64, what: &str) -> Result<u64, String> {
+    if value < 0.0 || value.fract() != 0.0 || value > LARGEST_EXACT {
+        return Err(format!("{what} must be a whole number of 0 or more, not {value}"));
+    }
+    Ok(value as u64)
+}
+
+fn factorial(n: f64) -> Result<f64, String> {
+    let n = whole(n, "factorial")?;
+    if n > 170 {
+        return Err(format!("{n}! is too large for a 64-bit float (the largest is 170!)"));
+    }
+    Ok((2..=n).fold(1.0, |product, k| product * k as f64))
+}
+
+/// Combinations (`combine`) or permutations of `r` items out of `n`
+fn choose(n: f64, r: f64, combine: bool) -> Result<f64, String> {
+    let (n, r) = (whole(n, "n")?, whole(r, "r")?);
+    if r > n {
+        return Ok(0.0);
+    }
+    if combine {
+        let r = r.min(n - r);
+        // Multiplying and dividing in turn keeps every step a whole number
+        Ok((1..=r).fold(1.0, |acc, k| acc * (n - r + k) as f64 / k as f64).round())
+    } else {
+        Ok((n - r + 1..=n).fold(1.0, |acc, k| acc * k as f64))
     }
 }
 
@@ -366,8 +466,25 @@ mod tests {
     }
 
     #[test]
+    fn functions_with_several_arguments() {
+        close("log(8, 2)", 3.0);
+        close("log(1000, 10)", 3.0);
+        close("min(4, -2, 7)", -2.0);
+        close("max(4, -2, 7)", 7.0);
+        close("nCr(52, 5)", 2598960.0);
+        close("nPr(10, 3)", 720.0);
+        close("nCr(3, 5)", 0.0);
+        close("factorial(5)", 120.0);
+        close("5!", 120.0);
+        close("3!^2", 36.0);
+        close("-3!", -6.0);
+        close("0!", 1.0);
+        close("max(1, 2) + min(3, 4)", 5.0);
+    }
+
+    #[test]
     fn what_has_no_answer_is_an_error_not_a_number() {
-        for expression in ["1/0", "sqrt(-1)", "ln(0)", "(-8)^0.5", "log(10)", "2 +", "foo", "1 2"] {
+        for expression in ["1/0", "sqrt(-1)", "ln(0)", "(-8)^0.5", "log(10)", "log(8, 1)", "2 +", "foo", "1 2", "171!", "2.5!", "nCr(5)", "sqrt(1, 2)", "nCr(-1, 2)"] {
             assert!(eval(expression).is_err(), "{expression}");
         }
     }

@@ -1,18 +1,25 @@
 ---
 name: math
-description: "Evaluates math expressions, so results are computed rather than guessed."
+description: "Evaluates math expressions and converts units, so results are computed rather than guessed. Use whenever an answer needs arithmetic, a formula or a unit conversion."
 ---
 
 # Math
 
-Call `math_evaluate` whenever a result needs arithmetic. Do not work it out yourself.
+Do not work out a result yourself. Call a function, then give its answer.
 
-```json
-{"expression": "(2^10 + sqrt(144)) / 4", "precision": 2}
-```
+- `math_evaluate` with `expression`, and `precision` for the digits after the point. The answer has `result` and `formatted`, or `error`.
+- `math_convert` with `value`, `from` and `to`. The answer has `result`, `formatted` and the `quantity`, or `error` when the units do not match or are unknown.
 
-The answer has `result`, `formatted`, and `error` if the expression is not valid.
+Rules for expressions:
 
-- Angles are in radians.
-- `log` is not accepted, because it can mean base 10 or base e. Use `log10` or `ln`.
+- Angles are in radians. To use degrees, convert first with `math_convert` (`deg` to `rad`).
+- A bare `log(x)` is refused, because its base is unclear. Use `log(x, base)`, `log10` or `ln`.
+- `n!`, `factorial(n)`, `nCr(n, r)` and `nPr(n, r)` need whole numbers. `170!` is the largest.
+- `min` and `max` take any number of arguments.
 - Numbers are 64-bit floats. A `note` in the answer means the result is too large to be exact.
+
+Rules for units:
+
+- Case matters where two units differ only by case: `MB` is megabytes, `Mb` is megabits. When the answer says a unit is unclear, ask the user or use the exact symbol.
+- Gallons, pints and cups are US units unless the user means imperial (`imp_gal`, `imp_pt`). Say which you used.
+- Money and currencies are not units here: their rates change daily.
