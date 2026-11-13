@@ -8,7 +8,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
-serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+serde_json = { version = "1.0", default-features = false, features = ["std"] }
+# No `clock` feature: the time comes from the Engine's `now_utc_ms`
+chrono = { version = "0.4.45", default-features = false, features = ["alloc"] }
+chrono-tz = { version = "0.10.4", default-features = false, features = ["std", "case-insensitive"] }
 
 [profile.release]
 opt-level = "s"

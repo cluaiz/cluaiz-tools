@@ -4,12 +4,13 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "The current date and time on this computer, and date arithmetic: days between two dates, or a date some days or months away. Needs no network.",
+  "description": "The current date and time here or in any city or time zone, with daylight saving; time zone conversion; date arithmetic with working days, ages, week numbers and weekdays; month calendars; countdowns; a check of this computer's clock against the internet; and public holidays. Use when an answer depends on the date, the time, a time zone or a date calculation.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
   "tags": [
     "Time",
     "Clock",
@@ -18,64 +19,191 @@
   ],
   "triggers": [
     "what time is it",
-    "current time",
     "today's date",
-    "current date",
-    "what day is today",
-    "system clock",
-    "local time",
+    "time in",
+    "time zone",
+    "convert time",
     "days until",
-    "how many days",
     "days between",
-    "add days",
-    "what date",
-    "day of the week",
-    "deadline"
+    "date after",
+    "working days",
+    "how old",
+    "week number",
+    "calendar",
+    "countdown",
+    "public holidays",
+    "is my clock right"
   ],
   "dependencies": {
     "plugins": {},
     "mcp": {},
     "skills": {}
   },
+  "permissions": {
+    "network": {
+      "info": "Only when asked: checks this computer's clock against an internet clock, and reads public holidays",
+      "allow": true,
+      "access": "strict",
+      "hosts": [
+        "www.cloudflare.com",
+        "date.nager.at"
+      ]
+    }
+  },
   "functions": [
     {
       "name": "time_now",
-      "description": "Get the current date, time, day of the week and UTC offset of this computer. Give utc_offset to see the time at another offset.",
+      "description": "The current date, time, day of the week and UTC offset, on this computer or in any time zone or city, with the zone's abbreviation and daylight saving. Set check_clock to compare this computer's clock with an internet clock (needs the network permission).",
       "parameters": {
         "type": "object",
         "properties": {
-          "utc_offset": {
+          "timezone": {
             "type": "string",
-            "description": "Optional offset such as '+05:30' or '-04:00'. Default: this computer's"
+            "description": "A time zone: an IANA name such as Asia/Kolkata, a city in one such as Tokyo, UTC, or an offset such as +05:30. Default: this computer"
+          },
+          "check_clock": {
+            "type": "boolean",
+            "description": "Also check this computer's clock against the internet"
           }
         },
         "required": []
       }
     },
     {
+      "name": "time_convert",
+      "description": "Convert a time from one time zone to one or more others, following daylight saving on that date. Says when the date changes, and when a time does not exist or happens twice because the clocks change.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string",
+            "description": "18:30, 6:30 pm, 2026-11-07 18:30, or now. A time alone is today in from_timezone"
+          },
+          "from_timezone": {
+            "type": "string",
+            "description": "A time zone: an IANA name such as Asia/Kolkata, a city in one such as Tokyo, UTC, or an offset such as +05:30. Default: this computer"
+          },
+          "to_timezone": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The zones to convert to, up to 20"
+          }
+        },
+        "required": [
+          "to_timezone"
+        ]
+      }
+    },
+    {
       "name": "date_calc",
-      "description": "Date arithmetic: the date some days or months from a date, or the number of days between two dates, with the day of the week.",
+      "description": "Date arithmetic. From a date (default today): add years, months, weeks, days or working days (Monday to Friday; public holidays are not skipped); find the next given weekday; or, with until, count the days, weeks, working days, and the years, months and days between (an age). Every date comes with its weekday, ISO week and day of the year.",
       "parameters": {
         "type": "object",
         "properties": {
           "date": {
             "type": "string",
-            "description": "Start date as YYYY-MM-DD. Default: today on this computer"
+            "description": "The start date as YYYY-MM-DD, or today. Default: today"
           },
-          "add_days": {
+          "add_years": {
             "type": "integer",
-            "description": "Days to add; negative goes back"
+            "description": "Years to add; negative goes back"
           },
           "add_months": {
             "type": "integer",
             "description": "Months to add; negative goes back. A day past the month's end becomes its last day"
           },
+          "add_weeks": {
+            "type": "integer",
+            "description": "Weeks to add; negative goes back"
+          },
+          "add_days": {
+            "type": "integer",
+            "description": "Days to add; negative goes back"
+          },
+          "add_working_days": {
+            "type": "integer",
+            "description": "Working days (Monday to Friday) to add; negative goes back"
+          },
+          "next_weekday": {
+            "type": "string",
+            "description": "A day of the week, such as monday: the first one after date"
+          },
           "until": {
             "type": "string",
-            "description": "An end date as YYYY-MM-DD, to count the days from date to it"
+            "description": "An end date as YYYY-MM-DD, or today, to count the time between"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Whose today to use. Default: this computer"
           }
         },
         "required": []
+      }
+    },
+    {
+      "name": "calendar",
+      "description": "A month's calendar as a text grid, with its number of days, working days, first and last weekday, and today's date when it is this month.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "description": "The month as YYYY-MM, or today for this month"
+          },
+          "week_starts": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "sunday"
+            ],
+            "description": "The first column. Default: monday"
+          }
+        },
+        "required": [
+          "month"
+        ]
+      }
+    },
+    {
+      "name": "countdown",
+      "description": "The days, hours, minutes and seconds from now until a date or a date and time, or since it when it has passed.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "2026-12-31, 2026-12-31 23:59, or a time today such as 18:30"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "The zone the target is in. Default: this computer"
+          }
+        },
+        "required": [
+          "target"
+        ]
+      }
+    },
+    {
+      "name": "holidays",
+      "description": "A country's public holidays for a year, and the next one from today, from the Nager.Date service (needs the network permission). Not every country is covered.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "The two-letter ISO 3166 code, such as US, DE or GB"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Default: this year"
+          }
+        },
+        "required": [
+          "country"
+        ]
       }
     }
   ],
