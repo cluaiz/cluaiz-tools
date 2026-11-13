@@ -21,10 +21,29 @@
     "mcp": {
       "filesystem": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json",
+        "need": "optional",
+        "info": "Reads files beyond the change, when the agent has no file tools of its own"
       }
     },
     "skills": {}
+  },
+  "permissions": {
+    "programs": {
+      "info": "Runs git to read the changes under review; it changes nothing",
+      "allow": false,
+      "run": [
+        "git"
+      ]
+    },
+    "files": {
+      "info": "Reads the project's files around the change",
+      "allow": true,
+      "can": [
+        "read"
+      ],
+      "where": "workspace"
+    }
   },
   "latest_version": "1.0.0",
   "versions": {

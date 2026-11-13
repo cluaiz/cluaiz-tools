@@ -30,6 +30,23 @@ flowchart TD
 | [references/workspace-anatomy.md](references/workspace-anatomy.md) | The `.agents/` layout, rule triggers, which `AGENTS.md` wins, `/init` |
 | [references/memory-journaling.md](references/memory-journaling.md) | Saving and correcting project facts with `remember` and `forget` |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `create`, `read`, `update` in the workspace | Not allowed, asked for (sensitive) | Reads the project to find its build and test commands, and creates and updates the .agents/ folder |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission workflow-management [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `browser` (mcp) | recommended | Opens the page to check a visible change |
+| `web-search` (plugin) | optional | Looks up facts while planning |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

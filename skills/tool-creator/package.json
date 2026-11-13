@@ -42,6 +42,18 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {
+    "files": {
+      "info": "Reads a tool package to check it, and creates the files of a new one",
+      "allow": false,
+      "can": [
+        "create",
+        "read",
+        "update"
+      ],
+      "where": "workspace"
+    }
+  },
   "execution": {
     "type": "script_runner",
     "scratch_dir": "scratch",

@@ -26,6 +26,19 @@ flowchart LR
 | [references/engine-speech-api.md](references/engine-speech-api.md) | Formats, languages, models, errors |
 | [references/tts-voice-engineering.md](references/tts-voice-engineering.md) | Choosing a voice and preparing text to be spoken |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `create`, `read` in the workspace | Not allowed, asked for (sensitive) | Reads the audio file to transcribe, and saves spoken text as a WAV file |
+| Engine methods (`engine`): `audio.run`, `audio.voices` | Allowed | Transcribes and speaks through the Engine's audio |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission speech [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Install
 
 ```bash

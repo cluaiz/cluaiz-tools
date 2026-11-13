@@ -1,6 +1,6 @@
 ---
 name: context7
-description: "Looks up current documentation and code examples for programming libraries."
+description: "Looks up current documentation and code examples for programming libraries. Use when an answer depends on how a library or framework works today."
 ---
 
 # Context7 Docs

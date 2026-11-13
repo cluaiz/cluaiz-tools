@@ -3,12 +3,13 @@
   "name": "Web Fetch",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Fetches a web page and returns it as Markdown. Needs uv.",
+  "description": "Fetches a web page and returns it as Markdown. Needs uv. Use to read one page whose address is known.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "Web",
     "Fetch"
@@ -22,6 +23,13 @@
     "plugins": {},
     "mcp": {},
     "skills": {}
+  },
+  "permissions": {
+    "network": {
+      "info": "Fetches the pages that are chosen, including local addresses",
+      "allow": true,
+      "access": "full"
+    }
   },
   "expose": {
     "fetch": [

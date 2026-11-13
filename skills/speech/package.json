@@ -43,6 +43,25 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {
+    "files": {
+      "info": "Reads the audio file to transcribe, and saves spoken text as a WAV file",
+      "allow": false,
+      "can": [
+        "create",
+        "read"
+      ],
+      "where": "workspace"
+    },
+    "engine": {
+      "info": "Transcribes and speaks through the Engine's audio",
+      "allow": true,
+      "methods": [
+        "audio.run",
+        "audio.voices"
+      ]
+    }
+  },
   "functions": [
     {
       "name": "speech",

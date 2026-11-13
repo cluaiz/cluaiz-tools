@@ -40,16 +40,30 @@
     "plugins": {
       "web-search": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json",
+        "need": "optional",
+        "info": "Studies similar products for patterns"
       }
     },
     "mcp": {
       "browser": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json",
+        "need": "recommended",
+        "info": "Opens the page to check how it looks and to find console errors"
       }
     },
     "skills": {}
+  },
+  "permissions": {
+    "files": {
+      "info": "Reads the project's markup and styles to check them",
+      "allow": true,
+      "can": [
+        "read"
+      ],
+      "where": "workspace"
+    }
   },
   "latest_version": "1.0.0",
   "versions": {

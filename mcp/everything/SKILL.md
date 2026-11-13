@@ -1,6 +1,6 @@
 ---
 name: everything
-description: "The official MCP test server, for checking that MCP tools work."
+description: "The official MCP test server, for checking that MCP tools work. Use only when the user wants to test MCP."
 ---
 
 # MCP Test Server

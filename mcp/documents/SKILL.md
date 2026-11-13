@@ -1,6 +1,6 @@
 ---
 name: documents
-description: "Reads PDF, Word, Excel, PowerPoint, HTML and CSV files as text, so you can answer from them."
+description: "Reads PDF, Word, Excel, PowerPoint, HTML and CSV files as text, so you can answer from them. Use when the user asks what a document file says."
 ---
 
 # Documents

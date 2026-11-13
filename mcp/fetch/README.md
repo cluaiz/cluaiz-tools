@@ -37,6 +37,18 @@ flowchart LR
 - **`robots.txt` Enforcement:** `mcp-server-fetch` respects the target site's `robots.txt` rules for autonomous agents. If a site disallows fetching, the model reports the block directly and does not attempt to bypass it.
 - **JavaScript-Only Sites:** `fetch` does not execute client-side JavaScript. If a page renders an empty shell, use the `browser` MCP server instead.
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Internet (`network`): full: any public host | Allowed | Fetches the pages that are chosen, including local addresses |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission fetch [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Installation & Usage
 
 ```bash

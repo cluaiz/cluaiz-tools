@@ -1,6 +1,6 @@
 ---
 name: filesystem
-description: "Reads, writes, moves and searches files in the open folder."
+description: "Reads, writes, moves and searches files in the open folder. Use when files in the open folder must be read, found or changed."
 ---
 
 # Files

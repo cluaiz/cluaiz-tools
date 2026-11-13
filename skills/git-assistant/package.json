@@ -21,10 +21,29 @@
     "mcp": {
       "git": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/git/package.json",
+        "need": "optional",
+        "info": "Git tools, when commands cannot be run"
       }
     },
     "skills": {}
+  },
+  "permissions": {
+    "programs": {
+      "info": "Runs git to check the staged changes and the repository",
+      "allow": false,
+      "run": [
+        "git"
+      ]
+    },
+    "files": {
+      "info": "Reads the repository's commit rules and configuration",
+      "allow": true,
+      "can": [
+        "read"
+      ],
+      "where": "workspace"
+    }
   },
   "latest_version": "1.0.0",
   "versions": {

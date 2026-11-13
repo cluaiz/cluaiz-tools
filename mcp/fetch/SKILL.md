@@ -1,6 +1,6 @@
 ---
 name: fetch
-description: "Fetches one web page or address and returns it as Markdown."
+description: "Fetches one web page or address and returns it as Markdown. Use to read a page whose address is known and that needs no clicks."
 ---
 
 # Fetch

@@ -20,17 +20,22 @@
     "plugins": {
       "web-search": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json",
+        "need": "optional",
+        "info": "Looks up documentation and error messages"
       }
     },
     "mcp": {
       "filesystem": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/filesystem/package.json",
+        "need": "optional",
+        "info": "File tools, when the agent has none of its own"
       }
     },
     "skills": {}
   },
+  "permissions": {},
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

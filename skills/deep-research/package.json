@@ -37,11 +37,50 @@
     "plugins": {
       "web-search": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/plugins/web-search/package.json",
+        "need": "recommended",
+        "info": "Searches with more providers and the user's keys; without it the skill searches DuckDuckGo itself"
       }
     },
-    "mcp": {},
+    "mcp": {
+      "browser": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json",
+        "need": "optional",
+        "info": "Searches and reads pages in a real browser when the search services fail or are blocked"
+      },
+      "fetch": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/fetch/package.json",
+        "need": "optional",
+        "info": "Reads pages that need no JavaScript"
+      }
+    },
     "skills": {}
+  },
+  "permissions": {
+    "network": {
+      "info": "Searches and downloads the pages the research needs",
+      "allow": true,
+      "access": "full"
+    },
+    "files": {
+      "info": "Saves the sources and the report in the workspace, and reads them back",
+      "allow": false,
+      "can": [
+        "create",
+        "read",
+        "update"
+      ],
+      "where": "workspace"
+    },
+    "engine": {
+      "info": "Searches through the web-search plugin when it is installed",
+      "allow": true,
+      "methods": [
+        "tools.call"
+      ]
+    }
   },
   "execution": {
     "type": "script_runner",

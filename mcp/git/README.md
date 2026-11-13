@@ -46,6 +46,18 @@ Every tool call requires `repo_path` (pass `"."` for the current open workspace 
 - **Non-Git Directory:** If `repo_path` does not contain a `.git` repository, `mcp-server-git` returns a clear error without modifying any files.
 - **Approval Gate:** Mutating operations (`git_commit`, `git_checkout`, `git_reset`) are governed by the user's security mode (`require_approval`).
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `create`, `read`, `update`, `delete` in the workspace | Not allowed, asked for (sensitive) | Reads the repository, and stages, commits, branches and merges in it |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission git [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Installation & Usage
 
 ```bash

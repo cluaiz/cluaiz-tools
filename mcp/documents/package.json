@@ -3,12 +3,13 @@
   "name": "Documents",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Reads PDF, Word, Excel, PowerPoint, HTML, CSV and other files as text, so the model can answer from them. Runs on this computer. Needs uv.",
+  "description": "Reads PDF, Word, Excel, PowerPoint, HTML, CSV and other files as text, so the model can answer from them. Runs on this computer. Needs uv. Use when the user asks about what a document file says.",
   "author": {
     "name": "Microsoft",
     "url": "https://github.com/microsoft/markitdown"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "Documents",
     "PDF",
@@ -37,6 +38,21 @@
     "plugins": {},
     "mcp": {},
     "skills": {}
+  },
+  "permissions": {
+    "files": {
+      "info": "Reads the document files it is given, anywhere your account can read",
+      "allow": false,
+      "can": [
+        "read"
+      ],
+      "where": "any"
+    },
+    "network": {
+      "info": "Reads web pages given as an http or https address",
+      "allow": true,
+      "access": "full"
+    }
   },
   "expose": {
     "convert_to_markdown": [

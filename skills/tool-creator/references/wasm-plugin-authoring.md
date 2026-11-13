@@ -7,8 +7,8 @@ WebAssembly (WASM) plugins provide fast, sandboxed compute extensions for the Cl
 WASM plugins run inside an isolated WebAssembly sandbox managed by the Cluaiz engine runtime:
 - **No Filesystem Access:** Plugins cannot directly read, write, or query the host filesystem. If files are needed, use an MCP server instead.
 - **Controlled Host Imports:** Plugins can only call host functions explicitly exposed through the `cluaiz` import module.
-- **Network Permissions:** Plugins cannot bind network sockets. Outbound HTTP calls are restricted to HTTPS requests explicitly permitted via `permissions.network_access: true` in `package.json`.
-- **Secrets Management:** Sensitive API keys must never be hardcoded. They are declared in `permissions.secrets` and injected dynamically by the engine.
+- **Network Permissions:** Plugins cannot bind network sockets. Outbound HTTP calls are restricted to HTTPS requests explicitly permitted in `package.json` with the `network` kind (`info`, `allow`, and `access`: `full`, or `strict` with `hosts`; `docs/package-spec.md#permissions`). The user can refuse it; then `http_fetch` answers `permission_off` and the plugin must pass that on as a clear error. The time and system name functions are always available; the time is not a permission (`docs/reference/permissions.md`).
+- **Secrets Management:** Sensitive API keys must never be hardcoded. They are named in the top-level `env` and filled in by the Engine.
 
 ## 2. ABI & Memory Exchange Contract
 
@@ -61,7 +61,7 @@ extern "C" {
     /// This computer's offset from UTC, in minutes
     fn utc_offset_minutes() -> i32;
     /// A JSON request in, `(ptr << 32) | len` of a JSON answer out (written through `allocate`).
-    /// Refused unless package.json has permissions.network_access
+    /// Refused unless package.json allows the network and the user has not switched it off
     fn http_fetch(ptr: *const u8, len: u32) -> u64;
 }
 ```
@@ -105,7 +105,7 @@ The full contract, with limits and the request format of `http_fetch`, is in the
 }
 ```
 
-A key for an outside service is declared in `permissions.secrets` with the one host it may go to, `{"EXAMPLE_API_KEY": "api.example.com"}`, and the user sets it with `cluaiz plugin config <id> EXAMPLE_API_KEY`. Never write a key into the files.
+A key for an outside service is named in the top-level `env`, `{"EXAMPLE_API_KEY": {"info": "Your key for the example service", "need": "required"}}`. The Engine takes it from the system environment, or the user sets it with `cluaiz plugin config <id> EXAMPLE_API_KEY`. Use `strict` network access with `hosts` so the key goes only to its service. Never write a key into the files.
 
 The Engine passes only the arguments to `execute_cel`, not the function's name: a plugin with several functions tells them apart by their arguments.
 

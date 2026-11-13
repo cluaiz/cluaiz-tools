@@ -7,7 +7,7 @@ Searches the web and reads web pages as clean text from a single WebAssembly plu
 - **Purpose:** Gives local models live web search and page extraction inside a memory-safe WebAssembly sandbox without exposing API keys to the plugin or model context.
 - **Package Type:** WebAssembly Plugin (`build_type: "wasm"`)
 - **Platform Support:** Cross-platform (`wasm32-unknown-unknown`)
-- **Host ABI Requirement:** Requires Cluaiz Engine `cluaiz.http_fetch` host import (`permissions.network_access: true`).
+- **Host ABI Requirement:** Requires Cluaiz Engine `cluaiz.http_fetch` host import (the `network` permission with `full` access).
 
 ## System Architecture & Provider Cascade
 
@@ -49,7 +49,7 @@ If every provider fails, the answer says so and lists what was tried. Results ar
 
 ## Settings & Secret Isolation
 
-Set them with one command. Leave out the value to be asked for it without it showing on screen:
+They are listed in `env` in `package.json`. The Engine takes each from the system environment variable of the same name first. Otherwise set it with one command; leave out the value to be asked for it without it showing on screen:
 
 ```bash
 cluaiz plugin config web-search TAVILY_API_KEY
@@ -67,11 +67,37 @@ An app sets them through the API, with the CEP method `tools.set_settings`:
 
 An empty string removes a value. `tools.get_settings` lists the settings a tool asks for, with `secret` and `set` for each, and never returns a value.
 
-The plugin never sees a key. It asks for `{{secret:TAVILY_API_KEY}}` in a header, and the Engine fills in the value, only for the host named in `permissions.secrets` in `package.json`.
+The plugin never sees a key. It asks for `{{secret:TAVILY_API_KEY}}` in a header, and the Engine fills in the value. With `full` access the Engine may send a key to any public host the plugin reaches; the plugin's own code sends each key only to its provider.
 
 ## What It Can Reach
 
 Every request goes through the Engine, which allows only `https` to public addresses and checks each redirect again. A page is read up to 2 MB. `SEARXNG_URL` is the only address that may be local or plain `http`, because the user chose it.
+
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Internet (`network`): full: any public host | Allowed | Sends searches to search services and reads the pages that are chosen |
+
+While a permission is refused, the Engine refuses that access: the function answers `permission_off` with the command that allows it.
+
+Allow or refuse them with `cluaiz plugin permission web-search [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Setting (`env`) | Need | Info |
+|---|---|---|
+| `TAVILY_API_KEY` | optional | A Tavily key, for better search results. It has a free monthly allowance |
+| `EXA_API_KEY` | optional | An Exa key, another search service with a free monthly allowance |
+| `BRAVE_API_KEY` | optional | A Brave Search key. Its site asks for a card |
+| `MARGINALIA_API_KEY` | optional | A Marginalia key, a small independent search index |
+| `SEARXNG_URL` | optional | The address of your own SearXNG server, such as http://localhost:8888 |
+
+The Engine reads each from the system environment variable of that name first; otherwise set it with `cluaiz plugin config web-search <NAME>`. Values are hidden and never stored in the tool's folder.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `browser` (mcp) | optional | Searches in a real browser when every search service fails or is blocked |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
 
 ## Build & Installation
 

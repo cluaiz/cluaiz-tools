@@ -31,6 +31,26 @@ flowchart TD
 |---|---|
 | [references/research-method.md](references/research-method.md) | Budgets and modes, splitting the question, choosing sources, writing sections |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Internet (`network`): full: any public host | Allowed | Searches and downloads the pages the research needs |
+| Files (`files`): `create`, `read`, `update` in the workspace | Not allowed, asked for (sensitive) | Saves the sources and the report in the workspace, and reads them back |
+| Engine methods (`engine`): `tools.call` | Allowed | Searches through the web-search plugin when it is installed |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission deep-research [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `web-search` (plugin) | recommended | Searches with more providers and the user's keys; without it the skill searches DuckDuckGo itself |
+| `browser` (mcp) | optional | Searches and reads pages in a real browser when the search services fail or are blocked |
+| `fetch` (mcp) | optional | Reads pages that need no JavaScript |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

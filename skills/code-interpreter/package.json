@@ -32,6 +32,38 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {
+    "programs": {
+      "info": "Runs the code it is given with that language's program. The code can do whatever that program can",
+      "allow": false,
+      "run": [
+        "Rscript",
+        "bash",
+        "g++",
+        "gcc",
+        "go",
+        "lua",
+        "node",
+        "npx",
+        "php",
+        "powershell",
+        "pwsh",
+        "python",
+        "ruby",
+        "rustc"
+      ]
+    },
+    "files": {
+      "info": "Writes the code to a file in the scratch folder before running it",
+      "allow": false,
+      "can": [
+        "create",
+        "update",
+        "delete"
+      ],
+      "where": "workspace"
+    }
+  },
   "execution": {
     "type": "script_runner",
     "scratch_dir": "scratch",

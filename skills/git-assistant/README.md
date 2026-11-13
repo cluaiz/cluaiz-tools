@@ -28,6 +28,23 @@ It runs `git` and Python 3 in the open folder. The model runs other `git` comman
 |---|---|
 | [references/git-details.md](references/git-details.md) | Secrets that were staged or committed, one change per commit, branch names and tidying history, resolving conflicts |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Programs (`programs`): `git` | Not allowed, asked for (sensitive) | Runs git to check the staged changes and the repository |
+| Files (`files`): `read` in the workspace | Allowed | Reads the repository's commit rules and configuration |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission git-assistant [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `git` (mcp) | optional | Git tools, when commands cannot be run |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

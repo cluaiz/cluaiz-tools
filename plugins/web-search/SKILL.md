@@ -1,6 +1,6 @@
 ---
 name: web-search
-description: "Search the web and read pages, for current information or anything you do not know."
+description: "Search the web and read pages, for current information or anything you do not know. Use when an answer needs current information or facts not known for sure."
 ---
 
 # Web Search

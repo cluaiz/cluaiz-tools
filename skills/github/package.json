@@ -22,6 +22,24 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {
+    "programs": {
+      "info": "Runs gh and git",
+      "allow": false,
+      "run": [
+        "gh",
+        "git"
+      ]
+    },
+    "network": {
+      "info": "Reads public repositories from the GitHub API when gh is not installed",
+      "allow": true,
+      "access": "strict",
+      "hosts": [
+        "api.github.com"
+      ]
+    }
+  },
   "latest_version": "1.0.0",
   "versions": {
     "1.0.0": {

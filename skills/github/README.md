@@ -27,6 +27,19 @@ This works in chat and in the terminal agent. Writing to GitHub needs the termin
 |---|---|
 | [references/github-tasks.md](references/github-tasks.md) | CI failure causes, issue triage and splitting, pull request descriptions and review follow-up, versions, changelogs and releases |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Programs (`programs`): `gh`, `git` | Not allowed, asked for (sensitive) | Runs gh and git |
+| Internet (`network`): strict: only `api.github.com` | Allowed | Reads public repositories from the GitHub API when gh is not installed |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission github [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Install
 
 ```bash

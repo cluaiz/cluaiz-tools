@@ -3,12 +3,13 @@
   "name": "Everything Test Server",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "The official MCP test server, for checking that MCP works. Needs Node.",
+  "description": "The official MCP test server, for checking that MCP works. Needs Node. Use only to check that MCP tools work.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "MCP",
     "Testing"
@@ -22,6 +23,7 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {},
   "expose": {
     "echo": [
       "message"

@@ -32,6 +32,18 @@ flowchart TD
 | [references/workflow-and-flow-authoring.md](references/workflow-and-flow-authoring.md) | A `/command` workflow or an automation flow instead of a tool |
 | [references/validation-rubric.md](references/validation-rubric.md) | What a finished tool needs, and what only a real run shows |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `create`, `read`, `update` in the workspace | Not allowed, asked for (sensitive) | Reads a tool package to check it, and creates the files of a new one |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission tool-creator [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Install
 
 ```bash

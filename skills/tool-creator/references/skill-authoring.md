@@ -95,4 +95,9 @@ When a step is mechanical and easy to get wrong (parsing, checking, calling an A
 }
 ```
 
-List **every** file in `versions.<v>.files`: without a release, the installer copies only those. Tools listed in `dependencies` are installed with the skill when missing. Each entry is `"<id>": {"version": "^1.0.0", "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/<kind>/<id>/package.json"}`, never a bare string; `validate_tool` checks it.
+List **every** file in `versions.<v>.files`: without a release, the installer copies only those. ## Dependencies and permissions
+
+- **Dependencies:** each entry is `"<id>": {"version": "^1.0.0", "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/<kind>/<id>/package.json", "need": "...", "info": "..."}`, never a bare string. `need` is `required` (cannot work without it), `recommended` (better with it) or `optional` (sometimes useful); `info` is one sentence the user reads at install. The user's mode decides what is installed without asking.
+- **Permissions:** list each type the tool uses with `info`, `allow` and the type's options, only from the fixed list: `network` (`access`: `full`, or `strict` with `hosts`), `files` (`can`: create, read, update, delete; `where`: workspace, home, any), `programs` (`run`), `system` (`read`), `location`, `media`, `clipboard`, `notifications`, `native`, `engine`. The Engine decides what is sensitive. The time is always available and is not a permission. Full list: `docs/reference/permissions.md` in `cluaiz-tools`. The user can refuse any of them, so the tool must say clearly what it cannot do without one.
+- **Env:** name each key or setting the tool reads in the top-level `env`, with `info` and `need` (`required` or `optional`). The value comes from the system environment or `cluaiz <kind> config`.
+- Rules and the install table: `docs/package-spec.md` in `cluaiz-tools` (Permissions, Env, Dependencies). `validate_tool` checks them.

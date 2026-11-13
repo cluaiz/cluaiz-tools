@@ -22,6 +22,19 @@ flowchart TD
 |---|---|
 | [references/working-details.md](references/working-details.md) | Edge cases and when to ask, step size, undoing your own edits safely |
 
+## Permissions and dependencies
+
+No permissions. It gives the model instructions only; the model works with its other tools.
+
+Allow or refuse them with `cluaiz skill permission build-feature [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `web-search` (plugin) | optional | Looks up documentation and error messages |
+| `filesystem` (mcp) | optional | File tools, when the agent has none of its own |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

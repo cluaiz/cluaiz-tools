@@ -40,6 +40,18 @@ flowchart TD
 - **Workspace Escape Prevention:** Any path that resolves outside the workspace root (`.` passed at server startup) is refused by `@modelcontextprotocol/server-filesystem`.
 - **Large File Handling:** Supports `head` and `tail` parameters on `read_text_file` so large logs can be inspected without loading the entire file into context.
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `create`, `read`, `update`, `delete` in the workspace | Not allowed, asked for (sensitive) | Reads, searches, creates, changes, moves and copies files in the open folder |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission filesystem [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Installation & Usage
 
 ```bash

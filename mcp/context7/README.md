@@ -42,6 +42,24 @@ sequenceDiagram
 - **Unlisted Library:** If `resolve-library-id` returns no matching library, the model informs the user and can fall back to `web-search` if installed.
 - **Network or Rate Limits:** If the upstream Context7 endpoint is unreachable, the server returns an MCP error response without hanging the Engine turn.
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Internet (`network`): strict: only `context7.com` | Allowed | Sends library names and questions to the Context7 service |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission context7 [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Setting (`env`) | Need | Info |
+|---|---|---|
+| `CONTEXT7_API_KEY` | optional | A free Context7 key, for a higher rate limit |
+
+The Engine reads each from the system environment variable of that name first; otherwise set it with `cluaiz mcp config context7 <NAME>`. Values are hidden and never stored in the tool's folder.
+
+No dependencies.
+
 ## Installation & Usage
 
 ```bash

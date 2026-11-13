@@ -11,7 +11,7 @@ Choose an MCP package when your tool needs:
 
 ## 2. MCP Manifest (`package.json`)
 
-The Engine starts the server from `execution`. Triggers are a **plain list** for MCP packages; `triggers.semantic` has no effect here. Values in `execution.env` are literal (`${NAME}` is not expanded); settings the user provides, such as a connection string or key, go in `user_env` and are set with `cluaiz mcp config <id> <NAME> <value>`.
+The Engine starts the server from `execution`. Triggers are a **plain list** for MCP packages; `triggers.semantic` has no effect here. Values in `execution.env` are literal (`${NAME}` is not expanded); settings the user provides, such as a connection string or key, go in the top-level `env` with `info` and `need`. The server gets each as an environment variable, from the system environment or from `cluaiz mcp config <id> <NAME> <value>`.
 
 ```json
 {
@@ -24,7 +24,7 @@ The Engine starts the server from `execution`. Triggers are a **plain list** for
   "license": "MIT",
   "tags": ["Database", "PostgreSQL"],
   "triggers": ["query postgres", "database schema", "list tables"],
-  "user_env": ["DATABASE_URL"],
+  "env": { "DATABASE_URL": { "info": "The connection string of your PostgreSQL database", "need": "required" } },
   "execution": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-postgres@0.6.2"] },
   "dependencies": { "plugins": {}, "mcp": {}, "skills": {} },
   "latest_version": "1.0.0",

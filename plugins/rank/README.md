@@ -7,7 +7,7 @@ Ranks an in-memory collection of text documents against a keyword query using te
 - **Purpose:** Provides deterministic, zero-dependency lexical ranking and snippet extraction over candidate documents already held in memory.
 - **Package Type:** WebAssembly Plugin (`build_type: "wasm"`)
 - **Platform Support:** Cross-platform (`wasm32-unknown-unknown`)
-- **Sandbox Permissions:** Zero network access (`network_access: false`), zero filesystem access (`file_system: "none"`), memory cap `32 MB`.
+- **Permissions:** see [Permissions and dependencies](#permissions-and-dependencies).
 
 ## System Architecture & Execution Flow
 
@@ -48,6 +48,14 @@ flowchart LR
 
 - **No Filesystem or Web Access by Design:** `rank` operates strictly on the `documents` array passed in the call. To read local files first, combine with the `filesystem` MCP server; to search the internet, use the `web-search` plugin.
 - **Empty Query or Document List:** Returns a structured error message rather than trapping.
+
+## Permissions and dependencies
+
+No permissions. It cannot reach the internet, files or other programs.
+
+Allow or refuse them with `cluaiz plugin permission rank [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
 
 ## Build & Installation
 

@@ -38,6 +38,14 @@ sequenceDiagram
 - **Node.js Missing:** If `npx` is not found on `PATH`, the Engine reports a process spawn error indicating Node.js is required.
 - **First-Run Download Delay:** On the first invocation, `npx` downloads `@modelcontextprotocol/server-everything@2.2.1`, which may take a few seconds before `initialize` completes.
 
+## Permissions and dependencies
+
+No permissions declared.
+
+Allow or refuse them with `cluaiz mcp permission everything [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Installation & Usage
 
 ```bash

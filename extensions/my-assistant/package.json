@@ -26,7 +26,9 @@
     "extensions": {
       "browser-voice": {
         "version": "^1.0.0",
-        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/extensions/browser-voice/package.json"
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/extensions/browser-voice/package.json",
+        "need": "required",
+        "info": "Its voice and lip sync use the browser speech of browser-voice"
       }
     }
   },

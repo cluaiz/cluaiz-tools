@@ -32,6 +32,23 @@ Hints and risk tags are where to look first, not findings: the model confirms ea
 
 It works with other skills when they are installed: `workflow-management` for the project's `.agents/` folder and memory, `github` for pull requests, `code-interpreter` to check a behaviour with a small run.
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Programs (`programs`): `git` | Not allowed, asked for (sensitive) | Runs git to read the changes under review; it changes nothing |
+| Files (`files`): `read` in the workspace | Allowed | Reads the project's files around the change |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission code-reviewer [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `filesystem` (mcp) | optional | Reads files beyond the change, when the agent has no file tools of its own |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

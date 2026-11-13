@@ -3,12 +3,13 @@
   "name": "Context7 Docs",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Looks up current documentation for programming libraries. Needs Node and internet access.",
+  "description": "Looks up current documentation for programming libraries. Needs Node and internet access. Use when an answer depends on how a library or framework works today.",
   "author": {
     "name": "Upstash",
     "url": "https://github.com/upstash/context7"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "Documentation",
     "Libraries"
@@ -27,9 +28,22 @@
     "mcp": {},
     "skills": {}
   },
-  "user_env": [
-    "CONTEXT7_API_KEY"
-  ],
+  "permissions": {
+    "network": {
+      "info": "Sends library names and questions to the Context7 service",
+      "allow": true,
+      "access": "strict",
+      "hosts": [
+        "context7.com"
+      ]
+    }
+  },
+  "env": {
+    "CONTEXT7_API_KEY": {
+      "info": "A free Context7 key, for a higher rate limit",
+      "need": "optional"
+    }
+  },
   "execution": {
     "command": "npx",
     "args": [

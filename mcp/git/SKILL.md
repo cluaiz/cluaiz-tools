@@ -1,6 +1,6 @@
 ---
 name: git
-description: "Reads a Git repository, and can stage, commit, branch and merge in it."
+description: "Reads a Git repository, and can stage, commit, branch and merge in it. Use for Git work in a repository on this computer."
 ---
 
 # Git

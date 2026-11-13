@@ -65,7 +65,8 @@ Tools are shared through the `cluaiz-tools` repository, which takes pull request
 
 ## Rules
 
-- Never put keys or passwords in a tool's files. A plugin asks for them through `permissions.secrets`, an MCP server through `user_env`.
+- Declare every dependency with `need` (`required`, `recommended`, `optional`) and `info`, and every permission the tool uses with `info` and `allow` (`network` also with `access`); the user reads both at install and can refuse permissions: [references/skill-authoring.md](references/skill-authoring.md).
+- Never put keys or passwords in a tool's files. Every tool type names the keys and settings it reads in `env`.
 - `SKILL.md` is for the model: short judgement rules and limits, with no diagrams or long examples. `README.md` is for people: it explains what the tool does and includes a Mermaid diagram with quoted labels.
 - Links are relative to the tool folder, and every file is listed in `versions.<version>.files`.
 - The family key, the folder name and the `id` stay the same.

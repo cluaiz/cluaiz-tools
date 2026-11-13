@@ -3,12 +3,13 @@
   "name": "Git",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Reads a Git repository, and can stage, commit, branch and merge in it. Needs uv.",
+  "description": "Reads a Git repository, and can stage, commit, branch and merge in it. Needs uv. Use for Git work in a repository on this computer.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "Git",
     "Version Control"
@@ -26,6 +27,19 @@
     "plugins": {},
     "mcp": {},
     "skills": {}
+  },
+  "permissions": {
+    "files": {
+      "info": "Reads the repository, and stages, commits, branches and merges in it",
+      "allow": false,
+      "can": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ],
+      "where": "workspace"
+    }
   },
   "execution": {
     "command": "uvx",

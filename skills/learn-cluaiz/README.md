@@ -27,6 +27,18 @@ flowchart TD
 | [references/contributing-guide.md](references/contributing-guide.md) | What is accepted during the pre-release, good reports, new tools |
 | [references/dynamic-retrieval.md](references/dynamic-retrieval.md) | How the model checks anything not covered |
 
+## Permissions and dependencies
+
+No permissions. It gives the model instructions only; the model works with its other tools.
+
+Allow or refuse them with `cluaiz skill permission learn-cluaiz [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `web-search` (plugin) | optional | Reads the newest Cluaiz documentation online |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

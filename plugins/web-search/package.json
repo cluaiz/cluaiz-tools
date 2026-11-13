@@ -4,12 +4,13 @@
   "category": "research",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "Searches the web and reads pages. One WebAssembly file, nothing to set up. Add a free key for dependable results.",
+  "description": "Searches the web and reads pages. One WebAssembly file, nothing to set up. Add a free key for dependable results. Use when an answer needs current information or facts not known for sure.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
   "tags": [
     "Web Search",
     "Internet",
@@ -29,20 +30,44 @@
   ],
   "dependencies": {
     "plugins": {},
-    "mcp": {},
+    "mcp": {
+      "browser": {
+        "version": "^1.0.0",
+        "url": "https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/mcp/browser/package.json",
+        "need": "optional",
+        "info": "Searches in a real browser when every search service fails or is blocked"
+      }
+    },
     "skills": {}
   },
   "permissions": {
-    "network_access": true,
-    "secrets": {
-      "TAVILY_API_KEY": "api.tavily.com",
-      "EXA_API_KEY": "api.exa.ai",
-      "BRAVE_API_KEY": "api.search.brave.com",
-      "MARGINALIA_API_KEY": "api2.marginalia-search.com"
+    "network": {
+      "info": "Sends searches to search services and reads the pages that are chosen",
+      "allow": true,
+      "access": "full"
+    }
+  },
+  "env": {
+    "TAVILY_API_KEY": {
+      "info": "A Tavily key, for better search results. It has a free monthly allowance",
+      "need": "optional"
     },
-    "user_urls": [
-      "SEARXNG_URL"
-    ]
+    "EXA_API_KEY": {
+      "info": "An Exa key, another search service with a free monthly allowance",
+      "need": "optional"
+    },
+    "BRAVE_API_KEY": {
+      "info": "A Brave Search key. Its site asks for a card",
+      "need": "optional"
+    },
+    "MARGINALIA_API_KEY": {
+      "info": "A Marginalia key, a small independent search index",
+      "need": "optional"
+    },
+    "SEARXNG_URL": {
+      "info": "The address of your own SearXNG server, such as http://localhost:8888",
+      "need": "optional"
+    }
   },
   "functions": [
     {

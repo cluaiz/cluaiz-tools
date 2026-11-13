@@ -57,6 +57,8 @@ The browser runs without a window, and closes itself after 5 minutes without a c
 cluaiz mcp config browser AGENT_BROWSER_HEADED 1
 ```
 
+Or set the system environment variable `AGENT_BROWSER_HEADED=1`, which the Engine reads first.
+
 Set it to an empty value to hide the window again. A change applies when the server next starts.
 
 Switching between hidden and visible restarts the browser, which loses the open page. The window shows what happens on the page, but no mouse pointer is drawn.
@@ -78,6 +80,26 @@ If something else already uses that port, the command still prints the address b
 ```bash
 npx -y agent-browser@0.41.2 dashboard start --port 4857
 ```
+
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Internet (`network`): full: any public host | Allowed | Opens the web pages that are chosen, including local addresses |
+| Programs (`programs`): `chrome`, `msedge`, `brave`, `chromium` | Not allowed, asked for (sensitive) | Starts a Chromium browser installed on this computer, such as Chrome, Edge or Brave |
+| Files (`files`): `create` in the workspace | Not allowed, asked for (sensitive) | Saves a screenshot to the path it is given |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission browser [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Setting (`env`) | Need | Info |
+|---|---|---|
+| `AGENT_BROWSER_HEADED` | optional | Set to 1 to show the browser window |
+
+The Engine reads each from the system environment variable of that name first; otherwise set it with `cluaiz mcp config browser <NAME>`. Values are hidden and never stored in the tool's folder.
+
+No dependencies.
 
 ## Installation & Status
 

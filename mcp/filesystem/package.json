@@ -3,12 +3,13 @@
   "name": "Filesystem",
   "category": "mcp",
   "hub_type": "mcp",
-  "description": "Reads, writes and searches files in the open folder. Needs Node.",
+  "description": "Reads, writes and searches files in the open folder. Needs Node. Use when files in the open folder must be read, found or changed.",
   "author": {
     "name": "MCP Steering Group",
     "url": "https://modelcontextprotocol.io"
   },
   "license": "MIT",
+  "icon": "assets/icon.svg",
   "tags": [
     "Files"
   ],
@@ -22,6 +23,19 @@
     "plugins": {},
     "mcp": {},
     "skills": {}
+  },
+  "permissions": {
+    "files": {
+      "info": "Reads, searches, creates, changes, moves and copies files in the open folder",
+      "allow": false,
+      "can": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ],
+      "where": "workspace"
+    }
   },
   "expose": {
     "read_text_file": [

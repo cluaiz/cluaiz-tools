@@ -32,6 +32,23 @@ The findings are pattern checks; the model confirms each one in the code. Contra
 | [references/mobile-app.md](references/mobile-app.md) | Mobile: safe areas, touch targets, iOS and Android conventions, text scaling, lists, checks |
 | [references/desktop-software.md](references/desktop-software.md) | Desktop: windows, density, keyboard, menus, Electron and Tauri security, checks |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `read` in the workspace | Allowed | Reads the project's markup and styles to check them |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission frontend-design [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+| Depends on | Need | Info |
+|---|---|---|
+| `browser` (mcp) | recommended | Opens the page to check how it looks and to find console errors |
+| `web-search` (plugin) | optional | Studies similar products for patterns |
+
+A `required` tool is installed with this one (asked first in `sandboxed` mode when it needs a sensitive permission, and in `strict` mode). A `recommended` one is asked about, except in `full_access` mode. An `optional` one is only suggested.
+
 ## Install
 
 ```bash

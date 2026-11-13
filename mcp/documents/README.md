@@ -41,6 +41,19 @@ The model passes a `file:`, `http:`, `https:`, or `data:` address. It can read a
 
 Audio files are sent to an online speech service by MarkItDown, so the skill tells the model not to pass them (use the local `speech` skill for audio files instead).
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Files (`files`): `read` in any folder | Not allowed, asked for (sensitive) | Reads the document files it is given, anywhere your account can read |
+| Internet (`network`): full: any public host | Allowed | Reads web pages given as an http or https address |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz mcp permission documents [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Installation & Status
 
 ```bash

@@ -28,6 +28,19 @@ flowchart TD
 | [references/data-analysis-and-charts.md](references/data-analysis-and-charts.md) | Reading data files, summary numbers, charts |
 | [references/safe-runs.md](references/safe-runs.md) | What the Engine limits, and keeping long runs, big files, child processes and files safe |
 
+## Permissions and dependencies
+
+| Permission | At install | Info |
+|---|---|---|
+| Programs (`programs`): `Rscript`, `bash`, `g++`, `gcc`, `go`, `lua`, `node`, `npx`, `php`, `powershell`, `pwsh`, `python`, `ruby`, `rustc` | Not allowed, asked for (sensitive) | Runs the code it is given with that language's program. The code can do whatever that program can |
+| Files (`files`): `create`, `update`, `delete` in the workspace | Not allowed, asked for (sensitive) | Writes the code to a file in the scratch folder before running it |
+
+While a permission is refused, the Engine asks before each call. The tool runs as a normal program, so the Engine cannot block that access itself.
+
+Allow or refuse them with `cluaiz skill permission code-interpreter [<permission> on|off]`, the App's tool page, or `tools.set_settings`. In `strict` mode every permission is asked for at install.
+
+No dependencies.
+
 ## Install
 
 ```bash

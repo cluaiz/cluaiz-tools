@@ -24,6 +24,65 @@ HYPE = re.compile(
 )
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 HUB = {"skill": "skills", "plugin": "plugins", "mcp": "mcp"}
+# The permission standard (docs/reference/permissions.md): each type and its fixed options.
+# An option is ("one", values), ("some", values) for a non-empty list of them, or ("names", None)
+# for a non-empty list of names. `always` marks a type that is always sensitive.
+PERMISSION_TYPES = {
+    "network": {"access": ("one", {"full", "strict"}), "hosts": ("names", None)},
+    "files": {"can": ("some", {"create", "read", "update", "delete"}), "where": ("one", {"workspace", "home", "any"})},
+    "programs": {"run": ("names", None)},
+    "system": {"read": ("some", {"os_version", "cpu", "memory", "gpu", "hostname", "username"})},
+    "location": {"precision": ("one", {"approximate", "precise"})},
+    "media": {"use": ("some", {"microphone", "camera", "screen"})},
+    "clipboard": {"can": ("some", {"read", "write"})},
+    "notifications": {},
+    "native": {},
+    "engine": {"methods": ("names", None)},
+}
+ALWAYS_SENSITIVE = {"programs", "location", "media", "native"}
+# Removed names and what replaces them
+REMOVED_PERMISSIONS = {
+    "clock": "nothing: the time is always available",
+    "files_read": "`files` with `can` and `where`",
+    "files_write": "`files` with `can` and `where`",
+    "run_programs": "`programs` with `run`",
+    "network_access": "`network`",
+    "file_system": "`files`",
+    "secrets": "the top-level `env`",
+    "user_urls": "the top-level `env`",
+    "max_memory_mb": "`limits.memory_mb`",
+    "max_cpu_time_ms": "nothing; remove it",
+    "vram_kv_inject": "nothing; remove it",
+}
+
+
+def is_sensitive(kind, spec):
+    """Whether the Engine treats this permission as sensitive (docs/reference/permissions.md)."""
+    if kind in ALWAYS_SENSITIVE:
+        return True
+    if kind == "files":
+        return spec.get("where") != "workspace" or set(spec.get("can") or []) - {"read"} != set()
+    if kind == "system":
+        return bool({"hostname", "username"} & set(spec.get("read") or []))
+    if kind == "clipboard":
+        return "read" in (spec.get("can") or [])
+    return False
+
+
+def check_option(kind, name, rule, value):
+    form, allowed = rule
+    where = f"permissions.{kind}.{name}"
+    if form == "one":
+        return None if value in allowed else f"{where} must be one of: {', '.join(sorted(allowed))}"
+    if not (isinstance(value, list) and value and all(isinstance(v, str) and v for v in value)):
+        return f"{where} must be a non-empty list"
+    if form == "some" and set(value) - allowed:
+        return f"{where} may hold only: {', '.join(sorted(allowed))}"
+    return None
+
+
+ENV_NEEDS = {"required", "optional"}
+DEPENDENCY_NEEDS = {"required", "recommended", "optional"}
 
 
 def tools_home():
@@ -248,6 +307,92 @@ def validate(folder):
                 for dep_id, spec in entries.items():
                     if not (isinstance(spec, dict) and isinstance(spec.get("version"), str) and isinstance(spec.get("url"), str)):
                         errors.append(f"dependencies.{kind}.{dep_id} must be {{\"version\": \"^1.0.0\", \"url\": \"https://raw.githubusercontent.com/cluaiz/cluaiz-tools/main/{kind}/{dep_id}/package.json\"}}")
+                        continue
+                    need = spec.get("need")
+                    if need is None:
+                        warnings.append(f"dependencies.{kind}.{dep_id}: add `need` (required, recommended or optional) and `info`; without `need` it counts as required")
+                    elif need not in DEPENDENCY_NEEDS:
+                        errors.append(f"dependencies.{kind}.{dep_id}: need must be required, recommended or optional, not `{need}`")
+                    elif need != "optional" and not (isinstance(spec.get("info"), str) and spec["info"].strip()):
+                        errors.append(f"dependencies.{kind}.{dep_id}: a {need} dependency needs `info`, one sentence the user reads at install")
+                    if "why" in spec:
+                        errors.append(f"dependencies.{kind}.{dep_id}: `why` is now `info`")
+
+    # Permissions: only the fixed types and options (docs/reference/permissions.md)
+    perms = pkg.get("permissions")
+    if perms is not None:
+        if not isinstance(perms, dict):
+            errors.append("package.json: permissions must be an object")
+        else:
+            for kind, spec in perms.items():
+                if kind in REMOVED_PERMISSIONS:
+                    errors.append(f"permissions.{kind} is no longer read; use {REMOVED_PERMISSIONS[kind]}")
+                    continue
+                if kind not in PERMISSION_TYPES:
+                    errors.append(f"permissions.{kind} is not a permission type; use one of: {', '.join(PERMISSION_TYPES)}")
+                    continue
+                if not isinstance(spec, dict):
+                    errors.append(f"permissions.{kind} must be an object with `info`, `allow` and its options")
+                    continue
+                if not (isinstance(spec.get("info"), str) and spec["info"].strip()):
+                    errors.append(f"permissions.{kind} needs `info`, one sentence the user reads")
+                if "allow" in spec and not isinstance(spec["allow"], bool):
+                    errors.append(f"permissions.{kind}.allow must be true or false")
+                for old, new in (("why", "info"), ("default", "allow")):
+                    if old in spec:
+                        errors.append(f"permissions.{kind}: `{old}` is now `{new}`")
+                options = PERMISSION_TYPES[kind]
+                for name, rule in options.items():
+                    if kind == "network" and name == "hosts":
+                        continue
+                    if name not in spec:
+                        errors.append(f"permissions.{kind} needs `{name}`")
+                    else:
+                        problem = check_option(kind, name, rule, spec[name])
+                        if problem:
+                            errors.append(problem)
+                if kind == "network":
+                    if spec.get("access") == "strict":
+                        problem = check_option(kind, "hosts", options["hosts"], spec.get("hosts"))
+                        if problem:
+                            errors.append("permissions.network: `strict` access needs `hosts`, a list of host names")
+                    elif "hosts" in spec:
+                        errors.append("permissions.network: `hosts` is read only with `strict` access")
+                unknown = set(spec) - {"info", "allow", "why", "default"} - set(options)
+                if unknown:
+                    errors.append(f"permissions.{kind} has unknown fields: {', '.join(sorted(unknown))}")
+                if is_sensitive(kind, spec) and spec.get("allow") is True:
+                    warnings.append(f"permissions.{kind} is sensitive, so it is never allowed until the user allows it; write `allow: false`")
+
+    # Limits: a tool may only lower them (docs/reference/permissions.md#limits)
+    limits = pkg.get("limits")
+    if limits is not None:
+        if not isinstance(limits, dict) or set(limits) - {"memory_mb"}:
+            errors.append("package.json: limits may hold only `memory_mb`")
+        elif "memory_mb" in limits and not (isinstance(limits["memory_mb"], int) and 1 <= limits["memory_mb"] <= 256):
+            errors.append("limits.memory_mb must be a whole number from 1 to 256")
+
+    # Settings the tool reads, keys among them (docs/package-spec.md#env)
+    if "user_env" in pkg:
+        errors.append("`user_env` is now the top-level `env`")
+    env = pkg.get("env")
+    if env is not None:
+        if not isinstance(env, dict):
+            errors.append("package.json: env must be an object of setting names")
+        else:
+            for name, spec in env.items():
+                if not re.fullmatch(r"[A-Z][A-Z0-9_]*", name):
+                    errors.append(f"env.{name}: a setting name is upper case letters, digits and _")
+                if not (isinstance(spec, dict) and isinstance(spec.get("info"), str) and spec["info"].strip()):
+                    errors.append(f"env.{name} needs `info`, one sentence the user reads when asked for it")
+                    continue
+                if spec.get("need", "optional") not in ENV_NEEDS:
+                    errors.append(f"env.{name}.need must be required or optional")
+                unknown = set(spec) - {"info", "need"}
+                if unknown:
+                    errors.append(f"env.{name} has unknown fields: {', '.join(sorted(unknown))}")
+            if pkg.get("hub_type") == "plugin" and "execution" not in pkg and "network" not in (perms or {}):
+                errors.append("A WebAssembly plugin uses env values only in internet requests, so it needs the `network` permission")
 
     # Functions and the script that runs them
     functions = pkg.get("functions") or pkg.get("tools") or []
