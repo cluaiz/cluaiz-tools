@@ -4,12 +4,13 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "wasm",
-  "description": "Exact text work: SHA-256 hashes, Base64, regular expressions, line diffs and counts.",
+  "description": "Exact text work: MD5, SHA-1, SHA-256 and SHA-512 hashes; Base64, URL and hex encoding; JSON formatting and checking; regular expression search and replace; case changes; line diffs and counts. Use when a text result must be exact rather than guessed.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
   },
   "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
   "tags": [
     "Text",
     "Regex",
@@ -37,22 +38,35 @@
     "mcp": {},
     "skills": {}
   },
+  "permissions": {},
   "functions": [
     {
       "name": "text_transform",
-      "description": "Exact text work. action is one of: sha256, base64_encode, base64_decode, stats (characters, words, lines, bytes), diff (compares input with target, line by line), extract (every match of a regular expression in pattern).",
+      "description": "Exact text work. action is one of: md5, sha1, sha256, sha512 (hash in hex); base64_encode, base64_decode, url_encode, url_decode, hex_encode, hex_decode; json_format, json_minify, json_validate (keeps key order and numbers); case (changes input to the case in `case`); stats (characters, words, lines, bytes); diff (compares input with target, line by line); extract (every match of the regular expression in pattern); replace (replaces every match of pattern with replacement, where $1 or ${name} is a group).",
       "parameters": {
         "type": "object",
         "properties": {
           "action": {
             "type": "string",
             "enum": [
+              "md5",
+              "sha1",
               "sha256",
+              "sha512",
               "base64_encode",
               "base64_decode",
+              "url_encode",
+              "url_decode",
+              "hex_encode",
+              "hex_decode",
+              "json_format",
+              "json_minify",
+              "json_validate",
+              "case",
               "stats",
               "diff",
-              "extract"
+              "extract",
+              "replace"
             ],
             "description": "What to do"
           },
@@ -62,7 +76,26 @@
           },
           "pattern": {
             "type": "string",
-            "description": "For extract: a regular expression"
+            "description": "For extract and replace: a regular expression"
+          },
+          "replacement": {
+            "type": "string",
+            "description": "For replace: the text put in place of each match"
+          },
+          "case": {
+            "type": "string",
+            "enum": [
+              "upper",
+              "lower",
+              "title",
+              "sentence",
+              "snake",
+              "kebab",
+              "camel",
+              "pascal",
+              "constant"
+            ],
+            "description": "For case: the case to change to"
           },
           "target": {
             "type": "string",
