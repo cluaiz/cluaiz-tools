@@ -9,11 +9,17 @@ def run_cmd(cmd):
 
 def main():
     # Detect modified package.json files
-    # Everything in this push, which can be several commits. A manual run looks at the last commit.
+    # Everything in this push, which can be several commits. A manual run looks at the last commit,
+    # or at every tool when started with `all`.
     before = os.environ.get("BEFORE_SHA", "")
     known = before and set(before) != {"0"} and run_cmd(f"git cat-file -t {before}") == "commit"
-    diff_output = run_cmd(f"git diff --name-only {before if known else 'HEAD^'} HEAD")
-    changed_files = diff_output.split('\n')
+    if os.environ.get("BUILD_ALL") == "true":
+        # A manual run with `all`: every tool's manifest, to build every release again
+        import glob
+        changed_files = sorted(p.replace(os.sep, "/") for p in glob.glob("*/*/package.json"))
+    else:
+        diff_output = run_cmd(f"git diff --name-only {before if known else 'HEAD^'} HEAD")
+        changed_files = diff_output.split('\n')
     
     packages_to_build = []
     

@@ -11,6 +11,11 @@ on:
       - 'mcp/**'
       - 'souls/**'
   workflow_dispatch:
+    inputs:
+      all:
+        description: 'Build every tool, not only the ones changed in the last commit'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -37,6 +42,7 @@ jobs:
         id: set-matrix
         env:
           BEFORE_SHA: ${{ github.event.before }}
+          BUILD_ALL: ${{ inputs.all }}
         run: python .github/scripts/tools-matrix-builder.py
 
   build-and-release:
