@@ -10,7 +10,7 @@ Skills, plugins and MCP servers that give the models in Cluaiz real abilities: s
   <img src="https://img.shields.io/badge/Status-Pre--release-orange?style=for-the-badge" alt="Status">
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Runtime-WebAssembly_%26_MCP-purple?style=for-the-badge" alt="Runtime">
-  <img src="https://img.shields.io/badge/Tools-22-success?style=for-the-badge" alt="Tools">
+  <img src="https://img.shields.io/badge/Tools-23-success?style=for-the-badge" alt="Tools">
 </p>
 
 <p align="center">
@@ -31,7 +31,7 @@ act: look things up, read and write files, run code, use a browser, call service
 
 This repository is the official registry of those tools:
 
-- **22 tools** in three types: WebAssembly plugins, skills and MCP servers.
+- **23 tools** in three types: WebAssembly plugins, skills and MCP servers.
 - **Installed with one command** (`cluaiz plugin install web-search`). Plugins and most skills need nothing else; MCP servers need Node.js or `uv`.
 - **Loaded only when needed.** The model sees short cards only for the tools that fit the message, and the full
   instructions only when it asks for one, so tools leave room for the work in a small model's context.
