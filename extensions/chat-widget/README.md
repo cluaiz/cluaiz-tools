@@ -1,12 +1,16 @@
 # `@cluaiz/chat-widget` Extension
 
-The official Cluaiz Embeddable Web Chat Widget extension.
+> **Experimental, not registered.** This extension is not in `extensions/family.json`, is not installable
+> from the registry, and has not been tested end to end.
+
+The interface of a chat widget for a web page: launcher button, chat window and sound alerts. It is not
+connected to the Engine yet: it reads its settings from `<apiUrl>/bots/default_bot/config`
+(`src/services/ConfigService.ts:17`), a route the Engine does not have, and sends no chat messages.
 
 ## Overview
-- **Zero-VRAM Client Ingestion**: Injected directly into any browser webpage via a lightweight client script without requiring heavy local runtime binaries.
-- **Interactive Robot Launcher**: Includes animated SVG robot avatar with dynamic eye blinking, cheek blush, custom color schemes, and unread notification badge counters.
-- **Embedded Chat Modal**: Provides expandable chat drawer communicating with local or hosted Cluaiz inference endpoints over standard REST / SSE.
-- **Sound Alerts**: Plays non-intrusive audio chimes when new assistant responses or background alerts trigger.
+- **Launcher button**: an animated SVG avatar, colour settings and an unread-message badge.
+- **Chat window**: an expandable panel (interface only).
+- **Sound alerts**: a short sound when a new answer arrives.
 
 ## Architecture
 ```
@@ -16,7 +20,7 @@ Host Webpage (DOM)
        └── Popover Preview Bubble
   └── Chat Window
        ├── Header & Status Indicator
-       ├── Message Stream (SSE)
+       ├── Message list
        └── Input Bar
 ```
 

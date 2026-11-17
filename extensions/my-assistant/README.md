@@ -1,10 +1,13 @@
 # My Assistant Companion Extension (`@cluaiz/extension-my-assistant`)
 
-Zero-VRAM, 60fps HTML5 Canvas desktop companion and interactive character engine for Cluaiz.
+> **Experimental, not registered.** This extension is not in `extensions/family.json`, is not installable
+> from the registry, and has not been tested end to end.
+
+An animated assistant character drawn on an HTML5 canvas, for web pages, the App or a desktop sidebar.
 
 ## Architectural Overview
 
-`my-assistant` provides an interactive character avatar for web apps, Tauri overlays, or desktop sidebars. Rather than requiring heavy video streams or 3D engines that consume gigabytes of VRAM, `my-assistant` runs completely on a 2D HTML5 Canvas rendering loop with minimal CPU and zero GPU memory overhead.
+`my-assistant` provides an interactive character avatar for web apps, Tauri overlays, or desktop sidebars. It is drawn in 2D on a canvas; it uses no video stream and no 3D engine.
 
 ### Key Capabilities
 1. **Interactive Canvas Character**:

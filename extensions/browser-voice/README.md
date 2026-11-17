@@ -1,14 +1,15 @@
-# Browser Voice Companion (`browser-voice`)
+# Browser Voice (`browser-voice`)
 
-A lightweight, Zero-VRAM Audio Extension for the Cluaiz ecosystem.
+> **Experimental, not registered.** This extension is not in `extensions/family.json`, is not installable
+> from the registry, and has not been tested end to end.
 
-## Features
-- **Zero VRAM Footprint:** Leverages host-native Web Speech API. Requires 0 MB of GPU memory and zero gigabyte neural weight downloads.
-- **Dual Voice Pipeline:**
-  - **Native OS Engine:** 100% offline, system-level speech synthesis.
-  - **Microsoft Neural Engine:** Studio-grade natural speech voices (e.g. `AriaNeural`, `SwaraNeural`).
-- **Live Text Highlighting (Karaoke Sync):** Real-time word-by-word tracking via speech synthesis boundary events.
-- **Continuous STT:** Real-time microphone capture with interim and final transcription dispatch.
+Speech in the browser or the App's WebView through the browser's Web Speech API, so no speech model is
+downloaded.
 
-## Architecture & Integration
-Compatible with both standard web browsers and the native desktop application (`cluaiz-app` on Tauri + Next.js).
+## What it does
+- **Text to speech** (`src/BrowserTTS.ts`): speaks text with the voices the system or browser provides,
+  with word boundary events for highlighting the word being spoken.
+- **Speech to text** (`src/BrowserSTT.ts`): microphone input with interim and final results.
+
+Where speech is processed depends on the browser and the voice: some voices and some browsers' speech
+recognition send audio to an online service.
