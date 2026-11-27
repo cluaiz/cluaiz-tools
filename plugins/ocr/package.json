@@ -4,7 +4,7 @@
   "category": "utility",
   "hub_type": "plugin",
   "build_type": "none",
-  "description": "Reads the text in an image file, such as a photo or scan of a page, with Tesseract on this computer. Downloads only the language data you ask for. Needs Python and Tesseract 4 or 5 installed. Use when the user gives an image and wants the text in it.",
+  "description": "Reads the text in an image file, such as a photo or scan of a page, with Tesseract on this computer. Downloads only the language a read needs, the first time. Needs Python and Tesseract 4 or 5 installed. Use when the user gives an image and wants the text in it.",
   "author": {
     "name": "Cluaiz",
     "url": "https://github.com/cluaiz"
@@ -34,19 +34,25 @@
     "files": {
       "info": "Reads the image file it is given, and keeps downloaded language data in its own folder",
       "allow": true,
-      "can": ["read"],
+      "can": [
+        "read"
+      ],
       "where": "any"
     },
     "programs": {
       "info": "Runs Tesseract to read the image",
       "allow": true,
-      "run": ["tesseract"]
+      "run": [
+        "tesseract"
+      ]
     },
     "network": {
       "info": "Downloads the language data you ask for from the official tessdata_fast repository, once",
       "allow": true,
       "access": "strict",
-      "hosts": ["raw.githubusercontent.com"]
+      "hosts": [
+        "raw.githubusercontent.com"
+      ]
     }
   },
   "env": {
@@ -58,7 +64,7 @@
   "functions": [
     {
       "name": "ocr_read",
-      "description": "Reads the text in an image file (png, jpg, tif, bmp, gif, webp, pnm), such as a photo or scan of a page. The language data must be downloaded first with ocr_languages. Returns the text exactly as Tesseract read it.",
+      "description": "Reads the text in an image file (png, jpg, tif, bmp, gif, webp, pnm), such as a photo or scan of a page. A language used for the first time is downloaded automatically (only that language, a pinned file of 0.5 to 5.3 MB); pass timeout 120 then. Returns the text exactly as Tesseract read it.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -73,6 +79,10 @@
           "psm": {
             "type": "integer",
             "description": "Optional Tesseract page layout mode, 3 to 13. 6 is one block of text, 7 one line, 11 scattered text"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Seconds the Engine waits. Use 120 when a language is used for the first time; the default is 30"
           }
         },
         "required": [
@@ -82,7 +92,7 @@
     },
     {
       "name": "ocr_languages",
-      "description": "Lists the languages OCR can read and which are downloaded, downloads the ones named, or removes them. Download only what the user needs.",
+      "description": "Lists the languages OCR can read and which are downloaded, downloads the ones named ahead of time, or removes them. ocr_read downloads a missing language by itself.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -111,8 +121,20 @@
     "type": "script_runner",
     "command": "{python} \"{tool_dir}/scripts/ocr.py\" \"{file}\""
   },
-  "latest_version": "1.0.0",
+  "latest_version": "1.0.1",
   "versions": {
+    "1.0.1": {
+      "updated_at": "2026-11-27T16:00:00Z",
+      "files": {
+        "readme": "README.md",
+        "skill": "SKILL.md",
+        "scripts": [
+          "scripts/ocr.py"
+        ],
+        "icon": "assets/icon.svg"
+      },
+      "changelog": "ocr_read downloads the missing language it needs, and only that one"
+    },
     "1.0.0": {
       "updated_at": "2026-11-27T12:00:00Z",
       "files": {

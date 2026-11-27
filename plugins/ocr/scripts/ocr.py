@@ -209,15 +209,11 @@ def fn_read(args):
         raise OcrError(f"The image is larger than {MAX_IMAGE_BYTES // (1024 * 1024)} MB.")
 
     codes = parse_languages(args.get("languages"))
-    missing = [c for c in codes if not is_installed(c)]
-    if missing:
-        raise OcrError(
-            f"Language data not downloaded yet: {', '.join(missing)}. Call ocr_languages with action "
-            f"\"download\" and languages \"{'+'.join(missing)}\" first (it downloads only those files)."
-        )
-
+    # Tesseract is checked first, so nothing is downloaded on a machine that cannot use it
     exe = find_tesseract()
     version = tesseract_version(exe)
+    # Only the languages this call names, and only those not already here
+    downloaded = [download(c) for c in codes if not is_installed(c)]
     cmd = [str(exe), str(path), "stdout", "--tessdata-dir", str(DATA_DIR), "-l", "+".join(codes)]
     psm = args.get("psm")
     if psm is not None and str(psm).strip() != "":
@@ -244,6 +240,8 @@ def fn_read(args):
         "file": str(path),
         "tesseract": version,
     }
+    if downloaded:
+        result["downloaded"] = downloaded
     if not text:
         result["note"] = "Tesseract found no text in this image."
     return result
