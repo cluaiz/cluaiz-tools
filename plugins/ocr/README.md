@@ -72,6 +72,23 @@ Test images were made with Pillow: `english.png` (Arial 44 px, three lines) and 
 | same | read `english.png`, `eng` | exact text, 79 characters, 0.29 s |
 | same | read `hindi.png`, `hin` | `नमसूते दुनया` / `यह एक परीकषण है`: three letters wrong (from the unshaped test image), 0.17 s |
 
+Through the Engine, after `cluaiz plugin install ocr --yes` from release `plugin-ocr-v1.0.0`, isolated
+`CLUAIZ_HOME`, called with CEP `tools.call` (`kind: plugin`, `name: ocr`):
+
+| Machine | Call | Result |
+|---|---|---|
+| Windows 11 laptop, port 8011 | download `eng` | matched, 19,994 ms (slow line: close to the 30 s default, hence `timeout`) |
+| same | read `english.png` | error "Tesseract is not installed or not found ..." |
+| `cluaiz-l4b`, port 8016 | read before download | error "Language data not downloaded yet: eng ..." |
+| same | download `eng+hin` | both matched, 446 ms |
+| same | read `english.png` / `hindi.png` / `notes.pdf` | same text as above (306 ms / 190 ms) / PDF error |
+
+Chat on `cluaiz-l4b` (Qwen3.5-4B Q4_K_M, `/v1/chat/completions`, "Use the OCR tool to read the text in
+the image file english.png ..."): the Engine suggested the plugin, the model loaded it and called
+`ocr_read {"path":"english.png","languages":"eng","psm":11}`. The call then waited for the user's approval
+(the `files` and `programs` permissions are sensitive) and timed out after 120 s, because nobody approved
+it in that non-interactive test. A chat run with a person approving the call is still open.
+
 Rerun: write `{"_fn":"ocr_read","path":"<image>","languages":"eng"}` to `a.json`, then
 `python scripts/ocr.py a.json`.
 
@@ -102,6 +119,7 @@ Not proven: OCR on Windows (no Tesseract was installed on the test laptop), real
 | Item | Why it matters | Needs |
 |---|---|---|
 | Plugin update removes `data/` | the installer replaces the plugin folder, so languages must be downloaded again | an Engine data folder per tool |
+| Chat with an approved call | the model reached `ocr_read`, but the approval was not answered in the test | an App or terminal chat where a person approves |
 | OCR not run on Windows | the Windows path search and output encoding are tested only up to "Tesseract not found" | a Windows run with Tesseract installed |
 | No PDF pages | scanned PDFs are common | a pinned PDF-to-image step |
 | Tesseract is not bundled | users must install it themselves | binary plugin support in the Engine, or a pinned portable build |
