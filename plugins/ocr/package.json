@@ -1,0 +1,128 @@
+{
+  "id": "ocr",
+  "name": "OCR",
+  "category": "utility",
+  "hub_type": "plugin",
+  "build_type": "none",
+  "description": "Reads the text in an image file, such as a photo or scan of a page, with Tesseract on this computer. Downloads only the language data you ask for. Needs Python and Tesseract 4 or 5 installed. Use when the user gives an image and wants the text in it.",
+  "author": {
+    "name": "Cluaiz",
+    "url": "https://github.com/cluaiz"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/icon.svg",
+  "tags": [
+    "OCR",
+    "Image to text",
+    "Tesseract",
+    "Scan"
+  ],
+  "triggers": [
+    "ocr",
+    "read text from image",
+    "text in this image",
+    "extract text from photo",
+    "read this scan",
+    "image to text"
+  ],
+  "dependencies": {
+    "plugins": {},
+    "mcp": {},
+    "skills": {}
+  },
+  "permissions": {
+    "files": {
+      "info": "Reads the image file it is given, and keeps downloaded language data in its own folder",
+      "allow": true,
+      "can": ["read"],
+      "where": "any"
+    },
+    "programs": {
+      "info": "Runs Tesseract to read the image",
+      "allow": true,
+      "run": ["tesseract"]
+    },
+    "network": {
+      "info": "Downloads the language data you ask for from the official tessdata_fast repository, once",
+      "allow": true,
+      "access": "strict",
+      "hosts": ["raw.githubusercontent.com"]
+    }
+  },
+  "env": {
+    "TESSERACT_PATH": {
+      "info": "Where tesseract is, when it is not on PATH or in the usual install folder",
+      "need": "optional"
+    }
+  },
+  "functions": [
+    {
+      "name": "ocr_read",
+      "description": "Reads the text in an image file (png, jpg, tif, bmp, gif, webp, pnm), such as a photo or scan of a page. The language data must be downloaded first with ocr_languages. Returns the text exactly as Tesseract read it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The image file: a full path, or a path in the workspace"
+          },
+          "languages": {
+            "type": "string",
+            "description": "Language codes joined with +, such as eng or eng+hin. Default eng"
+          },
+          "psm": {
+            "type": "integer",
+            "description": "Optional Tesseract page layout mode, 3 to 13. 6 is one block of text, 7 one line, 11 scattered text"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      }
+    },
+    {
+      "name": "ocr_languages",
+      "description": "Lists the languages OCR can read and which are downloaded, downloads the ones named, or removes them. Download only what the user needs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "list",
+              "download",
+              "remove"
+            ],
+            "description": "What to do. Default list"
+          },
+          "languages": {
+            "type": "string",
+            "description": "For download and remove: codes joined with +, such as eng+hin"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Seconds the Engine waits. Use 120 for a download; the default is 30"
+          }
+        }
+      }
+    }
+  ],
+  "execution": {
+    "type": "script_runner",
+    "command": "{python} \"{tool_dir}/scripts/ocr.py\" \"{file}\""
+  },
+  "latest_version": "1.0.0",
+  "versions": {
+    "1.0.0": {
+      "updated_at": "2026-11-27T12:00:00Z",
+      "files": {
+        "readme": "README.md",
+        "skill": "SKILL.md",
+        "scripts": [
+          "scripts/ocr.py"
+        ],
+        "icon": "assets/icon.svg"
+      }
+    }
+  }
+}

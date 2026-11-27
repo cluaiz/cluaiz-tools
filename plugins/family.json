@@ -21,6 +21,10 @@
     "web-search": {
       "type": "local",
       "path": "web-search/package.json"
+    },
+    "ocr": {
+      "type": "local",
+      "path": "ocr/package.json"
     }
   }
 }
